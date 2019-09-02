@@ -9,16 +9,14 @@
  *
  * @param hostname - address to connect to (localhost by default)
  */
-// TODO: Might be better to make forwardSpeed and turnRate parameters
-Robot::Robot(std::string hostname) : robot(hostname), pp(&robot, 0), 
-                                     forwardSpeed(0.1), turnRate(0.1) {}
+Robot::Robot(std::string hostname) : robot(hostname), pp(&robot, 0) {}
 
 /**
  * Move and rotate the robot over the given number of ticks
  *
- * @param forwardVelocity - forward velocity in meters per second
- * @param angularVelocity - angular velocity in radians per second
- * @param ticks - number of ticks to move/rotate the robot for
+ * @param forwardVelocity - forward velocity to move in meters per second
+ * @param angularVelocity - angular velocity to rotate in radians per second
+ * @param ticks           - number of ticks to apply the forward/angular velocities to the robot for
  */
 void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks)
 {
@@ -28,12 +26,32 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     // Read from the proxies.
     robot.Read();
 
-    std::cout << "Speed: " << forwardVelocity << "\n";      
-    std::cout << "Turn rate: " << angularVelocity  << "\n";
+    // Report current forward and angular velocities
+    std::cout << "Forward Velocity: " << forwardVelocity << "\tm/s\n";      
+    std::cout << "Angular Velocity: " << angularVelocity  << "\trad/s\n\n";
 
     // Send the motion commands that we decided on to the robot.
     pp.SetSpeed(forwardVelocity, angularVelocity);
   }
+}
+
+/**
+ * Approximates the total number of ticks it will take to cover a given
+ * distance while applying a given velocity.
+ *
+ * For example, to cover 1 meter while traveling at 0.1 m/s, we divide
+ * 1m by 0.1m/s to get 10s. We then divide that result by the number of ticks
+ * that occur in a second (default is 10 as per INTERVAL_SIM). So 10s divided
+ * by 0.1s is 100. So, for the robot to travel 1 meter while going at 0.1 m/s,
+ * it will take a total of 100 ticks.
+ *
+ * @param  distance - total distance to travel
+ * @param  velocity - rate that of which we are traveling
+ * @return            approximate number of ticks to travel the distance with velocity
+ */ 
+int Robot::getTicksToCoverDistance(double distance, double velocity)
+{
+  return abs((int)(distance / velocity / INTERVAL_SIM));
 }
 
 /**
@@ -50,37 +68,31 @@ void Robot::setMotorEnable(bool isMotorEnabled)
 /**
  * Move the robot by the given distance in meters
  *
- * @param distanceInMeters - total distance to move in meters
+ * @param distanceInMeters - total distance to move in meters. Negative values move backwards
+ * @param forwardVelocity  - rate to move forward in meters per second (default 0.1). Negative values
+ *                           move backwards
  */
-void Robot::moveForwardByMeters(double distanceInMeters)
+void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
 {
-  // TODO: Can this be simplified?
-  double forwardVelocity = forwardSpeed;
-  if (distanceInMeters < 0)
-  {
-    forwardVelocity *= -1;
-    distanceInMeters *= -1;
-  }
+  // if negative, negate forward velocity
+  if (distanceInMeters < 0) { forwardVelocity *= -1; }
 
-  int ticks = (int)(distanceInMeters / forwardSpeed / 0.1); // TODO: replace with const for sim interval
+  int ticks = getTicksToCoverDistance(distanceInMeters, forwardVelocity);
   moveAndRotateOverTicks(forwardVelocity, 0, ticks);
 }
 
 /**
  * Rotates the robot counter-clockwise in radians
  *
- * @param radiansToRotate - total angular distance to rotate in radians
+ * @param radiansToRotate - total angular distance to rotate in radians. Negative values rotate clockwise
+ * @param angularVelocity - rate to rotate in radians per second (default 0.1). Negative values
+ *                          rotate clockwise
  */ 
-void Robot::rotateByRadians(double radiansToRotate)
+void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
 {
-  // TODO: Can this be simplified?
-  double angularVelocity = turnRate;
-  if (radiansToRotate < 0)
-  {
-    angularVelocity *= -1;
-    radiansToRotate *= -1;
-  }
+  // if negative rotation, negate angular velocity
+  if (radiansToRotate < 0) { angularVelocity *= -1; }
 
-  int ticks = (int)(radiansToRotate / turnRate / 0.1); // TODO: replace with const for sim interval
+  int ticks = getTicksToCoverDistance(radiansToRotate, angularVelocity);
   moveAndRotateOverTicks(0, angularVelocity, ticks);
 }

@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
 
   // Move in a square shape
   double squareSideLength = feetToMeter(3.0);
+  //double squareSideLength = 1.4142135;
   for (int i = 0; i < 4; ++i)
   {
     robot.moveForwardByMeters(squareSideLength);  // move forward 3 feet
