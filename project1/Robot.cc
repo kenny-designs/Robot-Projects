@@ -92,7 +92,7 @@ void Robot::setMotorEnable(bool isMotorEnabled)
  */
 void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
 {
-  int ticks = 0;
+  int ticks;
   getFinalTicksAndVelocity(distanceInMeters, forwardVelocity, ticks);
   moveAndRotateOverTicks(forwardVelocity, 0, ticks);
 }
@@ -106,7 +106,7 @@ void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
  */ 
 void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
 {
-  int ticks = 0;
+  int ticks;
   getFinalTicksAndVelocity(radiansToRotate, angularVelocity, ticks);
   moveAndRotateOverTicks(0, angularVelocity, ticks);
 }
