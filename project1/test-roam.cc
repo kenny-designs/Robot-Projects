@@ -5,8 +5,8 @@
 #include "Robot.h"
 
 // forward declarations
-double feetToMeter(double);
-void drawSquare(Robot&);
+double feetToMeter(double);     // converts given feet to meters
+void drawSquare(Robot&, double, bool);
 void writeHi(Robot&);
 
 int main(int argc, char *argv[])
@@ -18,24 +18,30 @@ int main(int argc, char *argv[])
   robot.setMotorEnable(true);
 
   // Draw a 3ft by 3ft square with the robot
-  //drawSquare(robot);
+  drawSquare(robot, 3.0, true);
+  drawSquare(robot, 3.0, false);
 
   //Write the word 'Hi'
-  writeHi(robot);
+  //writeHi(robot);
 }
 
 // helper method to convert feet to meters
 double feetToMeter(double feet) { return feet / 3.2808; }
 
 
-void drawSquare(Robot& robot)
+void drawSquare(Robot& robot, double sideLengthInFeet, bool isClockwise)
 {
+  // convert feet to meters
+  double sideLengthInMeters = feetToMeter(sideLengthInFeet);
+
+  // direction we should make a 90 degree turn
+  double turnDirection = isClockwise ? -M_PI_2 : M_PI_2;
+
   // Move in a 3ft by 3ft square shape
-  double squareSideLength = feetToMeter(3.0);
   for (int i = 0; i < 4; ++i)
   {
-    robot.moveForwardByMeters(squareSideLength);  // move forward 3 feet
-    robot.rotateByRadians(-M_PI_2);               // rotate clockwise by PI/2 radians (90 degrees)
+    robot.moveForwardByMeters(sideLengthInMeters);  // move forward 3 feet
+    robot.rotateByRadians(turnDirection);           // rotate clockwise by PI/2 radians (90 degrees)
   }
 }
 
