@@ -4,7 +4,7 @@
 #include <cmath>
 #include "Robot.h"
 
-// helper method to convert feet to meter
+// helper method to convert feet to meters
 double feetToMeter(double feet) { return feet / 3.2808; }
 
 int main(int argc, char *argv[])
@@ -15,9 +15,8 @@ int main(int argc, char *argv[])
   // Enable motors
   robot.setMotorEnable(true);
 
-  // Move in a square shape
+  // Move in a 3ft by 3ft square shape
   double squareSideLength = feetToMeter(3.0);
-  //double squareSideLength = 1.4142135;
   for (int i = 0; i < 4; ++i)
   {
     robot.moveForwardByMeters(squareSideLength);  // move forward 3 feet
