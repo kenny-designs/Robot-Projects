@@ -18,10 +18,10 @@ int main(int argc, char *argv[])
   robot.setMotorEnable(true);
 
   // Draw a 3ft by 3ft square with the robot
-  drawSquare(robot);
+  //drawSquare(robot);
 
-  // Write the word 'Hi'
-  //writeHi(robot);
+  //Write the word 'Hi'
+  writeHi(robot);
 }
 
 // helper method to convert feet to meters
