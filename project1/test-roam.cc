@@ -5,7 +5,7 @@
 #include "Robot.h"
 
 // forward declarations
-double feetToMeter(double);     // converts given feet to meters
+double feetToMeter(double);
 void drawSquare(Robot&, double, bool);
 void writeHi(Robot&);
 
