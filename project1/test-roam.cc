@@ -1,4 +1,11 @@
+// include mathematical constants e.g. PI
+#define _USE_MATH_DEFINES
+
+#include <cmath>
 #include "Robot.h"
+
+// helper method to convert feet to meter
+double feetToMeter(double feet) { return feet / 3.2808; }
 
 int main(int argc, char *argv[])
 {
@@ -8,16 +15,11 @@ int main(int argc, char *argv[])
   // Enable motors
   robot.setMotorEnable(true);
 
-  // move in a square fashion
-  robot.moveForwardOverTicks(0.1, 50);
-  robot.rotateOverTicks(0.1, 157);
-
-  robot.moveForwardOverTicks(0.1, 50);
-  robot.rotateOverTicks(0.1, 157);
-
-  robot.moveForwardOverTicks(0.1, 50);
-  robot.rotateOverTicks(0.1, 157);
-
-  robot.moveForwardOverTicks(0.1, 50);
-  robot.rotateOverTicks(0.1, 157);
+  // Move in a square shape
+  double squareSideLength = feetToMeter(3.0);
+  for (int i = 0; i < 4; ++i)
+  {
+    robot.moveForwardByMeters(squareSideLength);  // move forward 3 feet
+    robot.rotateByRadians(-M_PI_2);               // rotate clockwise by PI/2 radians (90 degrees)
+  }
 }
