@@ -2,6 +2,10 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
+#include <limits> // std::numeric_limits
+
+// used for comparing doubles to 0
+#define EPSILON std::numeric_limits<double>::epsilon()
 
 /**
  * Set up proxy. Proxies are the datastructures that Player uses to
@@ -74,6 +78,9 @@ void Robot::setMotorEnable(bool isMotorEnabled)
  */
 void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
 {
+  // if distance or velocity is 0, return for there is no moving that can be done
+  if (fabs(distanceInMeters < EPSILON) || fabs(forwardVelocity) < EPSILON) { return; }
+
   // if negative, negate forward velocity
   if (distanceInMeters < 0) { forwardVelocity *= -1; }
 
@@ -90,6 +97,9 @@ void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
  */ 
 void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
 {
+  // if radiansToRotate or velocity is 0, return for there is no rotating that can be done
+  if (fabs(radiansToRotate) < EPSILON || fabs(angularVelocity) < EPSILON) { return; }
+
   // if negative rotation, negate angular velocity
   if (radiansToRotate < 0) { angularVelocity *= -1; }
 
