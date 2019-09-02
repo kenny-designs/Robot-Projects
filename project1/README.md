@@ -21,3 +21,5 @@ It now looks like this:
 ```
 g++ -o $1 `pkg-config --cflags playerc++` $1.cc Robot.cc `pkg-config --libs playerc++`
 ```
+
+![alt text](./robotHi.png "Screenshot")
