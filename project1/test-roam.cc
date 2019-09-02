@@ -17,9 +17,12 @@ int main(int argc, char *argv[])
   // Enable motors
   robot.setMotorEnable(true);
 
+  // drive forward by 3 feet
+  robot.moveForwardByMeters(feetToMeter(3.0));
+
   // Draw a 3ft by 3ft square with the robot
-  drawSquare(robot, 3.0, true);
-  drawSquare(robot, 3.0, false);
+  // drawSquare(robot, 3.0, true);         // clockwise
+  // drawSquare(robot, 3.0, false);        // counter-clockwise
 
   //Write the word 'Hi'
   //writeHi(robot);
