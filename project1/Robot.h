@@ -20,7 +20,7 @@ class Robot
   static const double INTERVAL_SIM = 0.1;
 
   void moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks);
-  int getTicksToCoverDistance(double distance, double velocity);
+  void getFinalTicksAndVelocity(double distance, double& velocity, int& ticks);
 
   public:
   Robot(std::string hostname = "localhost");

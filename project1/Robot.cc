@@ -40,8 +40,14 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
 }
 
 /**
- * Approximates the total number of ticks it will take to cover a given
- * distance while applying a given velocity.
+ * Calculates what the velocity and ticks should be to cover the given distance. The given velocity
+ * and ticks are mutated to match this calculation.
+ *
+ * The velocity variable will remain the same unless a negative distance is given. Be that the
+ * case, velocity will be negated. Its absolute value will never change though.
+ *
+ * The ticks variable will be approximated to match the number of ticks needed to cover the given
+ * distance with our current velocity.
  *
  * For example, to cover 1 meter while traveling at 0.1 m/s, we divide
  * 1m by 0.1m/s to get 10s. We then divide that result by the number of ticks
@@ -50,12 +56,20 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
  * it will take a total of 100 ticks.
  *
  * @param  distance - total distance to travel
- * @param  velocity - rate that of which we are traveling
- * @return            approximate number of ticks to travel the distance with velocity
+ * @param  velocity - rate that of which we are traveling. Original variable will be negated
+ *                    if traveling a negative distance
+ * @param ticks     - mutates the original variable with the number of ticks needed to cover
+ *                    the given distance at the given velocity
  */ 
-int Robot::getTicksToCoverDistance(double distance, double velocity)
+void Robot::getFinalTicksAndVelocity(double distance, double& velocity, int& ticks)
 {
-  return abs((int)(distance / velocity / INTERVAL_SIM));
+  // if distance or velocity is 0, return for there is nothing to be done
+  if (fabs(distance) < EPSILON || fabs(velocity) < EPSILON) { return; }
+
+  // if negative distance, negate the velocity
+  if (distance < 0) { velocity *= -1; }
+
+  ticks = abs((int)(distance / velocity / INTERVAL_SIM));
 }
 
 /**
@@ -78,13 +92,8 @@ void Robot::setMotorEnable(bool isMotorEnabled)
  */
 void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
 {
-  // if distance or velocity is 0, return for there is no moving that can be done
-  if (fabs(distanceInMeters) < EPSILON || fabs(forwardVelocity) < EPSILON) { return; }
-
-  // if negative, negate forward velocity
-  if (distanceInMeters < 0) { forwardVelocity *= -1; }
-
-  int ticks = getTicksToCoverDistance(distanceInMeters, forwardVelocity);
+  int ticks = 0;
+  getFinalTicksAndVelocity(distanceInMeters, forwardVelocity, ticks);
   moveAndRotateOverTicks(forwardVelocity, 0, ticks);
 }
 
@@ -97,12 +106,7 @@ void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
  */ 
 void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
 {
-  // if radiansToRotate or velocity is 0, return for there is no rotating that can be done
-  if (fabs(radiansToRotate) < EPSILON || fabs(angularVelocity) < EPSILON) { return; }
-
-  // if negative rotation, negate angular velocity
-  if (radiansToRotate < 0) { angularVelocity *= -1; }
-
-  int ticks = getTicksToCoverDistance(radiansToRotate, angularVelocity);
+  int ticks = 0;
+  getFinalTicksAndVelocity(radiansToRotate, angularVelocity, ticks);
   moveAndRotateOverTicks(0, angularVelocity, ticks);
 }
