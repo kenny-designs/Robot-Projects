@@ -79,7 +79,7 @@ void Robot::setMotorEnable(bool isMotorEnabled)
 void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
 {
   // if distance or velocity is 0, return for there is no moving that can be done
-  if (fabs(distanceInMeters < EPSILON) || fabs(forwardVelocity) < EPSILON) { return; }
+  if (fabs(distanceInMeters) < EPSILON || fabs(forwardVelocity) < EPSILON) { return; }
 
   // if negative, negate forward velocity
   if (distanceInMeters < 0) { forwardVelocity *= -1; }
