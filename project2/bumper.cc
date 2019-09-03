@@ -13,9 +13,11 @@ int main(int argc, char *argv[])
   robot.setMotorEnable(true);
 
   // Make a waypoint
-  Waypoint wp {-0.866, -0.5};
+  Waypoint wp1 {1, 1};
+  Waypoint wp2 {2, 0};
 
   // Movement
-  robot.moveToWaypoint(wp);
+  robot.moveToWaypoint(wp1);
+  robot.moveToWaypoint(wp2);
 }
 

@@ -34,8 +34,11 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     robot.Read();
 
     // Report current forward and angular velocities
+    // TODO: uncomment
+    /*
     std::cout << "Forward Velocity: " << forwardVelocity << "\tm/s\n";      
     std::cout << "Angular Velocity: " << angularVelocity  << "\trad/s\n\n";
+    */
 
     // Send the motion commands that we decided on to the robot.
     pp.SetSpeed(forwardVelocity, angularVelocity);
@@ -182,22 +185,32 @@ void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
  */ 
 void Robot::moveToWaypoint(Waypoint& wp)
 {
-  // announce which waypoint we are currently traveling to
-  std::cout << "Now moving to waypoint (" << wp.x << ", " << wp.y << ")\n";
-
   // read from the environment to determine current location
+  // TODO: for some reason, we have to Read then SetSpeed to accurately find the location
   robot.Read();
-  printPosition();
+  pp.SetSpeed(0, 0);
 
-  // find angle and distance between the robot and the Waypoint
-  Waypoint av = { cos(getYaw()), sin(getYaw()) };  // angle vector
-  double dotProduct     = wp.x * av.x + wp.y * av.y;
-  double wpMagnitude    = hypot(wp.x, wp.y);
-  double robotMagnitude = hypot(av.x, av.y);
-  double angle          = acos(dotProduct / (wpMagnitude * robotMagnitude));
-  if (av.y > wp.y) angle *= -1;
-  double distance       = hypot(wp.x - av.x, wp.y - av.y) / 2.0;
+  double posX = getXPos(),      // x coord of the robot in meters
+         posY = getYPos(),      // y coord of the robot in meters
+         yaw  = getYaw(),       // yaw of the robot in radians
+         dirX = cos(yaw),       // x component of normalized robot direction vector
+         dirY = sin(yaw);       // y component of normalized robot direction vector
 
+  /*
+   * find the angle to rotate the robot to face the waypoint
+   * remember, the formula to find the dot product between vectors a and b is:
+   * |a| * |b| * cos(theta) = a dot b
+   * with |v| being the magnitude, or length, of the given vector
+   */
+  double dotProduct     = wp.x * dirX + wp.y * dirY;      // find dot product of wp and robot's direction vector
+  double wpMagnitude    = hypot(wp.x, wp.y);              // find magnitude of the waypoint
+  double angle          = acos(dotProduct / wpMagnitude); // calculate the angle we must rotate
+
+  // to calculate the distance the robot must travel, subtract the waypoint
+  // vector from the robot's position vector then find the hypotnuse
+  double distance = hypot(posX - wp.x, posY - wp.y);
+
+  //if (posY > wp.y) angle *= -1;
   std::cout << "Angle: " << angle << "\n";
   std::cout << "Distance to travel: " << distance << "\n";
 
@@ -207,5 +220,7 @@ void Robot::moveToWaypoint(Waypoint& wp)
   // travel to the waypoint
   moveForwardByMeters(distance);
 
+  // print final position
   printPosition();
+  std::cout << "\n";
 }
