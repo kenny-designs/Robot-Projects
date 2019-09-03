@@ -10,8 +10,8 @@
 class Robot
 {
   PlayerCc::PlayerClient    robot;
-  PlayerCc::Position2dProxy pp;         // The 2D proxy is used to send motion commands.
   PlayerCc::BumperProxy     bp;         // The bumper proxy reads from the bumpers.
+  PlayerCc::Position2dProxy pp;         // The 2D proxy is used to send motion commands.
   bool isSimulation;                    // if false, adjusts settings to better accomodate the actual robot
 
   // By default, the interval is 100 milliseconds as per the
@@ -37,7 +37,12 @@ public:
   double getYPos();
   double getYaw();
 
+  // check if left or right bumper is pressed
+  bool isLeftBumper();
+  bool isRightBumper();
+
   void printPosition();
+  void printBumper();
   void setMotorEnable(bool isMotorEnabled);
   void moveForwardByMeters(double distanceInMeters, double forwardVelocity = 0.1);
   void rotateByRadians(double radiansToRotate, double angularVelocity = 0.1);

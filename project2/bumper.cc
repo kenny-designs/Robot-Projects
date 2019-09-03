@@ -12,24 +12,15 @@ int main(int argc, char *argv[])
   // Enable motors
   robot.setMotorEnable(true);
 
-  robot.moveForwardByMeters(1.0);
+  //robot.moveForwardByMeters(1.0);
   robot.printPosition();
+  robot.printBumper();
 
   /*
   // Control loop
   while(true) 
     {    
       double turnrate, speed;
-
-      // Read from the proxies.
-      robot.Read();
-
-      // What does odometry tell us? In other words, how far do we
-      // think we have gone?
-      std::cout << "x: " << pp.GetXPos()  << std::endl;
-      std::cout << "y: " << pp.GetYPos()  << std::endl;
-      std::cout << "a: " << pp.GetYaw()  << std::endl;
-
 
       // Print out what the bumpers tell us:
       std::cout << "Left  bumper: " << bp[0] << std::endl;

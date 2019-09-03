@@ -92,13 +92,40 @@ double Robot::getYPos() { return pp.GetYPos(); }
  */
 double Robot::getYaw() { return pp.GetYaw(); }
 
+/**
+ * Returns true if the left bumper is pressed
+ * @return True if left bumper pressed
+ */
+bool Robot::isLeftBumper()
+{
+  return bp[0];
+}
 
-/** Prints the X, Y, and Yaw position of the Robot */
+/**
+ * Returns true if the left bumper is pressed
+ * @return True if left bumper pressed
+ */
+bool Robot::isRightBumper()
+{
+  return bp[1];
+}
+
+/** Prints the X, Y, and Yaw positions of the Robot */
 void Robot::printPosition()
 {
   std::cout << "x: " << getXPos() << "\n" <<
                "y: " << getYPos() << "\n" <<
                "a: " << getYaw()  << "\n";
+}
+
+/** Prints state of the bumpers */
+void Robot::printBumper()
+{
+  /*
+  std::cout << "Left  bumper: " << isLeftBumper()  << "\n" <<
+               "Right bumper: " << isRightBumper() << "\n";
+               */
+  std::cout << bp.GetCount() << "\n";
 }
 
 /**
