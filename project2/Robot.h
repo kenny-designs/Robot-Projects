@@ -6,7 +6,7 @@
 
 /**
  * Struct used for indicating a point of interest (POI)
- * for the robot to travel to
+ * for the robot to travel to in meters.
  */
 struct Waypoint
 {
@@ -55,10 +55,15 @@ public:
   void printPosition();
   void printBumper();
 
-  // handle movement
+  // motor
   void setMotorEnable(bool isMotorEnabled);
+
+  // handle basic movement
   void moveForwardByMeters(double distanceInMeters, double forwardVelocity = 0.1);
   void rotateByRadians(double radiansToRotate, double angularVelocity = 0.1);
+
+  // handle waypoint movement
+  void moveToWaypoint(Waypoint& wp);
 };
 
 #endif

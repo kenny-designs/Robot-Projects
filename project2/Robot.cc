@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <limits> // std::numeric_limits
+#include <cmath>  // hypot(), acos(), cos(), sin()
 
 // used for comparing doubles to 0
 #define EPSILON std::numeric_limits<double>::epsilon()
@@ -172,4 +173,39 @@ void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
   if (!isSimulation) { ticks *= ROTATION_TICK_SCALE; }
 
   moveAndRotateOverTicks(0, angularVelocity, ticks);
+}
+
+/**
+ * The robot will move to the specified Waypoint even if obstacles are in the way
+ *
+ * @param wp - the waypoint for the robot to move to
+ */ 
+void Robot::moveToWaypoint(Waypoint& wp)
+{
+  // announce which waypoint we are currently traveling to
+  std::cout << "Now moving to waypoint (" << wp.x << ", " << wp.y << ")\n";
+
+  // read from the environment to determine current location
+  robot.Read();
+  printPosition();
+
+  // find angle and distance between the robot and the Waypoint
+  Waypoint av = { cos(getYaw()), sin(getYaw()) };  // angle vector
+  double dotProduct     = wp.x * av.x + wp.y * av.y;
+  double wpMagnitude    = hypot(wp.x, wp.y);
+  double robotMagnitude = hypot(av.x, av.y);
+  double angle          = acos(dotProduct / (wpMagnitude * robotMagnitude));
+  if (av.y > wp.y) angle *= -1;
+  double distance       = hypot(wp.x - av.x, wp.y - av.y) / 2.0;
+
+  std::cout << "Angle: " << angle << "\n";
+  std::cout << "Distance to travel: " << distance << "\n";
+
+  // face the waypoint
+  rotateByRadians(angle);
+
+  // travel to the waypoint
+  moveForwardByMeters(distance);
+
+  printPosition();
 }
