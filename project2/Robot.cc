@@ -121,11 +121,10 @@ void Robot::printPosition()
 /** Prints state of the bumpers */
 void Robot::printBumper()
 {
-  /*
+  // must read data from the server to find bumper state
+  robot.Read();
   std::cout << "Left  bumper: " << isLeftBumper()  << "\n" <<
                "Right bumper: " << isRightBumper() << "\n";
-               */
-  std::cout << bp[0] << "\n";
 }
 
 /**
