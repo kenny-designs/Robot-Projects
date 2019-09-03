@@ -125,7 +125,7 @@ void Robot::printBumper()
   std::cout << "Left  bumper: " << isLeftBumper()  << "\n" <<
                "Right bumper: " << isRightBumper() << "\n";
                */
-  std::cout << bp.GetCount() << "\n";
+  std::cout << bp[0] << "\n";
 }
 
 /**
