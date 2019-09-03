@@ -11,9 +11,10 @@
  * Set up proxy. Proxies are the datastructures that Player uses to
  * talk to the simulator and the real robot.
  *
- * @param hostname - address to connect to (localhost by default)
+ * @param isSimulation - if false, adjusts settings to better accomodate the actual robot (true by default)
+ * @param hostname     - address to connect to (localhost by default)
  */
-Robot::Robot(std::string hostname) : robot(hostname), pp(&robot, 0) {}
+Robot::Robot(bool isSimulation, std::string hostname) : isSimulation(isSimulation), robot(hostname), pp(&robot, 0) {}
 
 /**
  * Move and rotate the robot over the given number of ticks
@@ -94,6 +95,10 @@ void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
 {
   int ticks;
   getFinalTicksAndVelocity(distanceInMeters, forwardVelocity, ticks);
+
+  // adjust for actual robot if needed
+  if (!isSimulation) { ticks *= MOVEMENT_TICK_SCALE; }
+
   moveAndRotateOverTicks(forwardVelocity, 0, ticks);
 }
 
@@ -108,5 +113,9 @@ void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
 {
   int ticks;
   getFinalTicksAndVelocity(radiansToRotate, angularVelocity, ticks);
+
+  // adjust for actual robot if needed
+  if (!isSimulation) { ticks *= ROTATION_TICK_SCALE; }
+
   moveAndRotateOverTicks(0, angularVelocity, ticks);
 }

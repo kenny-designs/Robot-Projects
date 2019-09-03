@@ -10,8 +10,11 @@ void drawSquare(Robot&, double, bool);
 
 int main(int argc, char *argv[])
 {
-  // Initialize our robot
+  // Initialize our robot with isSimulation set to true
   Robot robot;
+
+  // Initialize our robot with isSimulation set to false
+  // Robot robot(false);
 
   // Enable motors
   robot.setMotorEnable(true);
