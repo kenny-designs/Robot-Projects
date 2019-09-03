@@ -51,7 +51,7 @@ void drawSquare(Robot& robot, double sideLengthInFeet, bool isClockwise)
   // find the direction we should make a 90 degree turn in
   double turnDirection = isClockwise ? -M_PI_2 : M_PI_2;
 
-  // Move in a 3ft by 3ft square shape
+  // Move in a sideLengthInFeet by sideLengthInFeet square shape
   for (int i = 0; i < 4; ++i)
   {
     robot.moveForwardByMeters(sideLengthInMeters);  // move forward by sideLengthInMeters
