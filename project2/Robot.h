@@ -30,6 +30,7 @@ class Robot
   void getFinalTicksAndVelocity(double distance, double& velocity, int& ticks);
 
 public:
+  // constructor
   Robot(bool isSimulation = true, std::string hostname = "localhost");
 
   // get position based on odometer
@@ -41,8 +42,11 @@ public:
   bool isLeftBumper();
   bool isRightBumper();
 
+  // print information about the robot
   void printPosition();
   void printBumper();
+
+  // handle movement
   void setMotorEnable(bool isMotorEnabled);
   void moveForwardByMeters(double distanceInMeters, double forwardVelocity = 0.1);
   void rotateByRadians(double radiansToRotate, double angularVelocity = 0.1);
