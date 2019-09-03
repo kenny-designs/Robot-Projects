@@ -102,8 +102,8 @@ bool Robot::isLeftBumper()
 }
 
 /**
- * Returns true if the left bumper is pressed
- * @return True if left bumper pressed
+ * Returns true if the right bumper is pressed
+ * @return True if right bumper pressed
  */
 bool Robot::isRightBumper()
 {
