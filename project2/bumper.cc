@@ -11,5 +11,14 @@ int main(int argc, char *argv[])
 
   // Enable motors
   robot.setMotorEnable(true);
+
+  // Make a waypoint
+  Waypoint wp {1, 2};
+
+  // Movement
+  robot.moveForwardByMeters(0.1);
+  //robot.rotateByRadians(M_PI_4);
+
+  robot.printPosition();
 }
 

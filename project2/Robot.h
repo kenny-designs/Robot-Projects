@@ -5,6 +5,15 @@
 #include <libplayerc++/playerc++.h>
 
 /**
+ * Struct used for indicating a point of interest (POI)
+ * for the robot to travel to
+ */
+struct Waypoint
+{
+  double x, y;
+};
+
+/**
  * Wrapper class used to simplify use of the Robot
  */ 
 class Robot
