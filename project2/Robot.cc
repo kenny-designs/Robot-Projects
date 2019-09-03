@@ -75,6 +75,33 @@ void Robot::getFinalTicksAndVelocity(double distance, double& velocity, int& tic
 }
 
 /**
+ * Gets Robot X position based on Position2dProxy
+ * @return X position as double
+ */
+double Robot::getXPos() { return pp.GetXPos(); }
+
+/**
+ * Gets Robot Y position based on Position2dProxy
+ * @return Y position as double
+ */
+double Robot::getYPos() { return pp.GetYPos(); }
+
+/**
+ * Gets Robot Yaw rotation based on Position2dProxy
+ * @return Yaw rotation as double
+ */
+double Robot::getYaw() { return pp.GetYaw(); }
+
+
+/** Prints the X, Y, and Yaw position of the Robot */
+void Robot::printPosition()
+{
+  std::cout << "x: " << getXPos() << "\n" <<
+               "y: " << getYPos() << "\n" <<
+               "a: " << getYaw()  << "\n";
+}
+
+/**
  * Enable or disable the robot's motor
  *
  * @param isMotorEnabled - true to enable the motor, false to disable

@@ -32,6 +32,12 @@ class Robot
 public:
   Robot(bool isSimulation = true, std::string hostname = "localhost");
 
+  // get position based on odometer
+  double getXPos();
+  double getYPos();
+  double getYaw();
+
+  void printPosition();
   void setMotorEnable(bool isMotorEnabled);
   void moveForwardByMeters(double distanceInMeters, double forwardVelocity = 0.1);
   void rotateByRadians(double radiansToRotate, double angularVelocity = 0.1);

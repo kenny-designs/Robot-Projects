@@ -12,6 +12,9 @@ int main(int argc, char *argv[])
   // Enable motors
   robot.setMotorEnable(true);
 
+  robot.moveForwardByMeters(1.0);
+  robot.printPosition();
+
   /*
   // Control loop
   while(true) 
