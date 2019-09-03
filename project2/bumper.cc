@@ -1,43 +1,18 @@
-/*
- *  bumper.cc
- * 
- *  Sample code for a robot that has two front bumpers and uses them to
- *  avoid obstacles. Suitable for use with the Roomba and Create. 
- * 
- *  Works IRL. Doesn't work so well in Stage, probably because of the
- *  crude modeling of the bumpers, and can get stuck in convex shapes
- *  when it backs into an object while trying to turn away from it.
- *
- *  Based on an example provided by Monica Anderson and Jeff Forbes,
- *  via Carlos Jaramillo, and changed to (hopefully) make it easier to
- *  understand.
- *
- *  Modified:    Simon Parsons
- *  Date:        15th June 2009
- *  Last change: 19th September 2011
- *  
- */
+// mathematical constants to help with rotating the robot in radians e.g. M_PI
+#define _USE_MATH_DEFINES
 
-#include <iostream>
-#include <cstdlib>
-#include <libplayerc++/playerc++.h>
+#include <cmath>
+#include "Robot.h"
 
 int main(int argc, char *argv[])
 {  
-  using namespace PlayerCc;  
+  // Initialize our robot with isSimulation set to true
+  Robot robot;
 
-  // Set up proxies. Proxies are the datastructures that Player uses to
-  // talk to the simulator and the real robot.
+  // Enable motors
+  robot.setMotorEnable(true);
 
-  PlayerClient    robot("localhost");  
-  BumperProxy     bp(&robot,0);       // The bumper proxy reads from the
-                                      // bumpers.
-  Position2dProxy pp(&robot,0);       // The 2D proxy reads odometry from 
-                                      // the robot and sends motion commands.
-
-  // Allow the program to take charge of the motors (take care now)
-  pp.SetMotorEnable(true);
-
+  /*
   // Control loop
   while(true) 
     {    
@@ -103,7 +78,7 @@ int main(int argc, char *argv[])
       // Send the motion commands that we decided on to the robot.
       pp.SetSpeed(speed, turnrate);  
     }
-  
+*/
 }
 
 
