@@ -1,3 +1,6 @@
+// mathematical constants to help with rotating the robot in radians e.g. M_PI
+#define _USE_MATH_DEFINES
+
 #include "Robot.h"
 #include <cstdlib>
 #include <iostream>
@@ -27,6 +30,12 @@ Robot::Robot(bool isSimulation, std::string hostname) :
  */
 void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks)
 {
+  // Read from the proxies.
+  //robot.Read();
+
+  // Send the motion commands that we decided on to the robot.
+  pp.SetSpeed(forwardVelocity, angularVelocity);
+
   // Enter movement control loop
   for (int curTick = 0; curTick < ticks; ++curTick)
   {
@@ -34,15 +43,12 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     robot.Read();
 
     // Report current forward and angular velocities
-    // TODO: uncomment
-    /*
     std::cout << "Forward Velocity: " << forwardVelocity << "\tm/s\n";      
     std::cout << "Angular Velocity: " << angularVelocity  << "\trad/s\n\n";
-    */
-
-    // Send the motion commands that we decided on to the robot.
-    pp.SetSpeed(forwardVelocity, angularVelocity);
   }
+
+  // reset back to 0
+  pp.SetSpeed(0, 0);
 }
 
 /**
@@ -112,8 +118,10 @@ double Robot::getYaw()
  * Returns true if the left bumper is pressed
  * @return True if left bumper pressed
  */
+// TODO: rename to isLeftPressed
 bool Robot::isLeftBumper()
 {
+  robot.Read();
   return bp[0];
 }
 
@@ -121,8 +129,10 @@ bool Robot::isLeftBumper()
  * Returns true if the right bumper is pressed
  * @return True if right bumper pressed
  */
+// TODO: rename to isRightPressed
 bool Robot::isRightBumper()
 {
+  robot.Read();
   return bp[1];
 }
 
@@ -199,8 +209,10 @@ void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
 void Robot::moveToWaypoint(Waypoint& wp)
 {
   // read from the environment to determine current location
+  /*
   std::cout << "Before pos: \n";
   printPosition();
+  */
 
   double posX = getXPos(),      // x coord of the robot in meters
          posY = getYPos(),      // y coord of the robot in meters
@@ -219,7 +231,7 @@ void Robot::moveToWaypoint(Waypoint& wp)
   double angle       = acos(dotProduct / wpMagnitude);              // calculate the angle we must rotate
 
   // flip the angle if needed
-  //if (posY > wp.y || posX > wp.x) angle *= -1;
+  if (angle < M_PI_2 && posY > wp.y) angle *= -1;
 
   // to calculate the distance the robot must travel, subtract the waypoint
   // vector from the robot's position vector then find the hypotnuse
