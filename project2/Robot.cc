@@ -186,7 +186,7 @@ void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
 void Robot::moveToWaypoint(Waypoint& wp)
 {
   // read from the environment to determine current location
-  // TODO: for some reason, we have to Read then SetSpeed to accurately find the location
+  // TODO: for some reason, we have to Read then SetSpeed to initially find the location
   robot.Read();
   pp.SetSpeed(0, 0);
 
@@ -202,25 +202,24 @@ void Robot::moveToWaypoint(Waypoint& wp)
    * |a| * |b| * cos(theta) = a dot b
    * with |v| being the magnitude, or length, of the given vector
    */
-  double dotProduct     = wp.x * dirX + wp.y * dirY;      // find dot product of wp and robot's direction vector
-  double wpMagnitude    = hypot(wp.x, wp.y);              // find magnitude of the waypoint
-  double angle          = acos(dotProduct / wpMagnitude); // calculate the angle we must rotate
+  double dotProduct  = (wp.x - posX) * dirX + (wp.y - posY) * dirY; // find dot product of wp and dir vector
+  double wpMagnitude = hypot(wp.x, wp.y);                           // find magnitude of the waypoint
+  double angle       = acos(dotProduct / wpMagnitude);              // calculate the angle we must rotate
+  if (posY > wp.y) angle *= -1;                                     // flip the angle if needed
 
   // to calculate the distance the robot must travel, subtract the waypoint
   // vector from the robot's position vector then find the hypotnuse
   double distance = hypot(posX - wp.x, posY - wp.y);
 
-  //if (posY > wp.y) angle *= -1;
-  std::cout << "Angle: " << angle << "\n";
-  std::cout << "Distance to travel: " << distance << "\n";
+  // print the angle and distance that the robot will traverse
+  std::cout << "Angle:    " << angle << "\n";
+  std::cout << "Distance: " << distance << "\n";
 
-  // face the waypoint
+  // rotate towards then travel to the given waypoint
   rotateByRadians(angle);
-
-  // travel to the waypoint
   moveForwardByMeters(distance);
 
   // print final position
   printPosition();
-  std::cout << "\n";
+  std::cout << "\n";    // TODO: remove when no longer needed
 }
