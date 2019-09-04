@@ -217,8 +217,9 @@ void Robot::moveToWaypoint(Waypoint& wp)
   double dotProduct  = (wp.x - posX) * dirX + (wp.y - posY) * dirY; // find dot product of wp and dir vector
   double wpMagnitude = hypot(wp.x - posX, wp.y - posY);             // find magnitude of the waypoint
   double angle       = acos(dotProduct / wpMagnitude);              // calculate the angle we must rotate
-  if (posY > wp.y) angle *= -1;                                     // flip the angle if needed
-  else if (posX > wp.x) angle *= -1;                                // flip the angle if needed
+
+  // flip the angle if needed
+  //if (posY > wp.y || posX > wp.x) angle *= -1;
 
   // to calculate the distance the robot must travel, subtract the waypoint
   // vector from the robot's position vector then find the hypotnuse
