@@ -82,19 +82,31 @@ void Robot::getFinalTicksAndVelocity(double distance, double& velocity, int& tic
  * Gets Robot X position based on Position2dProxy
  * @return X position as double
  */
-double Robot::getXPos() { return pp.GetXPos(); }
+double Robot::getXPos()
+{
+  robot.Read();
+  return pp.GetXPos();
+}
 
 /**
  * Gets Robot Y position based on Position2dProxy
  * @return Y position as double
  */
-double Robot::getYPos() { return pp.GetYPos(); }
+double Robot::getYPos()
+{
+  robot.Read();
+  return pp.GetYPos();
+}
 
 /**
  * Gets Robot Yaw rotation based on Position2dProxy
  * @return Yaw rotation as double
  */
-double Robot::getYaw() { return pp.GetYaw(); }
+double Robot::getYaw()
+{
+  robot.Read();
+  return pp.GetYaw();
+}
 
 /**
  * Returns true if the left bumper is pressed
@@ -117,6 +129,7 @@ bool Robot::isRightBumper()
 /** Prints the X, Y, and Yaw positions of the Robot */
 void Robot::printPosition()
 {
+  robot.Read();
   std::cout << "x: " << getXPos() << "\n" <<
                "y: " << getYPos() << "\n" <<
                "a: " << getYaw()  << "\n";
@@ -186,9 +199,8 @@ void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
 void Robot::moveToWaypoint(Waypoint& wp)
 {
   // read from the environment to determine current location
-  // TODO: for some reason, we have to Read then SetSpeed to initially find the location
-  robot.Read();
-  pp.SetSpeed(0, 0);
+  std::cout << "Before pos: \n";
+  printPosition();
 
   double posX = getXPos(),      // x coord of the robot in meters
          posY = getYPos(),      // y coord of the robot in meters
@@ -221,6 +233,7 @@ void Robot::moveToWaypoint(Waypoint& wp)
   moveForwardByMeters(distance);
 
   // print final position
+  std::cout << "After pos: \n";
   printPosition();
   std::cout << "\n";    // TODO: remove when no longer needed
 }
