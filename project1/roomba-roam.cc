@@ -1,76 +1,57 @@
-/*
- *  roomba-roam.cc
- * 
- *  Sample code for a robot that is suitable for use with the Roomba
- *  and Create.
- * 
- *  Based on an example provided by Monica Anderson and Jeff Forbes,
- *  via Carlos Jaramillo, and changed to (hopefully) make it easier to
- *  understand.
- *
- *  Modified:    Simon Parsons
- *  Date:        15th June 2009
- *  Last change: 20th September 2011
- *  
- */
+// mathematical constants to help with rotating the robot in radians e.g. M_PI
+#define _USE_MATH_DEFINES
 
-#include <iostream>
-#include <cstdlib>
-#include <libplayerc++/playerc++.h>
+#include <cmath>
+#include "Robot.h"
+
+// forward declarations
+double feetToMeter(double);
+void drawSquare(Robot&, double, bool);
 
 int main(int argc, char *argv[])
-{  
-  using namespace PlayerCc;
+{
+  // Initialize our robot
+  Robot robot;
 
-  // Set up proxy. Proxies are the datastructures that Player uses to
-  // talk to the simulator and the real robot.
+  // Enable motors
+  robot.setMotorEnable(true);
 
-  PlayerClient    robot("localhost");  
-  Position2dProxy pp(&robot,0);       // The 2D proxy is used to send 
-                                      // motion commands.
-
-  int timer = 0;                      // A crude way to time what we do
-                                      // is to count.
-
-  // Allow the program to take charge of the motors (take care now)
-  pp.SetMotorEnable(true);
-
-  // Control loop
-  while(true) 
-    {    
-      double turnrate, speed;
-
-      // Increment the counter.
-
-      timer++;
-
-      // Read from the proxies.
-      robot.Read();
-
-      // First make the rbot go straight ahead, then make it turn, and 
-      // finally make it stop.
-      if(timer < 30){
-	speed = 0.1;
-	turnrate = 0;
-      }
-      else
-      if((timer >= 30) && (timer < 60)){
-	speed = 0;
-	turnrate = 0.1;
-      }
-      else{
-	speed = 0;
-	turnrate = 0;
-      }
-      
-      // Print out what we decided to do?
-      std::cout << "Speed: " << speed << std::endl;      
-      std::cout << "Turn rate: " << turnrate << std::endl << std::endl;
-
-      // Send the motion commands that we decided on to the robot.
-      pp.SetSpeed(speed, turnrate);  
-    }
-  
+  // Draw a 3ft by 3ft square with the robot
+  drawSquare(robot, 3.0, true);      // clockwise
+  // drawSquare(robot, 3.0, false);  // counter-clockwise
 }
 
+/**
+ * Helper method to convert feet to meters.
+ *
+ * @param feet - the distance in feet we wish to convert to meters
+ * @return     - the converted distance in meters
+ */
+double feetToMeter(double feet) { return feet / 3.2808; }
 
+/**
+ * Commands the robot to move in a square shape by the given distance
+ * in feet and either clockwise or anticlockwise.
+ *
+ * The Robot class is designed to work best with meters. As such, the
+ * given sideLengthInFeet will be converted to match this.
+ *
+ * @param robot            - the robot that we wish to move in a square shape
+ * @param sideLengthInFeet - length of each side of the square in feet
+ * @param isClockwise      - true to move the robot clockwise. False for anticlockwise
+ */
+void drawSquare(Robot& robot, double sideLengthInFeet, bool isClockwise)
+{
+  // convert feet to meters
+  double sideLengthInMeters = feetToMeter(sideLengthInFeet);
+
+  // find the direction we should make a 90 degree turn in
+  double turnDirection = isClockwise ? -M_PI_2 : M_PI_2;
+
+  // Move in a 3ft by 3ft square shape
+  for (int i = 0; i < 4; ++i)
+  {
+    robot.moveForwardByMeters(sideLengthInMeters);  // move forward by sideLengthInMeters
+    robot.rotateByRadians(turnDirection);           // rotate by PI/2 radians (90 degrees) based on turnDirection
+  }
+}
