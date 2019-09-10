@@ -7,7 +7,6 @@
 // forward declarations
 double feetToMeter(double);
 void drawSquare(Robot&, double, bool);
-void writeHi(Robot&);
 
 int main(int argc, char *argv[])
 {
@@ -23,9 +22,6 @@ int main(int argc, char *argv[])
   // Draw a 3ft by 3ft square with the robot
   // drawSquare(robot, 3.0, true);         // clockwise
   // drawSquare(robot, 3.0, false);        // counter-clockwise
-
-  //Write the word 'Hi'
-  //writeHi(robot);
 }
 
 // helper method to convert feet to meters
@@ -46,27 +42,4 @@ void drawSquare(Robot& robot, double sideLengthInFeet, bool isClockwise)
     robot.moveForwardByMeters(sideLengthInMeters);  // move forward 3 feet
     robot.rotateByRadians(turnDirection);           // rotate clockwise by PI/2 radians (90 degrees)
   }
-}
-
-void writeHi(Robot& robot)
-{
-  // Draw a capital H
-  robot.rotateByRadians(M_PI_2 + M_PI_4);       // rotate 135 degrees to face up
-  robot.moveForwardByMeters(2.0);               // travel 2 meters
-  robot.rotateByRadians(M_PI);                  // rotate 180 degrees to face down
-  robot.moveForwardByMeters(1.0);               // travel 1 meter
-  robot.rotateByRadians(M_PI_2);                // rotate 90 degrees to face right
-  robot.moveForwardByMeters(1.0);               // travel 1 meter
-  robot.rotateByRadians(M_PI_2);                // rotate 90 degrees to face up
-  robot.moveForwardByMeters(1.0);               // travel 1 meter
-  robot.rotateByRadians(M_PI);                  // rotate 180 degrees to face down
-  robot.moveForwardByMeters(2.0);               // travel 2 meters
-
-  // Now draw a lowercase i 
-  robot.rotateByRadians(-M_PI_2);               // rotate -90 degrees to face left
-  robot.moveForwardByMeters(-1.0);              // travel 1 meter backwards
-  robot.rotateByRadians(M_PI_2);                // rotate -90 degrees to face up
-  robot.moveForwardByMeters(1.0, -0.1);         // travel 1 meter
-  robot.rotateByRadians(M_PI);                  // rotate a 180 degrees
-  robot.rotateByRadians(M_PI);                  // rotate a 180 degrees again
 }
