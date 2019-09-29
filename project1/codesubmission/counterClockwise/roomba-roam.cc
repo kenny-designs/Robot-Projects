@@ -1,3 +1,23 @@
+/**Proj1 counter-clockwise: Group10: Aguilar, Andrew, Kamel, Kennedy**/ 
+
+/** MEASUREMENTS FOR COUNTER CLOCKWISE RUNS: 
++---------------------------------------------------------------+
+|                       Counter Clockwise                       |
++-----+------------------+------------------+-------------------+
+| Run | Distance Error X | Distance Error Y | Orientation Error |
++-----+------------------+------------------+-------------------+
+|  1  |      7.50 in     |      6.25 in     |   22.620 degrees  |
++-----+------------------+------------------+-------------------+
+|  2  |      7.75 in     |      7.75 in     |   20.364 degrees  |
++-----+------------------+------------------+-------------------+
+|  3  |      7.00 in     |      7.00 in     |   19.750 degrees  |
++-----+------------------+------------------+-------------------+
+|  4  |      7.00 in     |      9.50 in     |   56.944 degrees  |
++-----+------------------+------------------+-------------------+
+|  5  |      5.00 in     |      8.50 in     |   63.612 degrees  |
++-----+------------------+------------------+-------------------+
+**/
+
 // mathematical constants to help with rotating the robot in radians e.g. M_PI
 #define _USE_MATH_DEFINES
 
@@ -11,17 +31,17 @@ void drawSquare(Robot&, double, bool);
 int main(int argc, char *argv[])
 {
   // Initialize our robot with isSimulation set to true
-  Robot robot;
+  // Robot robot;
 
   // Initialize our robot with isSimulation set to false
-  // Robot robot(false);
+  Robot robot(false);
 
   // Enable motors
   robot.setMotorEnable(true);
 
   // Draw a 3ft by 3ft square with the robot
-  drawSquare(robot, 3.0, true);      // clockwise
-  // drawSquare(robot, 3.0, false);  // counter-clockwise
+  // drawSquare(robot, 3.0, true);  // clockwise
+  drawSquare(robot, 3.0, false);    // counter-clockwise
 }
 
 /**

@@ -3,24 +3,6 @@
 #include <iostream>
 #include <string>
 #include <limits> // std::numeric_limits
-/**Proj1 clockwise: Group10: Aguilar, Andrew, Kamel, Kennedy **/
-/**MEASUREMENTS for Clockwise Runs: 
-+---------------------------------------------------------------+
-|                           Clockwise                           |
-+-----+------------------+------------------+-------------------+
-| Run | Distance Error X | Distance Error Y | Orientation Error |
-+-----+------------------+------------------+-------------------+
-|  1  |      5.00 in     |      8.25 in     |   31.027 degrees  |
-+-----+------------------+------------------+-------------------+
-|  2  |      5.75 in     |      9.50 in     |   31.027 degrees  |
-+-----+------------------+------------------+-------------------+
-|  3  |      6.00 in     |      8.50 in     |   48.190 degrees  |
-+-----+------------------+------------------+-------------------+
-|  4  |      7.25 in     |      8.00 in     |   28.072 degrees  |
-+-----+------------------+------------------+-------------------+
-|  5  |      6.00 in     |      7.00 in     |   27.266 degrees  |
-+-----+------------------+------------------+-------------------+
-**/
 
 // used for comparing doubles to 0
 #define EPSILON std::numeric_limits<double>::epsilon()
