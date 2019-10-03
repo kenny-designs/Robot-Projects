@@ -223,11 +223,16 @@ void Robot::moveToWaypoint(Waypoint& wp)
   // if angle is nan, return
   if (isnan(angle)) return;
 
+  std::cout << "dirX: " << dirX << "\ndirY: " << dirY << "\nwpNorm.x: " << wpNorm.x << "\nwpNorm.y: " << wpNorm.y << "\n";
+
+  // TODO: can this be simplified?
   // ensure the robot rotates in the right direction
   if (((dirX > 0 && wpNorm.x > 0) && dirY > wpNorm.y) ||
       ((dirX < 0 && wpNorm.x < 0) && dirY < wpNorm.y) ||
       ((dirY > 0 && wpNorm.y > 0) && dirX < wpNorm.x) ||
-      ((dirY < 0 && wpNorm.y < 0) && dirX > wpNorm.x))
+      ((dirY < 0 && wpNorm.y < 0) && dirX > wpNorm.x) ||
+       (dirX > 0 && dirY > 0 && wpNorm.x < 0 && wpNorm.y < 0) ||
+       (dirX > 0 && dirY < 0 && wpNorm.x < 0 && wpNorm.y > 0))
   {
     angle *= -1;
   }

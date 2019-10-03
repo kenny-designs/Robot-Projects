@@ -16,11 +16,15 @@ int main(int argc, char *argv[])
   // Make waypoints
   std::vector<Waypoint> waypoints;
   waypoints.push_back(Waypoint(0, 0));
-  waypoints.push_back(Waypoint(1, 2));
-  waypoints.push_back(Waypoint(2, -1));
-  waypoints.push_back(Waypoint(-1, 1));
-  waypoints.push_back(Waypoint(2, 1));
+  waypoints.push_back(Waypoint(1, 0));
+  waypoints.push_back(Waypoint(1, 1));
   waypoints.push_back(Waypoint(0, 1));
+  waypoints.push_back(Waypoint(0, -1));
+  waypoints.push_back(Waypoint(-1, -1));
+  waypoints.push_back(Waypoint(-1, 2));
+  waypoints.push_back(Waypoint(2, 2));
+  waypoints.push_back(Waypoint(2, -1));
+  waypoints.push_back(Waypoint(0, -1));
   waypoints.push_back(Waypoint(0, 0));
 
   // Move to said waypoints
