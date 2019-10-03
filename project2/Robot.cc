@@ -7,7 +7,7 @@
 #include <iostream>
 #include <string>
 #include <limits> // std::numeric_limits
-#include <cmath>  // hypot(), acos(), cos(), sin()
+#include <cmath>  // acos(), cos(), sin()
 
 // used for comparing doubles to 0
 #define EPSILON std::numeric_limits<double>::epsilon()
@@ -198,15 +198,17 @@ void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
  */ 
 void Robot::moveToWaypoint(Vector2& wp)
 {
-  double yaw  = getYaw();               // yaw of the robot in radians
-  Vector2 dir(cos(yaw), sin(yaw));      // create direction unit vector based on the robot's yaw
-  Vector2 pos(getXPos(), getYPos());    // create a vector based on the robot's x and y position
+  // obtain both the direction and position vector of the robot
+  Vector2 dir(cos(getYaw()), sin(getYaw())),
+          pos(getXPos(), getYPos());
+
+  // center waypoint to the origin then normalize it
+  Vector2 wpNorm =  wp - pos;
+  Vector2::normalize(wpNorm);
 
   // find the angle to rotate the robot so that it faces the given waypoint
-  Vector2 wpNorm         = wp - pos;                            // center the given waypoint to the origin
-  wpNorm                /= wpNorm.getMagnitude();               // normalize by dividing by its magnitude
-  double dotProduct      = wpNorm.x * dir.x + wpNorm.y * dir.y; // dot product of normalized waypoint and direction vector
-  double angle           = acos(dotProduct);                    // calculate angle between waypoint and direction vector
+  double dotProduct = wpNorm.x * dir.x + wpNorm.y * dir.y;
+  double angle      = acos(dotProduct);
 
   // if angle is nan, return
   if (isnan(angle)) return;
@@ -218,12 +220,11 @@ void Robot::moveToWaypoint(Vector2& wp)
     angle *= -1;
   }
 
-  // calculate the distance the distance between the robot and the given waypoint
-  double distance = (pos - wp).getMagnitude();
+  // calculate the distance between the robot and the given waypoint
+  double distance = Vector2::getMagnitude(pos - wp);
 
-  rotateByRadians(angle, 0.5);               // rotate towards the given waypoint
-  moveForwardByMeters(distance, 0.5);        // travel to the given waypoint
-
-  // print final position
-  printPosition();
+  // rotate towards then travel to the given waypoint
+  // TODO: change the speed back to 0.1
+  rotateByRadians(angle, 0.5);
+  moveForwardByMeters(distance, 0.5);
 }
