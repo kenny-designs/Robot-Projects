@@ -3,8 +3,7 @@
 #pragma once
 
 #include <libplayerc++/playerc++.h>
-// TODO: should we use a pointer instead to avoid including?
-#include "Vector2.h"
+#include "Vector2.h" // TODO: should we use a pointer instead of including?
 
 /**
  * Wrapper class used to simplify use of the Robot
@@ -30,6 +29,7 @@ class Robot
 
   void moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks);
   void getFinalTicksAndVelocity(double distance, double& velocity, int& ticks);
+  void getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& distance);
 
 public:
   // constructor

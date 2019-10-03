@@ -34,8 +34,15 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
   // Send the motion commands that we decided on to the robot.
   pp.SetSpeed(forwardVelocity, angularVelocity);
 
-  // Enter movement control loop and read from proxies
-  for (int curTick = 0; curTick < ticks; ++curTick) { robot.Read(); }
+  // Enter movement control loop
+  for (int curTick = 0; curTick < ticks; ++curTick)
+  {
+    // read from proxies
+    robot.Read();
+
+    // break if bumper hit
+    if (isLeftBumper() || isRightBumper()) break;
+  }
 
   // stop moving
   pp.SetSpeed(0, 0);
@@ -75,6 +82,44 @@ void Robot::getFinalTicksAndVelocity(double distance, double& velocity, int& tic
 }
 
 /**
+ * Generates the angle and distance needed to first rotate to face then
+ * approach the given waypoint.
+ *
+ * @param wp       - the waypoint we want to move to as a Vector2
+ * @param angle    - angle the robot must turn to face the waypoint
+ * @param distance - distance the robot must travel to reach the waypoint
+ */ 
+void Robot::getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& distance)
+{
+  // obtain both the direction and position vector of the robot
+  Vector2 dir(cos(getYaw()), sin(getYaw())),
+          pos(getXPos(), getYPos());
+
+  // center waypoint to the origin then normalize it
+  Vector2 wpNorm = wp - pos;
+  Vector2::normalize(wpNorm);
+
+  // calculate the distance between the robot and the given waypoint
+  distance = Vector2::getMagnitude(pos - wp);
+
+  // find the angle to rotate the robot so that it faces the given waypoint
+  angle = acos(wpNorm.x * dir.x + wpNorm.y * dir.y);
+
+  // if angle is nan, return
+  // TODO: this isn't very clean. Find a way to protect against nan
+  if (isnan(angle)) return;
+
+  // ensure the robot rotates in the right direction
+  // TODO: continue to rigorously test this and simplify if possible
+  if ((dir.x > 0 != wpNorm.y > 0)                               &&
+      !(dir.x < 0 && dir.y < 0 && wpNorm.x > 0 && wpNorm.y > 0) &&
+      !(dir.x > 0 && dir.y > 0 && wpNorm.x < 0 && wpNorm.y < 0))
+  {
+    angle *= -1;
+  }
+}
+
+/**
  * Gets Robot X position based on Position2dProxy
  * @return X position as double
  */
@@ -111,7 +156,6 @@ double Robot::getYaw()
 // TODO: rename to isLeftPressed
 bool Robot::isLeftBumper()
 {
-  robot.Read();
   return bp[0];
 }
 
@@ -122,7 +166,6 @@ bool Robot::isLeftBumper()
 // TODO: rename to isRightPressed
 bool Robot::isRightBumper()
 {
-  robot.Read();
   return bp[1];
 }
 
@@ -198,42 +241,12 @@ void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
  */ 
 void Robot::moveToWaypoint(Vector2& wp)
 {
-  // obtain both the direction and position vector of the robot
-  Vector2 dir(cos(getYaw()), sin(getYaw())),
-          pos(getXPos(), getYPos());
+  double angle, distance;
+  getAngleDistanceToWaypoint(wp, angle, distance);
 
-  // center waypoint to the origin then normalize it
-  Vector2 wpNorm =  wp - pos;
-  Vector2::normalize(wpNorm);
-
-  // find the angle to rotate the robot so that it faces the given waypoint
-  double dotProduct = wpNorm.x * dir.x + wpNorm.y * dir.y;
-  double angle      = acos(dotProduct);
-
-  // if angle is nan, return
   if (isnan(angle)) return;
 
-  // ensure the robot rotates in the right direction
-  // TODO: continue to rigorously test this and make sure it actually works.
-  // Also, simplify more if possible
-  if ((dir.x > 0 != wpNorm.y > 0)                               &&
-      !(dir.x < 0 && dir.y < 0 && wpNorm.x > 0 && wpNorm.y > 0) &&
-      !(dir.x > 0 && dir.y > 0 && wpNorm.x < 0 && wpNorm.y < 0))
-  {
-    angle *= -1;
-  }
-
-  std::cout << "dir.x:    " << (dir.x > 0)    << "\n" <<
-               "dir.y:    " << (dir.y > 0)    << "\n" <<
-               "wpNorm.x: " << (wpNorm.x > 0) << "\n" <<
-               "wpNorm.y: " << (wpNorm.y > 0) << "\n" <<
-               "Turning:  " << (angle > 0 ? "Left" : "right") << "\n\n";
-
-  // calculate the distance between the robot and the given waypoint
-  double distance = Vector2::getMagnitude(pos - wp);
-
   // rotate towards then travel to the given waypoint
-  // TODO: change the speed back to 0.1
   rotateByRadians(angle, 0.5);
   moveForwardByMeters(distance, 0.5);
 }
