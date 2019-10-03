@@ -33,17 +33,8 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
   // Send the motion commands that we decided on to the robot.
   pp.SetSpeed(forwardVelocity, angularVelocity);
 
-  // Enter movement control loop
-  for (int curTick = 0; curTick < ticks; ++curTick)
-  {
-    // Read from the proxies.
-    robot.Read();
-
-    // TODO: uncomment when finished debugging. Or remove altogether
-    // Report current forward and angular velocities
-    // std::cout << "Forward Velocity: " << forwardVelocity << "\tm/s\n";      
-    // std::cout << "Angular Velocity: " << angularVelocity  << "\trad/s\n\n";
-  }
+  // Enter movement control loop and read from proxies
+  for (int curTick = 0; curTick < ticks; ++curTick) { robot.Read(); }
 
   // stop moving
   pp.SetSpeed(0, 0);
@@ -138,9 +129,9 @@ bool Robot::isRightBumper()
 void Robot::printPosition()
 {
   robot.Read();
-  std::cout << "x: " << getXPos() << "\n" <<
-               "y: " << getYPos() << "\n" <<
-               "a: " << getYaw()  << "\n";
+  std::cout << "Robot x position: " << getXPos() << "\n" <<
+               "      y position: " << getYPos() << "\n" <<
+               "      yaw:        " << getYaw()  << "\n\n";
 }
 
 /** Prints state of the bumpers */
@@ -148,8 +139,8 @@ void Robot::printBumper()
 {
   // must read data from the server to find bumper state
   robot.Read();
-  std::cout << "Left  bumper: " << isLeftBumper()  << "\n" <<
-               "Right bumper: " << isRightBumper() << "\n";
+  std::cout << "Left  bumper pressed: " << isLeftBumper()  << "\n" <<
+               "Right bumper pressed:  " << isRightBumper() << "\n";
 }
 
 /**
@@ -211,7 +202,7 @@ void Robot::moveToWaypoint(Vector2& wp)
   Vector2 pos(getXPos(), getYPos());    // create a vector based on the robot's x and y position
 
   // find the angle to rotate the robot so that it faces the given waypoint
-  Vector2 wpNorm = wp - pos;                                    // center the given waypoint to the origin
+  Vector2 wpNorm         = wp - pos;                            // center the given waypoint to the origin
   wpNorm                /= hypot(wpNorm.x, wpNorm.y);           // normalize by dividing by its magnitude
   double dotProduct      = wpNorm.x * dir.x + wpNorm.y * dir.y; // dot product of normalized waypoint and direction vector
   double angle           = acos(dotProduct);                    // calculate angle between waypoint and direction vector
@@ -226,24 +217,14 @@ void Robot::moveToWaypoint(Vector2& wp)
     angle *= -1;
   }
 
-  std::cout << "dir.x:    " << (dir.x > 0)    << "\n" <<
-               "dir.y:    " << (dir.y > 0)    << "\n" <<
-               "wpNorm.x: " << (wpNorm.x > 0) << "\n" <<
-               "wpNorm.y: " << (wpNorm.y > 0) << "\n" <<
-               "Turning:  " << (angle > 0 ? "Left" : "right") << "\n\n";
-
   // to calculate the distance the robot must travel, subtract the waypoint
   // from the robot's position then find the magnitude
   // TODO: this can be cleaned by adding a magnitude method to the Vector2 struct
   double distance = hypot(pos.x - wp.x, pos.y - wp.y);
 
-  // print the angle and distance that the robot will traverse
-  //std::cout << "Angle:    " << angle << "\n";
-  //std::cout << "Distance: " << distance << "\n";
-
   rotateByRadians(angle, 0.5);               // rotate towards the given waypoint
   moveForwardByMeters(distance, 0.5);        // travel to the given waypoint
 
   // print final position
-  //printPosition();
+  printPosition();
 }
