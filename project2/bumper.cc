@@ -2,6 +2,7 @@
 #define _USE_MATH_DEFINES
 
 #include <cmath>
+#include <vector>  // dynamic array
 #include "Robot.h"
 
 int main(int argc, char *argv[])
@@ -12,26 +13,20 @@ int main(int argc, char *argv[])
   // Enable motors
   robot.setMotorEnable(true);
 
-  // Make a waypoint
-  /*
-  Waypoint wp1 {1,  1};
-  Waypoint wp2 {2,  0};
-  Waypoint wp3 {1, -1};
-  Waypoint wp4 {0,  0};
+  // Make waypoints
+  std::vector<Waypoint> waypoints;
+  waypoints.push_back(Waypoint(0, 0));
+  waypoints.push_back(Waypoint(1, 2));
+  waypoints.push_back(Waypoint(2, -1));
+  waypoints.push_back(Waypoint(-1, 1));
+  waypoints.push_back(Waypoint(2, 1));
+  waypoints.push_back(Waypoint(0, 1));
+  waypoints.push_back(Waypoint(0, 0));
 
-  // Movement
-  robot.moveToWaypoint(wp1);
-  robot.moveToWaypoint(wp2);
-  robot.moveToWaypoint(wp3);
-  robot.moveToWaypoint(wp4);
-  robot.moveToWaypoint(wp2);
-  */
-
-  /*
-  Waypoint wp {1, 1};
-  robot.moveToWaypoint(wp);
-  */
-  
-  robot.rotateByRadians(2 * M_PI);
+  // Move to said waypoints
+  for (int i = 0; i < waypoints.size(); ++i)
+  {
+    robot.moveToWaypoint(waypoints[i]);
+  }
 }
 

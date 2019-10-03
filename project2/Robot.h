@@ -11,6 +11,22 @@
 struct Waypoint
 {
   double x, y;
+
+  Waypoint(double xPos, double yPos) : x(xPos), y(yPos) {};
+
+  /** Overload / operator to divide the Waypoint by a single divisor */
+  Waypoint& operator/(double divisor)
+  { 
+    this->x /= divisor;
+    this->y /= divisor;
+    return *this;
+  }
+
+  /** Overload /= operator to divide the Waypoint by a single divisor */
+  Waypoint& operator/=(double divisor)
+  { 
+    return *this / divisor;
+  }
 };
 
 /**
