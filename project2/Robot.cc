@@ -214,11 +214,20 @@ void Robot::moveToWaypoint(Vector2& wp)
   if (isnan(angle)) return;
 
   // ensure the robot rotates in the right direction
-  if ((dir.x > 0 != wpNorm.y > 0) &&
-      !(dir.x < 0 && dir.y < 0 && wpNorm.x > 0 && wpNorm.y > 0))
+  // TODO: continue to rigorously test this and make sure it actually works.
+  // Also, simplify more if possible
+  if ((dir.x > 0 != wpNorm.y > 0)                               &&
+      !(dir.x < 0 && dir.y < 0 && wpNorm.x > 0 && wpNorm.y > 0) &&
+      !(dir.x > 0 && dir.y > 0 && wpNorm.x < 0 && wpNorm.y < 0))
   {
     angle *= -1;
   }
+
+  std::cout << "dir.x:    " << (dir.x > 0)    << "\n" <<
+               "dir.y:    " << (dir.y > 0)    << "\n" <<
+               "wpNorm.x: " << (wpNorm.x > 0) << "\n" <<
+               "wpNorm.y: " << (wpNorm.y > 0) << "\n" <<
+               "Turning:  " << (angle > 0 ? "Left" : "right") << "\n\n";
 
   // calculate the distance between the robot and the given waypoint
   double distance = Vector2::getMagnitude(pos - wp);
