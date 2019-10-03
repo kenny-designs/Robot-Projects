@@ -1,5 +1,9 @@
 #include "Vector2.h"
-#include <cmath> // hypot()
+#include <limits> // std::numeric_limits
+#include <cmath>  // hypot()
+
+// used for comparing doubles to 0
+#define EPSILON std::numeric_limits<double>::epsilon()
 
 /**
  * Subtracts one Vector2 from another
@@ -63,5 +67,10 @@ double Vector2::getMagnitude(Vector2 const& vec2)
  */ 
 void Vector2::normalize(Vector2& vec2)
 {
-  vec2 /= Vector2::getMagnitude(vec2);
+  double magnitude = Vector2::getMagnitude(vec2);
+
+  if (fabs(magnitude != 0) < EPSILON)
+  {
+    vec2 /= Vector2::getMagnitude(vec2);
+  }
 }
