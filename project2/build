@@ -4,4 +4,4 @@
 # libplayerc++ library.
 
 # Added Robot.cc. Remove later if needed
-g++ -o $1 `pkg-config --cflags playerc++` $1.cc Robot.cc `pkg-config --libs playerc++`
+g++ -o $1 `pkg-config --cflags playerc++` $1.cc Robot.cc Vector2.cc `pkg-config --libs playerc++`

@@ -2,6 +2,7 @@
 #define _USE_MATH_DEFINES
 
 #include "Robot.h"
+#include "Vector2.h"
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -203,7 +204,7 @@ void Robot::moveToWaypoint(Vector2& wp)
 
   // find the angle to rotate the robot so that it faces the given waypoint
   Vector2 wpNorm         = wp - pos;                            // center the given waypoint to the origin
-  wpNorm                /= hypot(wpNorm.x, wpNorm.y);           // normalize by dividing by its magnitude
+  wpNorm                /= wpNorm.getMagnitude();               // normalize by dividing by its magnitude
   double dotProduct      = wpNorm.x * dir.x + wpNorm.y * dir.y; // dot product of normalized waypoint and direction vector
   double angle           = acos(dotProduct);                    // calculate angle between waypoint and direction vector
 
@@ -217,10 +218,8 @@ void Robot::moveToWaypoint(Vector2& wp)
     angle *= -1;
   }
 
-  // to calculate the distance the robot must travel, subtract the waypoint
-  // from the robot's position then find the magnitude
-  // TODO: this can be cleaned by adding a magnitude method to the Vector2 struct
-  double distance = hypot(pos.x - wp.x, pos.y - wp.y);
+  // calculate the distance the distance between the robot and the given waypoint
+  double distance = (pos - wp).getMagnitude();
 
   rotateByRadians(angle, 0.5);               // rotate towards the given waypoint
   moveForwardByMeters(distance, 0.5);        // travel to the given waypoint
