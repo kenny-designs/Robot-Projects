@@ -10,9 +10,25 @@ int main(int argc, char *argv[])
   robot.setMotorEnable(true);
 
   // testing the robots ability to always go back to the origin
-  // FEEL FREE TO PLAY WITH THIS TO SEE HOW THE ROBOT REACTS TO
-  // BEING MOVED AROUND!
-  Vector2 origin(0, 0);
-  for (;;) { robot.moveToWaypoint(origin); }
+  // Vector2 origin(0, 0);
+  // for (;;) { robot.moveToWaypoint(origin); }
+
+  // keyboard input
+  std::cout << "Greetings human!"                             <<
+               "\nI am ready to travel wherever you see fit." <<
+               "\nUsing the keyboard, tell me where to go!\n";
+
+  Vector2 wp(0,0);
+  for (;;)
+  {
+    std::cout << "\nEnter x coord: ";
+    std::cin >> wp.x;
+    std::cout << "Enter y coord: ";
+    std::cin >> wp.y;
+
+    std::cout << "\nNow moving to waypoint located at (" << wp.x << ", " << wp.y << ")...\n";
+    robot.moveToWaypoint(wp);
+    std::cout << "Complete! I am ready for the next destination human.\n";
+  }
 }
 
