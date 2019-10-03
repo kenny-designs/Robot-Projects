@@ -210,7 +210,7 @@ void Robot::moveToWaypoint(Vector2& wp)
   Vector2 dir(cos(yaw), sin(yaw));      // create direction unit vector based on the robot's yaw
   Vector2 pos(getXPos(), getYPos());    // create a vector based on the robot's x and y position
 
-   // find the angle to rotate the robot so that it faces the given waypoint
+  // find the angle to rotate the robot so that it faces the given waypoint
   Vector2 wpNorm = wp - pos;                                    // center the given waypoint to the origin
   wpNorm                /= hypot(wpNorm.x, wpNorm.y);           // normalize by dividing by its magnitude
   double dotProduct      = wpNorm.x * dir.x + wpNorm.y * dir.y; // dot product of normalized waypoint and direction vector
@@ -219,35 +219,31 @@ void Robot::moveToWaypoint(Vector2& wp)
   // if angle is nan, return
   if (isnan(angle)) return;
 
-  std::cout << "dir.x:    " << dir.x    << "\n" <<
-               "dir.y:    " << dir.y    << "\n" <<
-               "wpNorm.x: " << wpNorm.x << "\n" <<
-               "wpNorm.y: " << wpNorm.y << "\n";
-
-  // TODO: can this be simplified? It's really ugly...
   // ensure the robot rotates in the right direction
-  if (((dir.x > 0 && wpNorm.x > 0) && dir.y > wpNorm.y) ||
-      ((dir.x < 0 && wpNorm.x < 0) && dir.y < wpNorm.y) ||
-      ((dir.y > 0 && wpNorm.y > 0) && dir.x < wpNorm.x) ||
-      ((dir.y < 0 && wpNorm.y < 0) && dir.x > wpNorm.x) ||
-       (dir.x > 0 && dir.y > 0 && wpNorm.x < 0 && wpNorm.y < 0) ||
-       (dir.x > 0 && dir.y < 0 && wpNorm.x < 0 && wpNorm.y > 0))
+  if ((dir.x > 0 != wpNorm.y > 0) &&
+      !(dir.x < 0 && dir.y < 0 && wpNorm.x > 0 && wpNorm.y > 0))
   {
     angle *= -1;
   }
 
+  std::cout << "dir.x:    " << (dir.x > 0)    << "\n" <<
+               "dir.y:    " << (dir.y > 0)    << "\n" <<
+               "wpNorm.x: " << (wpNorm.x > 0) << "\n" <<
+               "wpNorm.y: " << (wpNorm.y > 0) << "\n" <<
+               "Turning:  " << (angle > 0 ? "Left" : "right") << "\n\n";
+
   // to calculate the distance the robot must travel, subtract the waypoint
   // from the robot's position then find the magnitude
+  // TODO: this can be cleaned by adding a magnitude method to the Vector2 struct
   double distance = hypot(pos.x - wp.x, pos.y - wp.y);
 
   // print the angle and distance that the robot will traverse
-  std::cout << "Angle:    " << angle << "\n";
-  std::cout << "Distance: " << distance << "\n";
+  //std::cout << "Angle:    " << angle << "\n";
+  //std::cout << "Distance: " << distance << "\n";
 
-  // rotate towards then travel to the given waypoint
-  rotateByRadians(angle);
-  moveForwardByMeters(distance);
+  rotateByRadians(angle, 0.5);               // rotate towards the given waypoint
+  moveForwardByMeters(distance, 0.5);        // travel to the given waypoint
 
   // print final position
-  printPosition();
+  //printPosition();
 }
