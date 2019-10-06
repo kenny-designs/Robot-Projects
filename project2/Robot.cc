@@ -109,17 +109,8 @@ void Robot::getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& dista
   // TODO: this isn't very clean. Find a way to protect against nan
   if (isnan(angle)) return;
 
-  // ensure the robot rotates in the right direction
-  // TODO: simplify
-  if ((dir.x > 0 && wpNorm.x > 0 && dir.y > wpNorm.y) ||
-      (dir.x < 0 && wpNorm.x < 0 && dir.y < wpNorm.y) ||
-      (dir.y > 0 && wpNorm.y > 0 && dir.x < wpNorm.x) ||
-      (dir.y < 0 && wpNorm.y < 0 && dir.x > wpNorm.x) ||
-      (dir.x > 0 && dir.y > 0 && wpNorm.x < 0 && wpNorm.y < 0) ||
-      (dir.x > 0 && dir.y < 0 && wpNorm.x < 0 && wpNorm.y > 0))
-  {
-    angle *= -1;
-  }
+  // zed value for cross product. If negative, flip angle
+  if (wpNorm.x * dir.y - wpNorm.y * dir.x > 0) { angle *= -1; }
 }
 
 /**
