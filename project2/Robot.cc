@@ -1,8 +1,13 @@
+// mathematical constants to help with rotating the robot in radians e.g. M_PI
+#define _USE_MATH_DEFINES
+
 #include "Robot.h"
+#include "Vector2.h"
 #include <cstdlib>
 #include <iostream>
 #include <string>
 #include <limits> // std::numeric_limits
+#include <cmath>  // acos(), cos(), sin()
 
 // used for comparing doubles to 0
 #define EPSILON std::numeric_limits<double>::epsilon()
@@ -26,19 +31,21 @@ Robot::Robot(bool isSimulation, std::string hostname) :
  */
 void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks)
 {
+  // Send the motion commands that we decided on to the robot.
+  pp.SetSpeed(forwardVelocity, angularVelocity);
+
   // Enter movement control loop
   for (int curTick = 0; curTick < ticks; ++curTick)
   {
-    // Read from the proxies.
+    // read from proxies
     robot.Read();
 
-    // Report current forward and angular velocities
-    std::cout << "Forward Velocity: " << forwardVelocity << "\tm/s\n";      
-    std::cout << "Angular Velocity: " << angularVelocity  << "\trad/s\n\n";
-
-    // Send the motion commands that we decided on to the robot.
-    pp.SetSpeed(forwardVelocity, angularVelocity);
+    // break if bumper hit
+    if (isLeftBumper() || isRightBumper()) break;
   }
+
+  // stop moving
+  pp.SetSpeed(0, 0);
 }
 
 /**
@@ -75,27 +82,81 @@ void Robot::getFinalTicksAndVelocity(double distance, double& velocity, int& tic
 }
 
 /**
+ * Generates the angle and distance needed to first rotate to face then
+ * approach the given waypoint.
+ *
+ * @param wp       - the waypoint we want to move to as a Vector2
+ * @param angle    - angle the robot must turn to face the waypoint
+ * @param distance - distance the robot must travel to reach the waypoint
+ */ 
+void Robot::getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& distance)
+{
+  // obtain both the direction and position vector of the robot
+  Vector2 dir(cos(getYaw()), sin(getYaw())),
+          pos(getXPos(), getYPos());
+
+  // center waypoint to the origin then normalize it
+  Vector2 wpNorm = wp - pos;
+  Vector2::normalize(wpNorm);
+
+  // calculate the distance between the robot and the given waypoint
+  distance = Vector2::getMagnitude(pos - wp);
+
+  // find the angle to rotate the robot so that it faces the given waypoint
+  angle = acos(wpNorm.x * dir.x + wpNorm.y * dir.y);
+
+  // if angle is nan, return
+  // TODO: this isn't very clean. Find a way to protect against nan
+  if (isnan(angle)) return;
+
+  // ensure the robot rotates in the right direction
+  // TODO: simplify
+  if ((dir.x > 0 && wpNorm.x > 0 && dir.y > wpNorm.y) ||
+      (dir.x < 0 && wpNorm.x < 0 && dir.y < wpNorm.y) ||
+      (dir.y > 0 && wpNorm.y > 0 && dir.x < wpNorm.x) ||
+      (dir.y < 0 && wpNorm.y < 0 && dir.x > wpNorm.x) ||
+      (dir.x > 0 && dir.y > 0 && wpNorm.x < 0 && wpNorm.y < 0) ||
+      (dir.x > 0 && dir.y < 0 && wpNorm.x < 0 && wpNorm.y > 0))
+  {
+    angle *= -1;
+  }
+}
+
+/**
  * Gets Robot X position based on Position2dProxy
  * @return X position as double
  */
-double Robot::getXPos() { return pp.GetXPos(); }
+double Robot::getXPos()
+{
+  robot.Read();
+  return pp.GetXPos();
+}
 
 /**
  * Gets Robot Y position based on Position2dProxy
  * @return Y position as double
  */
-double Robot::getYPos() { return pp.GetYPos(); }
+double Robot::getYPos()
+{
+  robot.Read();
+  return pp.GetYPos();
+}
 
 /**
  * Gets Robot Yaw rotation based on Position2dProxy
  * @return Yaw rotation as double
  */
-double Robot::getYaw() { return pp.GetYaw(); }
+double Robot::getYaw()
+{
+  robot.Read();
+  return pp.GetYaw();
+}
 
 /**
  * Returns true if the left bumper is pressed
  * @return True if left bumper pressed
  */
+// TODO: rename to isLeftPressed
 bool Robot::isLeftBumper()
 {
   return bp[0];
@@ -105,6 +166,7 @@ bool Robot::isLeftBumper()
  * Returns true if the right bumper is pressed
  * @return True if right bumper pressed
  */
+// TODO: rename to isRightPressed
 bool Robot::isRightBumper()
 {
   return bp[1];
@@ -113,9 +175,10 @@ bool Robot::isRightBumper()
 /** Prints the X, Y, and Yaw positions of the Robot */
 void Robot::printPosition()
 {
-  std::cout << "x: " << getXPos() << "\n" <<
-               "y: " << getYPos() << "\n" <<
-               "a: " << getYaw()  << "\n";
+  robot.Read();
+  std::cout << "Robot x position: " << getXPos() << "\n" <<
+               "      y position: " << getYPos() << "\n" <<
+               "      yaw:        " << getYaw()  << "\n\n";
 }
 
 /** Prints state of the bumpers */
@@ -123,8 +186,8 @@ void Robot::printBumper()
 {
   // must read data from the server to find bumper state
   robot.Read();
-  std::cout << "Left  bumper: " << isLeftBumper()  << "\n" <<
-               "Right bumper: " << isRightBumper() << "\n";
+  std::cout << "Left  bumper pressed: " << isLeftBumper()  << "\n" <<
+               "Right bumper pressed:  " << isRightBumper() << "\n";
 }
 
 /**
@@ -172,4 +235,21 @@ void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
   if (!isSimulation) { ticks *= ROTATION_TICK_SCALE; }
 
   moveAndRotateOverTicks(0, angularVelocity, ticks);
+}
+
+/**
+ * The robot will move to the specified Waypoint even if obstacles are in the way
+ *
+ * @param wp - the waypoint for the robot to move to
+ */ 
+void Robot::moveToWaypoint(Vector2& wp)
+{
+  double angle, distance;
+  getAngleDistanceToWaypoint(wp, angle, distance);
+
+  if (isnan(angle)) return;
+
+  // rotate towards then travel to the given waypoint
+  rotateByRadians(angle, 0.5);
+  moveForwardByMeters(distance, 0.5);
 }

@@ -3,6 +3,7 @@
 #pragma once
 
 #include <libplayerc++/playerc++.h>
+#include "Vector2.h" // TODO: should we use a pointer instead of including?
 
 /**
  * Wrapper class used to simplify use of the Robot
@@ -28,8 +29,10 @@ class Robot
 
   void moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks);
   void getFinalTicksAndVelocity(double distance, double& velocity, int& ticks);
+  void getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& distance);
 
 public:
+  // constructor
   Robot(bool isSimulation = true, std::string hostname = "localhost");
 
   // get position based on odometer
@@ -41,11 +44,19 @@ public:
   bool isLeftBumper();
   bool isRightBumper();
 
+  // print information about the robot
   void printPosition();
   void printBumper();
+
+  // motor
   void setMotorEnable(bool isMotorEnabled);
+
+  // handle basic movement
   void moveForwardByMeters(double distanceInMeters, double forwardVelocity = 0.1);
   void rotateByRadians(double radiansToRotate, double angularVelocity = 0.1);
+
+  // handle waypoint movement
+  void moveToWaypoint(Vector2& wp);
 };
 
 #endif
