@@ -69,7 +69,7 @@ void Vector2::normalize(Vector2& vec2)
 {
   double magnitude = Vector2::getMagnitude(vec2);
 
-  if (fabs(magnitude != 0) < EPSILON)
+  if (fabs(magnitude) < EPSILON)
   {
     vec2 /= Vector2::getMagnitude(vec2);
   }
