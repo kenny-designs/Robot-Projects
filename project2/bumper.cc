@@ -31,4 +31,3 @@ int main(int argc, char *argv[])
     std::cout << "Complete! I am ready for the next destination human.\n";
   }
 }
-
