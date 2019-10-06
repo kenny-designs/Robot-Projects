@@ -9,10 +9,6 @@ int main(int argc, char *argv[])
   // Enable motors
   robot.setMotorEnable(true);
 
-  // testing the robots ability to always go back to the origin
-  // Vector2 origin(0, 0);
-  // for (;;) { robot.moveToWaypoint(origin); }
-
   // keyboard input
   std::cout << "Greetings human!"                             <<
                "\nI am ready to travel wherever you see fit." <<
