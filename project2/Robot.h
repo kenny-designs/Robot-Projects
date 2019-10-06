@@ -30,6 +30,7 @@ class Robot
   void moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks);
   void getFinalTicksAndVelocity(double distance, double& velocity, int& ticks);
   void getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& distance);
+  void handleBumper();
 
 public:
   // constructor
@@ -41,8 +42,8 @@ public:
   double getYaw();
 
   // check if left or right bumper is pressed
-  bool isLeftBumper();
-  bool isRightBumper();
+  bool isLeftPressed();
+  bool isRightPressed();
 
   // print information about the robot
   void printPosition();

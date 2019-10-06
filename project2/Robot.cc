@@ -41,7 +41,8 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     robot.Read();
 
     // break if bumper hit
-    if (isLeftBumper() || isRightBumper()) break;
+    if (isLeftPressed() || isRightPressed())
+      handleBumper();
   }
 
   // stop moving
@@ -114,6 +115,16 @@ void Robot::getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& dista
 }
 
 /**
+ * Checks and sees which bumper was pressed and moves accordingly
+ */ 
+void Robot::handleBumper()
+{
+ std::cout << "Left bumper is pressed " << isLeftPressed() << "\n";
+
+ std::cout << "Right bumper is pressed " << isRightPressed() <<"\n";
+}
+
+/**
  * Gets Robot X position based on Position2dProxy
  * @return X position as double
  */
@@ -147,8 +158,7 @@ double Robot::getYaw()
  * Returns true if the left bumper is pressed
  * @return True if left bumper pressed
  */
-// TODO: rename to isLeftPressed
-bool Robot::isLeftBumper()
+bool Robot::isLeftPressed()
 {
   return bp[0];
 }
@@ -157,8 +167,7 @@ bool Robot::isLeftBumper()
  * Returns true if the right bumper is pressed
  * @return True if right bumper pressed
  */
-// TODO: rename to isRightPressed
-bool Robot::isRightBumper()
+bool Robot::isRightPressed()
 {
   return bp[1];
 }
@@ -177,8 +186,8 @@ void Robot::printBumper()
 {
   // must read data from the server to find bumper state
   robot.Read();
-  std::cout << "Left  bumper pressed: " << isLeftBumper()  << "\n" <<
-               "Right bumper pressed:  " << isRightBumper() << "\n";
+  std::cout << "Left  bumper pressed: " << isLeftPressed()  << "\n" <<
+               "Right bumper pressed:  " << isRightPressed() << "\n";
 }
 
 /**
@@ -243,4 +252,5 @@ void Robot::moveToWaypoint(Vector2& wp)
   // rotate towards then travel to the given waypoint
   rotateByRadians(angle, 0.5);
   moveForwardByMeters(distance, 0.5);
+  // 1,5 >>> 1.3,3 >>> Compare Y, Comare X distance
 }
