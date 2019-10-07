@@ -1,13 +1,9 @@
-// mathematical constants to help with rotating the robot in radians e.g. M_PI
-#define _USE_MATH_DEFINES
-
 #include "Robot.h"
 #include "Vector2.h"
 #include <cstdlib>
 #include <iostream>
 #include <string>
 #include <limits>   // std::numeric_limits
-#include <cmath>    // acos(), cos(), sin()
 #include <stdlib.h> // srand, rand
 #include <time.h>   // time
 
@@ -46,7 +42,7 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     // read from proxies
     robot.Read();
 
-    // break if bumper hit and we're not currently correcting the position
+    // break if the position is not being corrected and a bumper has been pressed
     if (!isCorrectingPosition && isAnyPressed()) break;
   }
 
@@ -116,9 +112,15 @@ void Robot::getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& dista
 }
 
 /**
- * Corrects the robots position if a bumper has been pressed
+ * Corrects the robot's position if a bumper has been pressed by adjusting its
+ * orientation and location based on the given parameters.
+ *
+ * @param distance    - the distance for the robot to move (default 1 meter)
+ * @param velocity    - the velocity to move at (default 0.5 m/s)
+ * @param angle       - the angle to rotate the robot (default 75 degrees in radians)
+ * @param angVelocity - the velocity to rotate at (default 0.5 rad/s)
  */
-void Robot::handleBump()
+void Robot::handleBump(double distance, double velocity, double angle, double angVelocity)
 {
   robot.Read();
   bool isLeft  = isLeftPressed(),
@@ -126,8 +128,6 @@ void Robot::handleBump()
 
   // return if neither bumper is pressed
   if (!(isLeft || isRight)) return;
-
-  double angle = M_PI_4 + M_PI_4 / 2.0;  // default rotate left
 
   // rotate in random direction if both bumpers have been pressed
   if (isLeft && isRight)
@@ -145,9 +145,9 @@ void Robot::handleBump()
   isCorrectingPosition = true;
 
   // correct robot position
-  moveForwardByMeters(-1.0, 0.5);  // back up by 1.0 meters
-  rotateByRadians(angle, 0.5);     // rotate by the angle
-  moveForwardByMeters(1.0, 0.5);   // move forward by 1.0 meters
+  moveForwardByMeters(-distance, velocity);  // back up by the given distance
+  rotateByRadians(angle, angVelocity);       // rotate by the given angle
+  moveForwardByMeters(distance, velocity);   // move forward by the given distance
 
   // robot no longer in position correction state
   isCorrectingPosition = false;

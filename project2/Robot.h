@@ -2,7 +2,11 @@
 #define ROBOT_H
 #pragma once
 
+// mathematical constants to help with rotating the robot in radians e.g. M_PI
+#define _USE_MATH_DEFINES
+
 #include <libplayerc++/playerc++.h>
+#include <cmath>
 #include "Vector2.h"
 
 /**
@@ -31,7 +35,7 @@ class Robot
   void moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks);
   void getFinalTicksAndVelocity(double distance, double& velocity, int& ticks);
   void getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& distance);
-  void handleBump();
+  void handleBump(double distance = 1.0, double velocity = 0.5, double angle = 5.0 * M_PI / 12.0, double angVelocity = 0.5);
   bool hasReachedWaypoint(Vector2& wp, double errorRange);
 
 public:
