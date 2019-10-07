@@ -16,10 +16,10 @@ int main(int argc, char *argv[])
   robot.setMotorEnable(true);
 
   // Traverse wall world
-  // wallWorld(robot);
+  wallWorld(robot);
 
   // Traverse maze world
-  mazeWorld(robot);
+  // mazeWorld(robot);
 }
 
 /**

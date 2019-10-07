@@ -128,14 +128,14 @@ void Robot::handleBump()
   if (!(isLeft || isRight)) return;
 
   double angle = M_PI_4 + M_PI_4 / 2.0;  // default rotate left
+
+  // rotate in random direction if both bumpers have been pressed
   if (isLeft && isRight)
   {
-    // initialize random seed
     srand(time(NULL));
-
-    // rotate in random direction based on rand()
     angle *= rand() % 2 ? 1 : -1;
   }
+  // rotate to the right if the left bumper has been pressed
   else if (isLeft)
   {
     angle *= -1;
@@ -300,10 +300,10 @@ void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
  */ 
 void Robot::moveToWaypoint(Vector2& wp)
 {
-  // move to waypoint wp until within 0.5m of it
-  bool isAtDestination = hasReachedWaypoint(wp, 0.25);
-  while (!isAtDestination)
+  // move to waypoint wp until within 0.25m of it
+  while (!hasReachedWaypoint(wp, 0.25))
   {
+    // obtain angle and distance needed to reach the waypoint
     double angle, distance;
     getAngleDistanceToWaypoint(wp, angle, distance);
 
@@ -311,13 +311,7 @@ void Robot::moveToWaypoint(Vector2& wp)
     rotateByRadians(angle, 0.5);
     moveForwardByMeters(distance, 0.5);
 
-    // check again if the robot has reached the destination
-    isAtDestination = hasReachedWaypoint(wp, 0.25);
-
-    // if not yet at the destination, correct position then try again
-    if (!isAtDestination)
-    {
-      handleBump();
-    }
+    // handle any bumper events
+    handleBump();
   }
 }
