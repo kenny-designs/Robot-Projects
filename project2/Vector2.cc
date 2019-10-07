@@ -67,10 +67,12 @@ double Vector2::getMagnitude(Vector2 const& vec2)
  */ 
 void Vector2::normalize(Vector2& vec2)
 {
+  // find the magnitude of vec2
   double magnitude = Vector2::getMagnitude(vec2);
 
-  if (fabs(magnitude != 0) < EPSILON)
-  {
-    vec2 /= Vector2::getMagnitude(vec2);
-  }
+  // if magnitude is 0, return
+  if (magnitude < EPSILON) return;
+
+  // normalize vec2
+  vec2 /= magnitude;
 }
