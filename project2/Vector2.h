@@ -11,15 +11,15 @@ struct Vector2
 
   Vector2(double xPos, double yPos) : x(xPos), y(yPos) {};
 
-  /** Overload subtraction operators */
+  // Overload subtraction operators
   Vector2  operator-(Vector2 const& subtrahend);
   Vector2& operator-=(Vector2 const& subtrahend);
 
-  /** Overload division operators */
+  // Overload division operators
   Vector2  operator/(double divisor);
   Vector2& operator/=(double divisor);
 
-  /** Static helper methods */
+  // Static helper methods
   static double getMagnitude(Vector2 const& vec2);
   static void normalize(Vector2& vec2);
 };
