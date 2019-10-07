@@ -132,7 +132,7 @@ void Robot::handleBump()
 
   printBumper();
 
-  double angle = M_PI_4;  // default rotate left
+  double angle = M_PI_4 + M_PI_4 / 2.0;  // default rotate left
   if (isLeft && isRight)
   {
     // initialize random seed
@@ -140,10 +140,6 @@ void Robot::handleBump()
 
     // rotate in random direction based on rand()
     angle *= rand() % 2 ? 1 : -1;
-
-    // report direction we are rotating
-    // TODO: remove
-    std::cout << "Now turning: " << (angle < 0 ? "right" : "left") << "\n";
   }
   else if (isLeft)
   {
@@ -151,14 +147,11 @@ void Robot::handleBump()
   }
 
   // correct robot position
-  moveForwardByMeters(-0.5, 0.5);  // back up by 0.5 meters
+  moveForwardByMeters(-1.0, 0.5);  // back up by 1.0 meters
   rotateByRadians(angle, 0.5);     // rotate by the angle
-  moveForwardByMeters(0.5, 0.5);   // move forward by 0.5 meters
+  moveForwardByMeters(1.0, 0.5);   // move forward by 1.0 meters
 
   isCorrectingPosition = false;
-
-  // TODO: remove
-  std::cout << "\n";
 }
 
 /**

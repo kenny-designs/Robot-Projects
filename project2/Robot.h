@@ -3,7 +3,7 @@
 #pragma once
 
 #include <libplayerc++/playerc++.h>
-#include "Vector2.h" // TODO: should we use a pointer instead of including?
+#include "Vector2.h"
 
 /**
  * Wrapper class used to simplify use of the Robot
