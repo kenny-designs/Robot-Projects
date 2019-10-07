@@ -1,5 +1,12 @@
+// mathematical constants to help with rotating the robot in radians e.g. M_PI
+#define _USE_MATH_DEFINES
+
 #include "Vector2.h"
+#include <limits> // std::numeric_limits
 #include <cmath>  // hypot()
+
+// used for comparing doubles to 0
+#define EPSILON std::numeric_limits<double>::epsilon()
 
 /**
  * Subtracts one Vector2 from another

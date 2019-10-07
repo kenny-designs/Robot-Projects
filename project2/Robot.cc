@@ -41,8 +41,7 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     robot.Read();
 
     // break if bumper hit
-    if (isLeftPressed() || isRightPressed())
-      handleBumper();
+    if (isLeftPressed() || isRightPressed()) break;
   }
 
   // stop moving
@@ -112,16 +111,6 @@ void Robot::getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& dista
 
   // zed value for cross product. If negative, flip angle
   if (wpNorm.x * dir.y - wpNorm.y * dir.x > 0) { angle *= -1; }
-}
-
-/**
- * Checks and sees which bumper was pressed and moves accordingly
- */ 
-void Robot::handleBumper()
-{
- std::cout << "Left bumper is pressed " << isLeftPressed() << "\n";
-
- std::cout << "Right bumper is pressed " << isRightPressed() <<"\n";
 }
 
 /**
@@ -252,5 +241,4 @@ void Robot::moveToWaypoint(Vector2& wp)
   // rotate towards then travel to the given waypoint
   rotateByRadians(angle, 0.5);
   moveForwardByMeters(distance, 0.5);
-  // 1,5 >>> 1.3,3 >>> Compare Y, Comare X distance
 }
