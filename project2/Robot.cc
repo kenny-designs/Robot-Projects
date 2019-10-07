@@ -20,7 +20,11 @@
  * @param hostname     - address to connect to (localhost by default)
  */
 Robot::Robot(bool isSimulation, std::string hostname) :
-  isSimulation(isSimulation), robot(hostname), pp(&robot, 0), bp(&robot, 0) {}
+  isSimulation(isSimulation),
+  isCorrectingPosition(false),
+  robot(hostname),
+  pp(&robot, 0),
+  bp(&robot, 0) {}
 
 /**
  * Move and rotate the robot over the given number of ticks
@@ -40,8 +44,8 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     // read from proxies
     robot.Read();
 
-    // break if bumper hit
-    if (isLeftPressed() || isRightPressed()) break;
+    // break if bumper hit and we're not currently correcting the position
+    if (!isCorrectingPosition && (isLeftPressed() || isRightPressed())) break;
   }
 
   // stop moving
@@ -111,6 +115,39 @@ void Robot::getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& dista
 
   // zed value for cross product. If negative, flip angle
   if (wpNorm.x * dir.y - wpNorm.y * dir.x > 0) { angle *= -1; }
+}
+
+/**
+ * Corrects the robots position if a bumper has been pressed
+ */
+void Robot::handleBump()
+{
+  std::cout << "Now handling the bump...\n";
+
+  isCorrectingPosition = true;
+
+  robot.Read();
+  bool isLeft  = isLeftPressed(),
+       isRight = isRightPressed();
+
+  double angle = M_PI_4;  // default rotate left
+  if (isLeft && isRight)
+  {
+    // random
+  }
+  else if (isLeft)
+  {
+    angle *= -1;
+  }
+
+  // correct robot position
+  moveForwardByMeters(-0.5, 0.5);  // back up by 0.5 meters
+  rotateByRadians(angle, 0.5);     // rotate by the angle
+  moveForwardByMeters(0.5, 0.5);   // move forward by 0.5 meters
+
+  isCorrectingPosition = false;
+
+  std::cout << "Now done with the bump!\n";
 }
 
 /**
@@ -251,12 +288,26 @@ void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
  */ 
 void Robot::moveToWaypoint(Vector2& wp)
 {
-  double angle, distance;
-  getAngleDistanceToWaypoint(wp, angle, distance);
+  // move to waypoint wp until within 0.5m of it
+  bool isAtDestination = hasReachedWaypoint(wp, 0.25);
+  while (!isAtDestination)
+  {
+    double angle, distance;
+    getAngleDistanceToWaypoint(wp, angle, distance);
 
-  if (isnan(angle)) return;
+    if (isnan(angle)) return;
 
-  // rotate towards then travel to the given waypoint
-  rotateByRadians(angle, 0.5);
-  moveForwardByMeters(distance, 0.5);
+    // rotate towards then travel to the given waypoint
+    rotateByRadians(angle, 0.5);
+    moveForwardByMeters(distance, 0.5);
+
+    // check again if the robot has reached the destination
+    isAtDestination = hasReachedWaypoint(wp, 0.25);
+
+    // if not yet at the destination, correct position then try again
+    if (!isAtDestination)
+    {
+      handleBump();
+    }
+  }
 }
