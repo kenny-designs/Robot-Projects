@@ -14,8 +14,8 @@ using namespace PlayerCc;
 bool isRedBlob(player_blobfinder_blob_t& blob);
 bool isFacingBeacon(player_blobfinder_blob_t& blob);
 void printBlob(player_blobfinder_blob_t& blob);
-double rotateToFaceBeacon(Position2dProxy& pp, player_blobfinder_blob_t& blob);
-double moveToBeacon(Position2dProxy& pp, player_blobfinder_blob_t& blob);
+double getAngularVelocityToBeacon(player_blobfinder_blob_t& blob);
+double getVelocityToBeacon(player_blobfinder_blob_t& blob);
 
 int main(int argc, char *argv[])
 {  
@@ -27,8 +27,7 @@ int main(int argc, char *argv[])
   BlobfinderProxy bf(&blobfinder,0);
 
   // Variables
-  player_blobfinder_data_t  blobList;   // Structure holding the blobs found
-  player_blobfinder_blob_t* theBlobs;   // A point to a list of blobs
+  player_blobfinder_blob_t  blob;
   double velocity, angularVelocity;
 
   // Allow the program to take charge of the motors (take care now)
@@ -37,36 +36,40 @@ int main(int argc, char *argv[])
   // Control loop
   while(true) 
   {
-    // for safety, velocity and angularVelocity are 0 by default
-    velocity        = 0;
-    angularVelocity = 0;
-
     // Read from the proxies
     robot.Read();
     blobfinder.Read();
 
-    // We only want to drive if the bumpers are not pressed
-    if (!(bp[0] || bp[1])) continue;
+    // Stop movement if a bumper is pressed
+    if (bp.IsAnyBumped())
+    {
+      pp.SetSpeed(0, 0);
+      continue;
+    }
+
+    // reset velocity and angularVelocity to 0
+    velocity        = 0;
+    angularVelocity = 0;
 
     // Iterate over blobs if any. Only process the first red blob we see
     for (int i = 0; i < bf.GetCount(); i++)
     {
-      // if not a red blob, check the next element
-      player_blobfinder_blob_t blob = bf.GetBlob(i);
+      // skip any blobs that aren't red
+      blob = bf.GetBlob(i);
       if (!isRedBlob(blob)) continue;
 
-      // found a red blob! print it to the screen
+      // otherwise, we have a red blob! print to screen
       printBlob(blob);
 
       // if not facing the beacon, rotate towards it
       if (!isFacingBeacon(blob))
       {
-        angularVelocity = rotateToFaceBeacon(pp, blob);
+        angularVelocity = getAngularVelocityToBeacon(blob);
       }
-      // if the robot is facing the beacon, begin moving towards it
+      // otherwise, begin moving towards it
       else
       {
-        velocity = moveToBeacon(pp, blob);
+        velocity = getVelocityToBeacon(blob);
       }
 
       // only need to process a single red blob, break
@@ -96,16 +99,15 @@ bool isFacingBeacon(player_blobfinder_blob_t& blob)
 /** Print blob data */
 void printBlob(player_blobfinder_blob_t& blob)
 {
-  std::cout << "Id: "    << blob.id           << "\n";
-  std::cout << "Color: " << (short)blob.color << "\n";
-  std::cout << "Area: "  << blob.area         << "\n";
-  std::cout << "X: "     << blob.x            << "\n";
-  std::cout << "Y: "     << blob.y            << "\n";
-  std::cout << "\n";
+  std::cout << "Id:    " << blob.id           << "\n" <<
+               "Color: " << (short)blob.color << "\n" <<
+               "Area:  " << blob.area         << "\n" <<
+               "X:     " << blob.x            << "\n" <<
+               "Y:     " << blob.y            << "\n\n";
 }
 
 /** Returns the appropriate angular velocity needed to face the beacon */
-double rotateToFaceBeacon(Position2dProxy& pp, player_blobfinder_blob_t& blob)
+double getAngularVelocityToBeacon(player_blobfinder_blob_t& blob)
 {
   if (isFacingBeacon(blob)) return 0;
 
@@ -121,14 +123,21 @@ double rotateToFaceBeacon(Position2dProxy& pp, player_blobfinder_blob_t& blob)
 }
 
 /** Returns the appropriate velocity needed to reach the beacon */
-double moveToBeacon(Position2dProxy& pp, player_blobfinder_blob_t& blob)
+double getVelocityToBeacon(player_blobfinder_blob_t& blob)
 {
   // TODO: check minimum area must be for us to consider the movement complete
   // if already within 2ft, stop
   if (blob.area <= MIN_AREA) return 0;
 
   // by default, we move at 0.1 m/s
+  // TODO: test for the smoothest experience when scaling these values
   double vel = 0.1;
+
+  // adjust to scale with distance from the beacon
+  vel *= MIN_AREA / blob.area;
+
+  // if the velocity is now below 0.05m/s, set it to 0.05m/s
+  if (vel < 0.05) vel = 0.05;
 
   return vel;
 }
