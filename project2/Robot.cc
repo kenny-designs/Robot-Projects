@@ -114,6 +114,24 @@ void Robot::getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& dista
 }
 
 /**
+ * Returns true if the robot has reached the given waypoint within the
+ * given error range
+ *
+ * @param wp         - the waypoint we are testing to see if we reached
+ * @param errorRange - the range in which the robot must be to the wp
+ * @return           - true if the robot has reached the robot. Otherwise, false
+ */ 
+bool Robot::hasReachedWaypoint(Vector2& wp, double errorRange)
+{
+  // obtain the robots x and y position
+  Vector2 pos(getXPos(), getYPos());
+
+  // return true if reached the waypoint within the error range
+  return (pos.x + errorRange > wp.x && pos.x - errorRange < wp.x) &&
+         (pos.y + errorRange > wp.y && pos.y - errorRange < wp.y);
+}
+
+/**
  * Gets Robot X position based on Position2dProxy
  * @return X position as double
  */
