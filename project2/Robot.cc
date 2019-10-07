@@ -6,8 +6,10 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include <limits> // std::numeric_limits
-#include <cmath>  // acos(), cos(), sin()
+#include <limits>   // std::numeric_limits
+#include <cmath>    // acos(), cos(), sin()
+#include <stdlib.h> // srand, rand
+#include <time.h>   // time
 
 // used for comparing doubles to 0
 #define EPSILON std::numeric_limits<double>::epsilon()
@@ -122,18 +124,26 @@ void Robot::getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& dista
  */
 void Robot::handleBump()
 {
-  std::cout << "Now handling the bump...\n";
-
   isCorrectingPosition = true;
 
   robot.Read();
   bool isLeft  = isLeftPressed(),
        isRight = isRightPressed();
 
+  printBumper();
+
   double angle = M_PI_4;  // default rotate left
   if (isLeft && isRight)
   {
-    // random
+    // initialize random seed
+    srand(time(NULL));
+
+    // rotate in random direction based on rand()
+    angle *= rand() % 2 ? 1 : -1;
+
+    // report direction we are rotating
+    // TODO: remove
+    std::cout << "Now turning: " << (angle < 0 ? "right" : "left") << "\n";
   }
   else if (isLeft)
   {
@@ -147,7 +157,8 @@ void Robot::handleBump()
 
   isCorrectingPosition = false;
 
-  std::cout << "Now done with the bump!\n";
+  // TODO: remove
+  std::cout << "\n";
 }
 
 /**
@@ -230,7 +241,7 @@ void Robot::printBumper()
 {
   // must read data from the server to find bumper state
   robot.Read();
-  std::cout << "Left  bumper pressed: " << isLeftPressed()  << "\n" <<
+  std::cout << "Left  bumper pressed:  " << isLeftPressed()  << "\n" <<
                "Right bumper pressed:  " << isRightPressed() << "\n";
 }
 
