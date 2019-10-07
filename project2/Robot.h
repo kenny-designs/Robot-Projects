@@ -43,9 +43,10 @@ public:
   double getYPos();
   double getYaw();
 
-  // check if left or right bumper is pressed
+  // check status of bumpers
   bool isLeftPressed();
   bool isRightPressed();
+  bool isAnyPressed();
 
   // print information about the robot
   void printPosition();

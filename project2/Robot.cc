@@ -47,7 +47,7 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     robot.Read();
 
     // break if bumper hit and we're not currently correcting the position
-    if (!isCorrectingPosition && (isLeftPressed() || isRightPressed())) break;
+    if (!isCorrectingPosition && isAnyPressed()) break;
   }
 
   // stop moving
@@ -217,6 +217,15 @@ bool Robot::isLeftPressed()
 bool Robot::isRightPressed()
 {
   return bp[1];
+}
+
+/**
+ * Returns true if any bumper is pressed
+ * @return True if any bumper pressed
+ */
+bool Robot::isAnyPressed()
+{
+  return bp.IsAnyBumped();
 }
 
 /** Prints the X, Y, and Yaw positions of the Robot */
