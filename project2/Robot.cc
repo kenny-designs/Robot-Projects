@@ -14,8 +14,8 @@
  * Set up proxy. Proxies are the datastructures that Player uses to
  * talk to the simulator and the real robot.
  *
- * @param isSimulation - if false, adjusts settings to better accomodate the actual robot (true by default)
- * @param hostname     - address to connect to (localhost by default)
+ * @param isSimulation - if false, adjusts settings to better accomodate the actual robot
+ * @param hostname     - address to connect to
  */
 Robot::Robot(bool isSimulation, std::string hostname) :
   isSimulation(isSimulation),
@@ -115,10 +115,10 @@ void Robot::getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& dista
  * Corrects the robot's position if a bumper has been pressed by adjusting its
  * orientation and location based on the given parameters.
  *
- * @param distance    - the distance for the robot to move (default 1 meter)
- * @param velocity    - the velocity to move at (default 0.5 m/s)
- * @param angle       - the angle to rotate the robot (default 75 degrees in radians)
- * @param angVelocity - the velocity to rotate at (default 0.5 rad/s)
+ * @param distance    - the distance for the robot to move
+ * @param velocity    - the velocity to move at
+ * @param angle       - the angle to rotate the robot
+ * @param angVelocity - the velocity to rotate at
  */
 void Robot::handleBump(double distance, double velocity, double angle, double angVelocity)
 {
@@ -261,7 +261,7 @@ void Robot::setMotorEnable(bool isMotorEnabled)
  * Move the robot by the given distance in meters
  *
  * @param distanceInMeters - total distance to move in meters. Negative values move backwards
- * @param forwardVelocity  - rate to move forward in meters per second (default 0.1). Negative values
+ * @param forwardVelocity  - rate to move forward in meters per second. Negative values
  *                           move backwards
  */
 void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
@@ -279,7 +279,7 @@ void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
  * Rotates the robot counter-clockwise in radians
  *
  * @param radiansToRotate - total angular distance to rotate in radians. Negative values rotate clockwise
- * @param angularVelocity - rate to rotate in radians per second (default 0.1). Negative values
+ * @param angularVelocity - rate to rotate in radians per second. Negative values
  *                          rotate clockwise
  */ 
 void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
