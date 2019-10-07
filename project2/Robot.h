@@ -43,7 +43,7 @@ class Robot
   // bumper movement
   void handleBump(double distance = 1.0,
                   double velocity = 0.5,
-                  double angle = 5.0 * M_PI / 12.0,
+                  double angle = 5.0 * M_PI / 12.0,  // 75 degrees or 5/12*PI radians
                   double angularVelocity = 0.5);
 
 public:
