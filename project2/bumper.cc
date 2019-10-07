@@ -32,21 +32,21 @@ int main(int argc, char *argv[])
 
   // Enable motors
   robot.setMotorEnable(true);
-   /*
-   //Iterate through World 1 Waypoints
-   for (int i = 0; i < waypointsVector1.size(); i++)
-   {
-   robot.moveToWaypoint(waypointsVector1[i]);
-   }
-   */
-   
-   //Iterate through World 2 Waypoints
-   for (int i = 0; i < waypointsVector2.size(); i++)
-   {
-   std::cout << waypointsVector2[i].x << "," << waypointsVector2[i].y << "\n";
-   
-   robot.moveToWaypoint(waypointsVector2[i]);
-   }
-   
+
+  // Iterate through World 1 Waypoints
+  for (int i = 0; i < waypointsVector1.size(); i++)
+  {
+    robot.moveToWaypoint(waypointsVector1[i]);
+  }
+
+  // Iterate through World 2 Waypoints
+  /*
+  for (int i = 0; i < waypointsVector2.size(); i++)
+  {
+    std::cout << waypointsVector2[i].x << "," << waypointsVector2[i].y << "\n";
+
+    robot.moveToWaypoint(waypointsVector2[i]);
+  }
+  */
 }
 

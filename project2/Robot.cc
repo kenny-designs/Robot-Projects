@@ -111,10 +111,6 @@ void Robot::getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& dista
   // find the angle to rotate the robot so that it faces the given waypoint
   angle = acos(wpNorm.x * dir.x + wpNorm.y * dir.y);
 
-  // if angle is nan, return
-  // TODO: this isn't very clean. Find a way to protect against nan
-  if (isnan(angle)) return;
-
   // zed value for cross product. If negative, flip angle
   if (wpNorm.x * dir.y - wpNorm.y * dir.x > 0) { angle *= -1; }
 }
@@ -301,8 +297,6 @@ void Robot::moveToWaypoint(Vector2& wp)
   {
     double angle, distance;
     getAngleDistanceToWaypoint(wp, angle, distance);
-
-    if (isnan(angle)) return;
 
     // rotate towards then travel to the given waypoint
     rotateByRadians(angle, 0.5);
