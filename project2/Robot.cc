@@ -46,7 +46,7 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     // read from proxies
     robot.Read();
 
-    // break if bumper hit and we're not currently correcting the position
+    // break if we're not currently correcting the position and a bumper has been pressed
     if (!isCorrectingPosition && (isLeftPressed() || isRightPressed())) break;
   }
 
@@ -124,17 +124,20 @@ void Robot::getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& dista
  */
 void Robot::handleBump()
 {
-  isCorrectingPosition = true;
-
   robot.Read();
   bool isLeft  = isLeftPressed(),
        isRight = isRightPressed();
 
-  printBumper();
+  // neither bumper was pressed, return
+  if (!(isLeft || isRight)) return;
 
-  double angle = M_PI_4 + M_PI_4 / 2.0;  // default rotate left
+  // default angle is to rotate left at about 67.5 degrees
+  double angle = M_PI_4 + M_PI_4 / 2.0;
+
+  // adjust rotation based on bumpers
   if (isLeft && isRight)
   {
+    // TODO: can this be simplified? must we always generate a new seed? (probably yes)
     // initialize random seed
     srand(time(NULL));
 
@@ -146,11 +149,16 @@ void Robot::handleBump()
     angle *= -1;
   }
 
-  // correct robot position
+  // let all methods know that the robot is now in a position correction state
+  // TODO: we could create an enum to set the robot's current state
+  isCorrectingPosition = true;
+
+  // adjust the robot's current position
   moveForwardByMeters(-1.0, 0.5);  // back up by 1.0 meters
   rotateByRadians(angle, 0.5);     // rotate by the angle
   moveForwardByMeters(1.0, 0.5);   // move forward by 1.0 meters
 
+  // let all methods know that the robot is no longer correcting its position
   isCorrectingPosition = false;
 }
 
