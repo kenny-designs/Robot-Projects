@@ -64,7 +64,7 @@ public:
   void rotateByRadians(double radiansToRotate, double angularVelocity = 0.5);
 
   // handle waypoint movement
-  void moveToWaypoint(Vector2& wp);
+  void moveToWaypoint(Vector2& wp, double velocity = 0.5, double angularVelocity = 0.5, double errorRange = 0.25);
 };
 
 #endif

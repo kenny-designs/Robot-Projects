@@ -296,20 +296,23 @@ void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
 /**
  * The robot will move to the specified Waypoint even if obstacles are in the way
  *
- * @param wp - the waypoint for the robot to move to
+ * @param wp              - the waypoint for the robot to move to
+ * @param velocity        - velocity for the robot to move in m/s
+ * @param angularVelocity - angular velocity for the robot to rotate in rad/s
+ * @param errorRange      - minimum distance robot must be from waypoint in meters
  */ 
-void Robot::moveToWaypoint(Vector2& wp)
+void Robot::moveToWaypoint(Vector2& wp, double velocity, double angularVelocity, double errorRange)
 {
-  // move to waypoint wp until within 0.25m of it
-  while (!hasReachedWaypoint(wp, 0.25))
+  // move to waypoint wp until within the error range
+  while (!hasReachedWaypoint(wp, errorRange))
   {
     // obtain angle and distance needed to reach the waypoint
     double angle, distance;
     getAngleDistanceToWaypoint(wp, angle, distance);
 
     // rotate towards then travel to the given waypoint
-    rotateByRadians(angle, 0.5);
-    moveForwardByMeters(distance, 0.5);
+    rotateByRadians(angle, angularVelocity);
+    moveForwardByMeters(distance, velocity);
 
     // handle any bumper events
     handleBump();
