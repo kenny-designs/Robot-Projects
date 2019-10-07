@@ -1,0 +1,66 @@
+playertcp.cc:291 accepted TCP client 0 on port 6665, fd 6
+P2CMV.cc:306 error   : Error loading color file
+playertcp.cc:291 accepted TCP client 0 on port 6665, fd 6
+filewatcher.cc:84 error   : Select called failed in File Watcher: 4 Interrupted system call
+playertcp.cc:390 closing TCP connection to client 0 on port 6665
+plugins.cc:197 loading plugin libstageplugin
+plugins.cc:231 invoking player_driver_init()...
+plugins.cc:247 success
+plugins.cc:197 loading plugin libstageplugin
+plugins.cc:231 invoking player_driver_init()...
+plugins.cc:247 success
+plugins.cc:197 loading plugin libstageplugin
+plugins.cc:231 invoking player_driver_init()...
+plugins.cc:247 success
+plugins.cc:197 loading plugin libstageplugin
+plugins.cc:231 invoking player_driver_init()...
+plugins.cc:247 success
+plugins.cc:197 loading plugin libstageplugin
+plugins.cc:231 invoking player_driver_init()...
+plugins.cc:247 success
+plugins.cc:197 loading plugin libstageplugin
+plugins.cc:231 invoking player_driver_init()...
+plugins.cc:247 success
+plugins.cc:197 loading plugin libstageplugin
+plugins.cc:231 invoking player_driver_init()...
+plugins.cc:247 success
+plugins.cc:197 loading plugin libstageplugin
+plugins.cc:231 invoking player_driver_init()...
+plugins.cc:247 success
+plugins.cc:197 loading plugin libstageplugin
+plugins.cc:231 invoking player_driver_init()...
+plugins.cc:247 success
+playertcp.cc:291 accepted TCP client 0 on port 6665, fd 13
+filewatcher.cc:84 error   : Select called failed in File Watcher: 4 Interrupted system call
+playertcp.cc:390 closing TCP connection to client 0 on port 6665
+plugins.cc:197 loading plugin libstageplugin
+plugins.cc:231 invoking player_driver_init()...
+plugins.cc:247 success
+playertcp.cc:291 accepted TCP client 0 on port 6665, fd 13
+playertcp.cc:855 read() read zero bytes
+playertcp.cc:467 failed to read from client 0
+playertcp.cc:390 closing TCP connection to client 0 on port 6665
+filewatcher.cc:84 error   : Select called failed in File Watcher: 4 Interrupted system call
+plugins.cc:197 loading plugin libstageplugin
+plugins.cc:231 invoking player_driver_init()...
+plugins.cc:247 success
+playertcp.cc:291 accepted TCP client 0 on port 6665, fd 13
+playertcp.cc:855 read() read zero bytes
+playertcp.cc:467 failed to read from client 0
+playertcp.cc:390 closing TCP connection to client 0 on port 6665
+playertcp.cc:291 accepted TCP client 0 on port 6665, fd 6
+playertcp.cc:855 read() read zero bytes
+playertcp.cc:467 failed to read from client 0
+playertcp.cc:390 closing TCP connection to client 0 on port 6665
+filewatcher.cc:84 error   : Select called failed in File Watcher: 4 Interrupted system call
+playertcp.cc:291 accepted TCP client 0 on port 6665, fd 6
+filewatcher.cc:84 error   : Select called failed in File Watcher: 4 Interrupted system call
+playertcp.cc:390 closing TCP connection to client 0 on port 6665
+playertcp.cc:291 accepted TCP client 0 on port 6665, fd 6
+playertcp.cc:855 read() read zero bytes
+playertcp.cc:467 failed to read from client 0
+playertcp.cc:390 closing TCP connection to client 0 on port 6665
+filewatcher.cc:84 error   : Select called failed in File Watcher: 4 Interrupted system call
+playertcp.cc:291 accepted TCP client 0 on port 6665, fd 6
+filewatcher.cc:84 error   : Select called failed in File Watcher: 4 Interrupted system call
+playertcp.cc:390 closing TCP connection to client 0 on port 6665
