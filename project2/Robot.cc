@@ -19,7 +19,7 @@
  */
 Robot::Robot(bool isSimulation, std::string hostname) :
   isSimulation(isSimulation),
-  isCorrectingPosition(false),
+  isHandlingBump(false),
   robot(hostname),
   pp(&robot, 0),
   bp(&robot, 0) {}
@@ -42,8 +42,8 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     // read from proxies
     robot.Read();
 
-    // break if the position is not being corrected and a bumper has been pressed
-    if (!isCorrectingPosition && isAnyPressed()) break;
+    // break if a bumper has been pressed and we're not currently handling a bumper event
+    if (!isHandlingBump && isAnyPressed()) break;
   }
 
   // stop moving
@@ -112,6 +112,24 @@ void Robot::getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& dista
 }
 
 /**
+ * Returns true if the robot has reached the given waypoint within the
+ * given error range
+ *
+ * @param wp         - the waypoint we are testing to see if we reached
+ * @param errorRange - the range in which the robot must be to the wp
+ * @return           - true if the robot has reached the robot. Otherwise, false
+ */ 
+bool Robot::hasReachedWaypoint(Vector2& wp, double errorRange)
+{
+  // obtain the robots x and y position
+  Vector2 pos(getXPos(), getYPos());
+
+  // return true if reached the waypoint within the error range
+  return (pos.x + errorRange > wp.x && pos.x - errorRange < wp.x) &&
+         (pos.y + errorRange > wp.y && pos.y - errorRange < wp.y);
+}
+
+/**
  * Corrects the robot's position if a bumper has been pressed by adjusting its
  * orientation and location based on the given parameters.
  *
@@ -141,34 +159,16 @@ void Robot::handleBump(double distance, double velocity, double angle, double an
     angle *= -1;
   }
 
-  // robot is now in position correction state
-  isCorrectingPosition = true;
+  // robot is now addressing bumper press event
+  isHandlingBump = true;
 
-  // correct robot position
+  // correct robot position by dislodging it
   moveForwardByMeters(-distance, velocity);  // back up by the given distance
   rotateByRadians(angle, angVelocity);       // rotate by the given angle
   moveForwardByMeters(distance, velocity);   // move forward by the given distance
 
-  // robot no longer in position correction state
-  isCorrectingPosition = false;
-}
-
-/**
- * Returns true if the robot has reached the given waypoint within the
- * given error range
- *
- * @param wp         - the waypoint we are testing to see if we reached
- * @param errorRange - the range in which the robot must be to the wp
- * @return           - true if the robot has reached the robot. Otherwise, false
- */ 
-bool Robot::hasReachedWaypoint(Vector2& wp, double errorRange)
-{
-  // obtain the robots x and y position
-  Vector2 pos(getXPos(), getYPos());
-
-  // return true if reached the waypoint within the error range
-  return (pos.x + errorRange > wp.x && pos.x - errorRange < wp.x) &&
-         (pos.y + errorRange > wp.y && pos.y - errorRange < wp.y);
+  // robot has finished addressing the bumper press event
+  isHandlingBump = false;
 }
 
 /**

@@ -18,7 +18,7 @@ class Robot
   PlayerCc::BumperProxy     bp;         // The bumper proxy reads from the bumpers.
   PlayerCc::Position2dProxy pp;         // The 2D proxy is used to send motion commands.
   bool isSimulation;                    // if false, adjusts settings to better accomodate the actual robot
-  bool isCorrectingPosition;            // true if the robot is currently correcting its position
+  bool isHandlingBump;                  // true if the robot is currently correcting its position due to a bumper press
 
   // By default, the interval is 100 milliseconds as per the
   // How to Use Player/Stage guide at
@@ -32,11 +32,19 @@ class Robot
   static const double MOVEMENT_TICK_SCALE = 0.5;
   static const double ROTATION_TICK_SCALE = 0.25;
 
+  // movement
   void moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks);
   void getFinalTicksAndVelocity(double distance, double& velocity, int& ticks);
+
+  // waypoint movement
   void getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& distance);
-  void handleBump(double distance = 1.0, double velocity = 0.5, double angle = 5.0 * M_PI / 12.0, double angVelocity = 0.5);
   bool hasReachedWaypoint(Vector2& wp, double errorRange);
+
+  // bumper movement
+  void handleBump(double distance = 1.0,
+                  double velocity = 0.5,
+                  double angle = 5.0 * M_PI / 12.0,
+                  double angularVelocity = 0.5);
 
 public:
   // constructor
