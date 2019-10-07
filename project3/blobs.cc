@@ -5,6 +5,11 @@
 
 using namespace PlayerCc;
 
+// definitions
+#define LEFT_X   80
+#define RIGHT_X  240
+#define MIN_AREA 30
+
 // forward declarations
 bool isRedBlob(player_blobfinder_blob_t& blob);
 bool isFacingBeacon(player_blobfinder_blob_t& blob);
@@ -33,7 +38,7 @@ int main(int argc, char *argv[])
   while(true) 
   {
     // for safety, velocity and angularVelocity are 0 by default
-    velocity = 0;
+    velocity        = 0;
     angularVelocity = 0;
 
     // Read from the proxies
@@ -68,10 +73,9 @@ int main(int argc, char *argv[])
       break;
     }
 
+    // apply calculated velocity and angularVelocity to the robot
     std::cout << "Velocity:        " << velocity        << "\n";      
     std::cout << "AngularVelocity: " << angularVelocity << "\n\n";
-
-    // move to the beacon
     pp.SetSpeed(velocity, angularVelocity);
   }
 }
@@ -86,7 +90,7 @@ bool isRedBlob(player_blobfinder_blob_t& blob)
 bool isFacingBeacon(player_blobfinder_blob_t& blob)
 {
   // TODO: find what values constitue as 'facing' the beacon
-  return false;
+  return blob.x >= LEFT_X && blob.x <= RIGHT_X;
 }
 
 /** Print blob data */
@@ -105,16 +109,15 @@ double rotateToFaceBeacon(Position2dProxy& pp, player_blobfinder_blob_t& blob)
 {
   if (isFacingBeacon(blob)) return 0;
 
-  // TODO: fill this in with actual numbers
-  uint32_t left = 0, right = 0;
-  if (blob.x < left)
+  // TODO: find what values of LEFT_X and RIGHT_X should be
+  // looking too far left, right turn
+  if (blob.x < LEFT_X)
   {
-    // right to the right
+    return -0.1;
   }
-  else if (blob.x > right)
-  {
-    // rotate to the left
-  }
+
+  // otherwise, the robot is looking too far right. Turn left
+  return 0.1;
 }
 
 /** Returns the appropriate velocity needed to reach the beacon */
@@ -122,7 +125,7 @@ double moveToBeacon(Position2dProxy& pp, player_blobfinder_blob_t& blob)
 {
   // TODO: check minimum area must be for us to consider the movement complete
   // if already within 2ft, stop
-  if (blob.area <= 20) return 0;
+  if (blob.area <= MIN_AREA) return 0;
 
   // by default, we move at 0.1 m/s
   double vel = 0.1;
