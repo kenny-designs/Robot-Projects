@@ -1,9 +1,5 @@
 #include "Vector2.h"
-#include <limits> // std::numeric_limits
 #include <cmath>  // hypot()
-
-// used for comparing doubles to 0
-#define EPSILON std::numeric_limits<double>::epsilon()
 
 /**
  * Subtracts one Vector2 from another
