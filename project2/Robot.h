@@ -60,8 +60,8 @@ public:
   void setMotorEnable(bool isMotorEnabled);
 
   // handle basic movement
-  void moveForwardByMeters(double distanceInMeters, double forwardVelocity = 0.1);
-  void rotateByRadians(double radiansToRotate, double angularVelocity = 0.1);
+  void moveForwardByMeters(double distanceInMeters, double forwardVelocity = 0.5);
+  void rotateByRadians(double radiansToRotate, double angularVelocity = 0.5);
 
   // handle waypoint movement
   void moveToWaypoint(Vector2& wp);
