@@ -124,13 +124,12 @@ void Robot::getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& dista
  */
 void Robot::handleBump()
 {
-  isCorrectingPosition = true;
-
   robot.Read();
   bool isLeft  = isLeftPressed(),
        isRight = isRightPressed();
 
-  printBumper();
+  // return if neither bumper is pressed
+  if (!(isLeft || isRight)) return;
 
   double angle = M_PI_4 + M_PI_4 / 2.0;  // default rotate left
   if (isLeft && isRight)
@@ -146,11 +145,15 @@ void Robot::handleBump()
     angle *= -1;
   }
 
+  // robot is now in position correction state
+  isCorrectingPosition = true;
+
   // correct robot position
   moveForwardByMeters(-1.0, 0.5);  // back up by 1.0 meters
   rotateByRadians(angle, 0.5);     // rotate by the angle
   moveForwardByMeters(1.0, 0.5);   // move forward by 1.0 meters
 
+  // robot no longer in position correction state
   isCorrectingPosition = false;
 }
 
