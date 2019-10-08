@@ -368,7 +368,8 @@ void Robot::autoPilot(bool (*stopCondition)(Robot*), TurnDirection::Enum simulta
 }
 
 /**
- * The robot will constantly move forward whilst only relying on its laser
+ * The robot will constantly move forward whilst only relying on its laser.
+ * It will cease movement upon reaching a dead end.
  */ 
 void Robot::autoPilotLaser()
 {
