@@ -52,13 +52,6 @@ class Robot
   void getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& distance);
   bool hasReachedWaypoint(Vector2& wp, double errorRange);
 
-  // bumper movement
-  void handleBump(TurnDirection::Enum simultaneousBumpDir = TurnDirection::Random,
-                  double angle = 5.0 * M_PI / 12.0,  // 75 degrees or 5/12*PI radians
-                  double distance = 1.0,
-                  double velocity = 0.5,
-                  double angularVelocity = 0.5);
-
 public:
   // constructor
   Robot(bool isSimulation = true, std::string hostname = "localhost");
@@ -76,7 +69,6 @@ public:
   // print information about the robot
   void printPosition();
   void printBumper();
-  void printLaserData();
 
   // motor
   void setMotorEnable(bool isMotorEnabled);
@@ -85,6 +77,13 @@ public:
   void moveForwardByMeters(double distanceInMeters, double forwardVelocity = 0.5);
   void rotateByRadians(double radiansToRotate, double angularVelocity = 0.5);
   void setSpeed(double forwardVelocity = 0.5, double angularVelocity = 0.5, TurnDirection::Enum dir = TurnDirection::Left);
+
+  // bumper movement
+  void handleBump(TurnDirection::Enum simultaneousBumpDir = TurnDirection::Random,
+                  double angle = 5.0 * M_PI / 12.0,  // 75 degrees or 5/12*PI radians
+                  double distance = 1.0,
+                  double velocity = 0.5,
+                  double angularVelocity = 0.5);
 
   // handle waypoint movement
   void moveToWaypoint(Vector2& wp, double velocity = 0.5, double angularVelocity = 0.5, double errorRange = 0.25);

@@ -4,7 +4,6 @@
 
 // forward declarations
 void wallWorld(Robot& robot);
-bool wallWorldStopCondition(Robot* robot);
 void mazeWorld(Robot& robot);
 void traverseWaypoints(std::vector<Vector2>& waypoints, Robot& robot);
 
@@ -25,45 +24,33 @@ int main(int argc, char *argv[])
 
 /**
  * The given robot will complete a circuit around the blob in
- * the center of the world and end up where it started. In particular,
- * the robot will do this by strictly using its bumpers.
+ * the center of the world and end up where it started.
  *
  * @param robot - the robot that will be solving the level
  */ 
 void wallWorld(Robot& robot)
 {
-  // guide the robot around the blob in a counter-clockwise direction
-  robot.autoPilot(wallWorldStopCondition, TurnDirection::Left);
+  double x, y;
+  while (1)
+  {
+    x = robot.getXPos(),
+    y = robot.getYPos();
 
-  // robot finished moving around the blob, go back to starting point
+    // break upon reentering quadrant in which we started from    
+    if (x > -2.0 && x < 2.0 && y > 4.0 && y < 5.0) break;
+
+    robot.setSpeed(1.0, 0);
+
+    // handle bumper
+    robot.handleBump((x < 11.0 && x > 0 && y < 11.0 && y > 0) ? TurnDirection::Right : TurnDirection::Left);
+  }
+
+  // cicuit has been completed, go back to origin
   std::cout << "Returning to origin.\n\n";
   Vector2 origin(0,0);
   robot.moveToWaypoint(origin);
 }
 
-
-/**
- * Passed as a function pointer to the robot's autoPilot method
- * to determine when to stop movement. In particular, the robot
- * will stop auto pilot movement upon entering the rectangular space
- * between the points (-2, 5) and (2, 4)
- *
- * @param robot - The robot we are checking if meets the stop condition
- */ 
-bool wallWorldStopCondition(Robot* robot)
-{
-  double x = robot->getXPos(),
-         y = robot->getYPos();
-
-  if (x > -2.0 && x < 2.0 && y > 4.0 && y < 5.0)
-  {
-    std::cout << "Robot is now within the rectangular space between points\n" <<
-                 "(-2,5) and (2,4). Stop condition has been reached. Ceasing auto-pilot.\n\n";
-    return true;
-  }
-
-  return false;
-}
 
 /**
  * Generates waypoints for the robot to follow to solve the
