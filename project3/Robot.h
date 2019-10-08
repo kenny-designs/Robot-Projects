@@ -18,7 +18,7 @@
  */
 namespace TurnDirection
 {
-  enum Enum { Left, Right, Random };
+  enum Enum { Left, Right, Random, None };
 }
 
 /**

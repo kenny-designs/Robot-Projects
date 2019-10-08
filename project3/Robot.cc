@@ -266,12 +266,12 @@ void Robot::printLaserData()
 {
   robot.Read();
   std::cout << "Max laser distance:        " << sp.GetMaxRange() << "\n" <<
-               //"Number of readings:        " << sp.GetCount()    << "\n" <<
+               "Number of readings:        " << sp.GetCount()    << "\n" <<
                "Closest thing on left:     " << sp.MinLeft()     << "\n" <<
                "Closest thing on right:    " << sp.MinRight()    << "\n" <<
                "Left + Right:              " << (sp.MinRight() + sp.MinLeft()) << "\n" <<
-               "Range of a single point:   " << sp.GetRange(5)   << "\n\n";
-               //"Bearing of a single point: " << sp.GetBearing(5) << "\n\n";
+               "Range of a single point:   " << sp.GetRange(5)   << "\n" <<
+               "Bearing of a single point: " << sp.GetBearing(5) << "\n\n";
 }
 
 /**
@@ -375,6 +375,7 @@ void Robot::autoPilotLaser()
   TurnDirection::Enum dir = TurnDirection::Left;
   double angle = M_PI_2;
 
+  /*
   rotateByRadians(angle);
 
   while (1)
@@ -389,5 +390,23 @@ void Robot::autoPilotLaser()
     {
       rotateByRadians(dir == TurnDirection::Right ? -angle : angle, 0.1);
     }
+  }
+  */
+
+  // TODO: this solution is very simple and works perfectly.
+  // However, it doesn't seem very flexible
+  while (1)
+  {
+    printLaserData();
+
+    // reached a dead end, stop moving
+    if (sp.MinLeft() < 1.0 && sp.MinRight() < 1.0) break;
+
+    // steady the robot to the center of the lane
+    if      (sp.MinRight() < sp.MinLeft())  angle =  0.5;
+    else if (sp.MinLeft()  < sp.MinRight()) angle = -0.5;
+
+    // move robot
+    pp.SetSpeed(0.5, angle);
   }
 }
