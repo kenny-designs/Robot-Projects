@@ -8,7 +8,10 @@ int main(int argc, char *argv[])
   // Enable motors
   robot.setMotorEnable(true);
 
-  // testing by moving the robot forward
-  robot.moveForwardByMeters(5.0);
+  // TODO: remove after done testing laser data
+  //while(1) { robot.printLaserData(); }
+
+  // endlessly move forward guided by the laser
+  robot.autoPilotLaser();
 }
 

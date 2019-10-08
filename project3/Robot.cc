@@ -47,8 +47,6 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     // read from proxies
     robot.Read();
     
-    printLaserData();
-
     // break if a bumper has been pressed and we're not currently handling a bumper event
     if (!isHandlingBump && isAnyPressed()) break;
   }
@@ -266,12 +264,14 @@ void Robot::printBumper()
 /** Prints data from the laser */
 void Robot::printLaserData()
 {
+  robot.Read();
   std::cout << "Max laser distance:        " << sp.GetMaxRange() << "\n" <<
-               "Number of readings:        " << sp.GetCount()    << "\n" <<
+               //"Number of readings:        " << sp.GetCount()    << "\n" <<
                "Closest thing on left:     " << sp.MinLeft()     << "\n" <<
                "Closest thing on right:    " << sp.MinRight()    << "\n" <<
-               "Range of a single point:   " << sp.GetRange(5)   << "\n" <<
-               "Bearing of a single point: " << sp.GetBearing(5) << "\n\n";
+               "Left + Right:              " << (sp.MinRight() + sp.MinLeft()) << "\n" <<
+               "Range of a single point:   " << sp.GetRange(5)   << "\n\n";
+               //"Bearing of a single point: " << sp.GetBearing(5) << "\n\n";
 }
 
 /**
@@ -367,3 +367,24 @@ void Robot::autoPilot(bool (*stopCondition)(Robot*), TurnDirection::Enum simulta
   }
 }
 
+/**
+ * The robot will constantly move forward whilst only relying on its laser
+ */ 
+void Robot::autoPilotLaser()
+{
+  TurnDirection::Enum dir = TurnDirection::Left;
+  double angle = M_PI_2;
+  while (1)
+  {
+    pp.SetSpeed(0.5, 0);
+    printLaserData();
+
+    if      (sp.MinRight() > 2.0) dir = TurnDirection::Right;
+    else if (sp.MinLeft()  > 2.0) dir = TurnDirection::Left;
+
+    if (sp.MinLeft() < 1.2 && sp.MinRight() < 1.2)
+    {
+      rotateByRadians(dir == TurnDirection::Right ? -angle : angle);
+    }
+  }
+}

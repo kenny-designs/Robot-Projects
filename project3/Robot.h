@@ -93,6 +93,7 @@ public:
   void autoPilot(bool (*stopCondition)(Robot*),
                  TurnDirection::Enum simultaneousBumpDir = TurnDirection::Random,
                  double velocity = 0.5);
+  void autoPilotLaser();
 };
 
 #endif
