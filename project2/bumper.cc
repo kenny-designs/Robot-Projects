@@ -23,29 +23,15 @@ int main(int argc, char *argv[])
 }
 
 /**
- * Generates waypoints for the robot to follow to solve the
- * wall-world.png level. In particular, it will complete a circuit
- * around the blob in the center of the world and end up where it
- * started.
+ * The given robot will complete a circuit around the blob in
+ * the center of the world and end up where it started. In particular,
+ * the robot will do this by strictly using its bumpers.
  *
  * @param robot - the robot that will be solving the level
  */ 
 void wallWorld(Robot& robot)
 {
-  // vector to hold all waypoints for the robot to travel to
-  std::vector<Vector2> waypoints;
-
-  // populate vector with waypoints
-  waypoints.push_back(Vector2( 0,  0));
-  waypoints.push_back(Vector2(10,  3));
-  waypoints.push_back(Vector2(10,  6));
-  waypoints.push_back(Vector2( 9,  9));
-  waypoints.push_back(Vector2( 4, 10));
-  waypoints.push_back(Vector2( 1,  6));
-  waypoints.push_back(Vector2( 0,  0));
-
-  // have robot travel to each waypoint
-  traverseWaypoints(waypoints, robot);
+  // TODO: bumpers only
 }
 
 /**
