@@ -36,6 +36,7 @@ void wallWorld(Robot& robot)
   robot.autoPilot(wallWorldStopCondition, TurnDirection::Left);
 
   // robot finished moving around the blob, go back to starting point
+  std::cout << "Returning to origin.\n\n";
   Vector2 origin(0,0);
   robot.moveToWaypoint(origin);
 }
