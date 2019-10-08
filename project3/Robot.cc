@@ -23,7 +23,11 @@ Robot::Robot(bool isSimulation, std::string hostname) :
   robot(hostname),
   pp(&robot, 0),
   bp(&robot, 0),
-  sp(&robot, 0) {}
+  sp(&robot, 0)
+{
+  // initial read to prevent segmentation defaults with proxies
+  robot.Read();
+}
 
 /**
  * Move and rotate the robot over the given number of ticks
@@ -42,6 +46,8 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
   {
     // read from proxies
     robot.Read();
+    
+    printLaserData();
 
     // break if a bumper has been pressed and we're not currently handling a bumper event
     if (!isHandlingBump && isAnyPressed()) break;
@@ -260,24 +266,12 @@ void Robot::printBumper()
 /** Prints data from the laser */
 void Robot::printLaserData()
 {
-  robot.Read();
-  double maxRange, minLeft, minRight, range, bearing;
-  int points;
-
-  maxRange  = sp.GetMaxRange();
-  minLeft   = sp.MinLeft();
-  minRight  = sp.MinRight();
-  points    = sp.GetCount();
-  range     = sp.GetRange(5);
-  bearing   = sp.GetBearing(5);
-
-  std::cout << "Laser says..." << std::endl;
-  std::cout << "Maximum distance I can see: " << maxRange << std::endl;
-  std::cout << "Number of readings I return: " << points << std::endl;
-  std::cout << "Closest thing on left: " << minLeft << std::endl;
-  std::cout << "Closest thing on right: " << minRight << std::endl;
-  std::cout << "Range of a single point: " << range << std::endl;
-  std::cout << "Bearing of a single point: " << bearing << std::endl;
+  std::cout << "Max laser distance:        " << sp.GetMaxRange() << "\n" <<
+               "Number of readings:        " << sp.GetCount()    << "\n" <<
+               "Closest thing on left:     " << sp.MinLeft()     << "\n" <<
+               "Closest thing on right:    " << sp.MinRight()    << "\n" <<
+               "Range of a single point:   " << sp.GetRange(5)   << "\n" <<
+               "Bearing of a single point: " << sp.GetBearing(5) << "\n\n";
 }
 
 /**
