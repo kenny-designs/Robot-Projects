@@ -5,10 +5,19 @@
 
 using namespace PlayerCc;
 
-// definitions
-#define LEFT_X   135
-#define RIGHT_X  185
-#define MAX_AREA 4500
+// centering the beacon on the screen
+#define WIDTH         320
+#define CENTER_X      160
+#define CENTER_OFFSET 25
+
+// angular velocity
+#define MAX_ROT_SPEED 0.1
+#define MIN_ROT_SPEED 0.05
+
+// velocity
+#define MAX_AREA  4500
+#define MAX_SPEED 0.5
+#define MIN_SPEED 0.1
 
 // forward declarations
 bool isRedBlob(player_blobfinder_blob_t& blob);
@@ -47,38 +56,40 @@ int main(int argc, char *argv[])
       continue;
     }
 
-    // reset velocity and angularVelocity to 0
-    velocity        = 0;
-    angularVelocity = 0;
+    velocity        = 0;             // robot isn't moving by default
+    angularVelocity = MAX_ROT_SPEED; // robot scanning for a beacon by default
 
     // Iterate over blobs if any. Only process the first red blob we see
     for (int i = 0; i < bf.GetCount(); i++)
     {
-      // skip any blobs that aren't red
+      // look for a red blob
       blob = bf.GetBlob(i);
       if (!isRedBlob(blob)) continue;
 
-      // otherwise, we have a red blob! print to screen
+      // print blob info to the screen
       printBlob(blob);
 
-      // if not facing the beacon, rotate towards it
+      // center beacon to the camera's view
       if (!isFacingBeacon(blob))
       {
         angularVelocity = getAngularVelocityToBeacon(blob);
       }
-      // otherwise, begin moving towards it
+      // if beacon is centered, begin moving towards it and prevent default beacon search
       else
       {
         velocity = getVelocityToBeacon(blob);
+        angularVelocity = 0;
       }
 
-      // only need to process a single red blob, break
+      // only process the first red blob encountered, break
       break;
     }
 
     // apply calculated velocity and angularVelocity to the robot
     std::cout << "Velocity:        " << velocity        << "\n" <<
                  "AngularVelocity: " << angularVelocity << "\n\n";
+
+    // approach the beacon
     pp.SetSpeed(velocity, angularVelocity);
   }
 }
@@ -102,7 +113,8 @@ bool isRedBlob(player_blobfinder_blob_t& blob)
  */
 bool isFacingBeacon(player_blobfinder_blob_t& blob)
 {
-  return blob.x >= LEFT_X && blob.x <= RIGHT_X;
+  return blob.x >= CENTER_X - CENTER_OFFSET &&
+         blob.x <= CENTER_X + CENTER_OFFSET;
 }
 
 /**
@@ -129,14 +141,18 @@ double getAngularVelocityToBeacon(player_blobfinder_blob_t& blob)
 {
   if (isFacingBeacon(blob)) return 0;
 
-  // looking too far left, right turn
-  if (blob.x < LEFT_X)
+  // set x to a value between 0 to CENTER_X
+  double x = blob.x;
+  if (x > CENTER_X)
   {
-    return 0.05;
+    x = WIDTH - x;
   }
 
-  // otherwise, the robot is looking too far right. Turn left
-  return -0.05;
+  // scale angular velocity depending on how far away we are from the center
+  double angularVelocity = (x / CENTER_X) * (MIN_ROT_SPEED - MAX_ROT_SPEED) + MAX_ROT_SPEED;
+
+  // rotate in the correct direction
+  return blob.x > CENTER_X ? -angularVelocity : angularVelocity;
 }
 
 /**
@@ -150,29 +166,15 @@ double getVelocityToBeacon(player_blobfinder_blob_t& blob)
   // if already within 2ft, stop
   if (blob.area >= MAX_AREA) return 0;
 
-  // left default velocity is 0.1 m/s because it should adjust using the algorithm below
-  double vel = 0.1;
+  // default velocity is MIN_SPEED because it should adjust using the algorithm below
+  double vel = MIN_SPEED;
 
   // scale velocity based on distance between the robot and beacon
-  /*From Yasmine: I think that the previous algorithm: vel *= blob.area/MAX_Area
-  was actually reducing the speed when further away from our beacon, because the blob.area 
-  value is smaller the further the beacon is, therefore we were dividing a large number (max area = 4500)
-  into a small number and getting a small decimal factor to multiply into our 0.1/s velocity,
-  giving us a slower velocity. For example if the blob.area is 1000 (so much farther away than 2ft), 
-  then our velocity would be 0.1 (0.2222) which 0.02/sec velocity. I think this was leading us to 
-  evoke the 0.05 min speed condition previously set below. 
+  vel *=  MAX_AREA / blob.area ;
 
-  So I’ve switched them around, now the blob.area divides into the Max_Area, 
-  I left the default/initial speed at 0.1 because it’s going to adjust anyway 
-  (as I understand it) and I’ve set the max speed cap as 0.5/s and min speed cap of 0.1/s.
-  Hard to say what this will look like in real life, but hopefully will be easy to adjust
-  if necessary.
-  */
-  vel *=  MAX_AREA/blob.area ;
-
-  // cap velocity between 0.1 m/s and 0.5 m/s
-  if      (vel < 0.1) vel = 0.1;
-  else if (vel > 0.5)  vel = 0.5;
+  // cap velocity between the MIN_SPEED and MAX_SPEED
+  if      (vel < MIN_SPEED) vel = MIN_SPEED;
+  else if (vel > MAX_SPEED) vel = MAX_SPEED;
 
   return vel;
 }
