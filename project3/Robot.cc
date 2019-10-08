@@ -269,7 +269,6 @@ void Robot::printLaserData()
                "Number of readings:        " << sp.GetCount()    << "\n" <<
                "Closest thing on left:     " << sp.MinLeft()     << "\n" <<
                "Closest thing on right:    " << sp.MinRight()    << "\n" <<
-               "Left + Right:              " << (sp.MinRight() + sp.MinLeft()) << "\n" <<
                "Range of a single point:   " << sp.GetRange(5)   << "\n" <<
                "Bearing of a single point: " << sp.GetBearing(5) << "\n\n";
 }
@@ -322,6 +321,34 @@ void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
 }
 
 /**
+ * Extends the Proximity2dProxy's SetSpeed() method to allow for more flexibility when
+ * rotating the robot
+ *
+ * @param forwardVelocity - forward velocity to move the robot in m/s
+ * @param angularVelocity - angular velocity to rotate the robot in rad/s
+ * @param dir             - direction for the robot to move in
+ */ 
+void Robot::setSpeed(double forwardVelocity, double angularVelocity, TurnDirection::Enum dir)
+{
+  switch(dir)
+  {
+    case TurnDirection::Left:
+      angularVelocity = angularVelocity < 0 ? -angularVelocity : angularVelocity;
+      break;
+
+    case TurnDirection::Right:
+      angularVelocity = angularVelocity > 0 ? -angularVelocity : angularVelocity;
+      break;
+
+    case TurnDirection::None:
+      angularVelocity = 0;
+      break;
+  }
+
+  pp.SetSpeed(forwardVelocity, angularVelocity);
+}
+
+/**
  * The robot will move to the specified Waypoint even if obstacles are in the way
  *
  * @param wp              - the waypoint for the robot to move to
@@ -370,33 +397,15 @@ void Robot::autoPilot(bool (*stopCondition)(Robot*), TurnDirection::Enum simulta
 /**
  * The robot will constantly move forward whilst only relying on its laser.
  * It will cease movement upon reaching a dead end.
+ *
+ * @param forwardVelocity - velocity that the robot moves forward at in m/s
+ * @param angularVelocity - angular velocity that the robot rotates at in rad/s
  */ 
-void Robot::autoPilotLaser()
+void Robot::autoPilotLaser(double forwardVelocity, double angularVelocity)
 {
-  /*
-  TurnDirection::Enum dir = TurnDirection::Left;
-  double angle = M_PI_2;
-
-  rotateByRadians(angle);
-
-  while (1)
-  {
-    pp.SetSpeed(0.5, 0);
-    printLaserData();
-
-    if      (sp.MinRight() > 2.0) dir = TurnDirection::Right;
-    else if (sp.MinLeft()  > 2.0) dir = TurnDirection::Left;
-
-    if (sp.MinLeft() < 1.2 && sp.MinRight() < 1.2)
-    {
-      rotateByRadians(dir == TurnDirection::Right ? -angle : angle, 0.1);
-    }
-  }
-  */
-
-  // TODO: this solution is very simple and works perfectly.
-  // However, it doesn't seem very flexible
   double minLeft, minRight;
+  TurnDirection::Enum dir;
+
   while (1)
   {
     printLaserData();
@@ -406,9 +415,14 @@ void Robot::autoPilotLaser()
     minRight = sp.MinRight();
 
     // reached a dead end, stop moving
-    if (minLeft < 1.0 && minRight < 1.0) break;
+    if (minLeft < 0.30 && minRight < 0.30) break;
 
-    // move robot whilst steadying it in the center of the lane
-    pp.SetSpeed(0.5, minRight < minLeft ? 0.5 : -0.5);
+    // steady the robot to the center of its lane
+    if      (minLeft < 1.225 && minRight < 1.225) dir = TurnDirection::None;
+    else if (minRight < minLeft)                  dir = TurnDirection::Left;
+    else if (minRight > minLeft)                  dir = TurnDirection::Right;
+
+    // move robot
+    setSpeed(forwardVelocity, angularVelocity, dir);
   }
 }

@@ -85,6 +85,7 @@ public:
   // handle basic movement
   void moveForwardByMeters(double distanceInMeters, double forwardVelocity = 0.5);
   void rotateByRadians(double radiansToRotate, double angularVelocity = 0.5);
+  void setSpeed(double forwardVelocity = 0.5, double angularVelocity = 0.5, TurnDirection::Enum dir = TurnDirection::Left);
 
   // handle waypoint movement
   void moveToWaypoint(Vector2& wp, double velocity = 0.5, double angularVelocity = 0.5, double errorRange = 0.25);
@@ -93,7 +94,7 @@ public:
   void autoPilot(bool (*stopCondition)(Robot*),
                  TurnDirection::Enum simultaneousBumpDir = TurnDirection::Random,
                  double velocity = 0.5);
-  void autoPilotLaser();
+  void autoPilotLaser(double forwardVelocity = 0.5, double angularVelocity = 1.0);
 };
 
 #endif
