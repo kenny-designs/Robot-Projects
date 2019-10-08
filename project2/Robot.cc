@@ -133,12 +133,12 @@ bool Robot::hasReachedWaypoint(Vector2& wp, double errorRange)
  * Corrects the robot's position if a bumper has been pressed by adjusting its
  * orientation and location based on the given parameters.
  *
+ * @param angle       - the angle to rotate the robot
  * @param distance    - the distance for the robot to move
  * @param velocity    - the velocity to move at
- * @param angle       - the angle to rotate the robot
  * @param angVelocity - the velocity to rotate at
  */
-void Robot::handleBump(double distance, double velocity, double angle, double angVelocity)
+void Robot::handleBump(double angle, double distance, double velocity, double angVelocity)
 {
   robot.Read();
   bool isLeft  = isLeftPressed(),
@@ -318,3 +318,22 @@ void Robot::moveToWaypoint(Vector2& wp, double velocity, double angularVelocity,
     handleBump();
   }
 }
+
+/**
+ * The robot will constantly move forward and only change its course
+ * if a collision is detected via the bumpers. If the given stop
+ * condition ever returns true, the robot will exit auto pilot completely.
+ *
+ * @param stopCondition - function pointer that takes a pointer to Robot.
+ *                        If returns true, stop auto pilot.
+ */ 
+void Robot::autoPilot(bool (*stopCondition)(Robot*))
+{
+  while (!(*stopCondition)(this))
+  {
+    robot.Read();
+    pp.SetSpeed(1, 0);
+    handleBump(M_PI_4, 0.25);
+  }
+}
+

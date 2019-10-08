@@ -41,9 +41,9 @@ class Robot
   bool hasReachedWaypoint(Vector2& wp, double errorRange);
 
   // bumper movement
-  void handleBump(double distance = 1.0,
+  void handleBump(double angle = 5.0 * M_PI / 12.0,  // 75 degrees or 5/12*PI radians
+                  double distance = 1.0,
                   double velocity = 0.5,
-                  double angle = 5.0 * M_PI / 12.0,  // 75 degrees or 5/12*PI radians
                   double angularVelocity = 0.5);
 
 public:
@@ -73,6 +73,9 @@ public:
 
   // handle waypoint movement
   void moveToWaypoint(Vector2& wp, double velocity = 0.5, double angularVelocity = 0.5, double errorRange = 0.25);
+
+  // auto movement
+  void autoPilot(bool (*stopCondition)(Robot*));
 };
 
 #endif

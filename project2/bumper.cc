@@ -4,6 +4,7 @@
 
 // forward declarations
 void wallWorld(Robot& robot);
+bool wallWorldStopCondition(Robot* robot);
 void mazeWorld(Robot& robot);
 void traverseWaypoints(std::vector<Vector2>& waypoints, Robot& robot);
 
@@ -31,7 +32,24 @@ int main(int argc, char *argv[])
  */ 
 void wallWorld(Robot& robot)
 {
-  // TODO: bumpers only
+  robot.autoPilot(wallWorldStopCondition);
+}
+
+
+/**
+ * Passed as a function pointer to the robot's autoPilot method
+ * to determine when to stop movement. In particular, the robot
+ * will stop auto pilot movement upon entering the rectangular space
+ * between the points (-2, 5) and (2, 3)
+ *
+ * @param robot - The robot we are checking if meets the stop condition
+ */ 
+bool wallWorldStopCondition(Robot* robot)
+{
+  double x = robot->getXPos(),
+         y = robot->getYPos();
+
+  return x > -2.0 && x < 2.0 && y > 3.0 && y < 5.0;
 }
 
 /**
