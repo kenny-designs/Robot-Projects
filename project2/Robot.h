@@ -18,7 +18,7 @@
  */
 namespace TurnDirection
 {
-  enum Enum { Left, Right, Random };
+  enum Enum { Left, Right, Random, None };
 }
 
 /**
@@ -76,6 +76,7 @@ public:
   // print information about the robot
   void printPosition();
   void printBumper();
+  void printLaserData();
 
   // motor
   void setMotorEnable(bool isMotorEnabled);
@@ -83,6 +84,7 @@ public:
   // handle basic movement
   void moveForwardByMeters(double distanceInMeters, double forwardVelocity = 0.5);
   void rotateByRadians(double radiansToRotate, double angularVelocity = 0.5);
+  void setSpeed(double forwardVelocity = 0.5, double angularVelocity = 0.5, TurnDirection::Enum dir = TurnDirection::Left);
 
   // handle waypoint movement
   void moveToWaypoint(Vector2& wp, double velocity = 0.5, double angularVelocity = 0.5, double errorRange = 0.25);

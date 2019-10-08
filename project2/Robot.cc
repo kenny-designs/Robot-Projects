@@ -22,7 +22,11 @@ Robot::Robot(bool isSimulation, std::string hostname) :
   isHandlingBump(false),
   robot(hostname),
   pp(&robot, 0),
-  bp(&robot, 0) {}
+  bp(&robot, 0)
+{
+  // initial read to prevent segmentation defaults with proxies
+  robot.Read();
+}
 
 /**
  * Move and rotate the robot over the given number of ticks
@@ -41,7 +45,7 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
   {
     // read from proxies
     robot.Read();
-
+    
     // break if a bumper has been pressed and we're not currently handling a bumper event
     if (!isHandlingBump && isAnyPressed()) break;
   }
@@ -301,6 +305,34 @@ void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
   if (!isSimulation) { ticks *= ROTATION_TICK_SCALE; }
 
   moveAndRotateOverTicks(0, angularVelocity, ticks);
+}
+
+/**
+ * Extends the Proximity2dProxy's SetSpeed() method to allow for more flexibility when
+ * rotating the robot
+ *
+ * @param forwardVelocity - forward velocity to move the robot in m/s
+ * @param angularVelocity - angular velocity to rotate the robot in rad/s
+ * @param dir             - direction for the robot to move in
+ */ 
+void Robot::setSpeed(double forwardVelocity, double angularVelocity, TurnDirection::Enum dir)
+{
+  switch(dir)
+  {
+    case TurnDirection::Left:
+      angularVelocity = angularVelocity < 0 ? -angularVelocity : angularVelocity;
+      break;
+
+    case TurnDirection::Right:
+      angularVelocity = angularVelocity > 0 ? -angularVelocity : angularVelocity;
+      break;
+
+    case TurnDirection::None:
+      angularVelocity = 0;
+      break;
+  }
+
+  pp.SetSpeed(forwardVelocity, angularVelocity);
 }
 
 /**
