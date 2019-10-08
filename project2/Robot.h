@@ -10,6 +10,18 @@
 #include "Vector2.h"
 
 /**
+ * Enum used to represent a direction for the robot to turn.
+ * This is set as a namespace to avoid potential naming conflicts.
+ * A modern day C++11 solution would be to use an enum class but,
+ * to avoid any sort of dependency error, this namespace approach
+ * is being taken instead.
+ */
+namespace TurnDirection
+{
+  enum Enum { Left, Right, Random };
+}
+
+/**
  * Wrapper class used to simplify use of the Robot
  */ 
 class Robot
@@ -41,7 +53,8 @@ class Robot
   bool hasReachedWaypoint(Vector2& wp, double errorRange);
 
   // bumper movement
-  void handleBump(double angle = 5.0 * M_PI / 12.0,  // 75 degrees or 5/12*PI radians
+  void handleBump(TurnDirection::Enum simultaneousBumpDir = TurnDirection::Random,
+                  double angle = 5.0 * M_PI / 12.0,  // 75 degrees or 5/12*PI radians
                   double distance = 1.0,
                   double velocity = 0.5,
                   double angularVelocity = 0.5);
@@ -75,7 +88,9 @@ public:
   void moveToWaypoint(Vector2& wp, double velocity = 0.5, double angularVelocity = 0.5, double errorRange = 0.25);
 
   // auto movement
-  void autoPilot(bool (*stopCondition)(Robot*));
+  void autoPilot(bool (*stopCondition)(Robot*),
+                 TurnDirection::Enum simultaneousBumpDir = TurnDirection::Random,
+                 double velocity = 0.5);
 };
 
 #endif

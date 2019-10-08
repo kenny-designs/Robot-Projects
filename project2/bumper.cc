@@ -32,7 +32,12 @@ int main(int argc, char *argv[])
  */ 
 void wallWorld(Robot& robot)
 {
-  robot.autoPilot(wallWorldStopCondition);
+  // guide the robot around the blob in a counter-clockwise direction
+  robot.autoPilot(wallWorldStopCondition, TurnDirection::Left);
+
+  // robot finished moving around the blob, go back to starting point
+  Vector2 origin(0,0);
+  robot.moveToWaypoint(origin);
 }
 
 
@@ -40,7 +45,7 @@ void wallWorld(Robot& robot)
  * Passed as a function pointer to the robot's autoPilot method
  * to determine when to stop movement. In particular, the robot
  * will stop auto pilot movement upon entering the rectangular space
- * between the points (-2, 5) and (2, 3)
+ * between the points (-2, 5) and (2, 4)
  *
  * @param robot - The robot we are checking if meets the stop condition
  */ 
@@ -49,7 +54,14 @@ bool wallWorldStopCondition(Robot* robot)
   double x = robot->getXPos(),
          y = robot->getYPos();
 
-  return x > -2.0 && x < 2.0 && y > 3.0 && y < 5.0;
+  if (x > -2.0 && x < 2.0 && y > 4.0 && y < 5.0)
+  {
+    std::cout << "Robot is now within the rectangular space between points\n" <<
+                 "(-2,5) and (2,4). Stop condition has been reached. Ceasing auto-pilot.\n\n";
+    return true;
+  }
+
+  return false;
 }
 
 /**
