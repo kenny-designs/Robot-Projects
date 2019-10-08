@@ -133,12 +133,15 @@ bool Robot::hasReachedWaypoint(Vector2& wp, double errorRange)
  * Corrects the robot's position if a bumper has been pressed by adjusting its
  * orientation and location based on the given parameters.
  *
- * @param distance    - the distance for the robot to move
- * @param velocity    - the velocity to move at
- * @param angle       - the angle to rotate the robot
- * @param angVelocity - the velocity to rotate at
+ * @param simultaneousBumpDir - direction to turn if both bumpers are pressed
+ * @param angle               - the angle to rotate the robot
+ * @param distance            - the distance for the robot to move
+ * @param velocity            - the velocity to move at
+ * @param angVelocity         - the velocity to rotate at
  */
-void Robot::handleBump(double distance, double velocity, double angle, double angVelocity)
+void Robot::handleBump(TurnDirection::Enum simultaneousBumpDir,
+                       double angle, double distance,
+                       double velocity, double angVelocity)
 {
   robot.Read();
   bool isLeft  = isLeftPressed(),
@@ -150,8 +153,15 @@ void Robot::handleBump(double distance, double velocity, double angle, double an
   // rotate in random direction if both bumpers have been pressed
   if (isLeft && isRight)
   {
-    srand(time(NULL));
-    angle *= rand() % 2 ? 1 : -1;
+    if (simultaneousBumpDir == TurnDirection::Random)
+    {
+      srand(time(NULL));
+      angle *= rand() % 2 ? 1 : -1;
+    }
+    else if (simultaneousBumpDir == TurnDirection::Right)
+    {
+      angle *= -1;
+    }
   }
   // rotate to the right if the left bumper has been pressed
   else if (isLeft)
@@ -318,3 +328,24 @@ void Robot::moveToWaypoint(Vector2& wp, double velocity, double angularVelocity,
     handleBump();
   }
 }
+
+/**
+ * The robot will constantly move forward and only change its course
+ * if a collision is detected via the bumpers. If the given stop
+ * condition ever returns true, the robot will exit auto pilot completely.
+ *
+ * @param stopCondition       - function pointer that takes a pointer to Robot.
+ *                              If returns true, stop auto pilot.
+ * @param simultaneousBumpDir - direction to turn if both bumpers are pressed
+ * @param velocity            - velocity of robot's forward movement
+ */ 
+void Robot::autoPilot(bool (*stopCondition)(Robot*), TurnDirection::Enum simultaneousBumpDir, double velocity)
+{
+  while (!(*stopCondition)(this))
+  {
+    robot.Read();
+    pp.SetSpeed(velocity, 0);
+    handleBump(simultaneousBumpDir, M_PI_4, 0.5);
+  }
+}
+
