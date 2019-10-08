@@ -374,6 +374,9 @@ void Robot::autoPilotLaser()
 {
   TurnDirection::Enum dir = TurnDirection::Left;
   double angle = M_PI_2;
+
+  rotateByRadians(angle);
+
   while (1)
   {
     pp.SetSpeed(0.5, 0);
@@ -384,7 +387,7 @@ void Robot::autoPilotLaser()
 
     if (sp.MinLeft() < 1.2 && sp.MinRight() < 1.2)
     {
-      rotateByRadians(dir == TurnDirection::Right ? -angle : angle);
+      rotateByRadians(dir == TurnDirection::Right ? -angle : angle, 0.1);
     }
   }
 }
