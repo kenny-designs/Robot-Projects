@@ -372,10 +372,10 @@ void Robot::autoPilot(bool (*stopCondition)(Robot*), TurnDirection::Enum simulta
  */ 
 void Robot::autoPilotLaser()
 {
+  /*
   TurnDirection::Enum dir = TurnDirection::Left;
   double angle = M_PI_2;
 
-  /*
   rotateByRadians(angle);
 
   while (1)
@@ -395,18 +395,19 @@ void Robot::autoPilotLaser()
 
   // TODO: this solution is very simple and works perfectly.
   // However, it doesn't seem very flexible
+  double minLeft, minRight;
   while (1)
   {
     printLaserData();
 
+    // get min left and right data from the laser
+    minLeft  = sp.MinLeft();
+    minRight = sp.MinRight();
+
     // reached a dead end, stop moving
-    if (sp.MinLeft() < 1.0 && sp.MinRight() < 1.0) break;
+    if (minLeft < 1.0 && minRight < 1.0) break;
 
-    // steady the robot to the center of the lane
-    if      (sp.MinRight() < sp.MinLeft())  angle =  0.5;
-    else if (sp.MinLeft()  < sp.MinRight()) angle = -0.5;
-
-    // move robot
-    pp.SetSpeed(0.5, angle);
+    // move robot whilst steadying it in the center of the lane
+    pp.SetSpeed(0.5, minRight < minLeft ? 0.5 : -0.5);
   }
 }
