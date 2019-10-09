@@ -103,11 +103,6 @@ public:
 
   // handle waypoint movement
   void moveToWaypoint(Vector2& wp, double velocity = 0.5, double angularVelocity = 0.5, double errorRange = 0.25);
-
-  // auto movement
-  void autoPilot(bool (*stopCondition)(Robot*),
-                 TurnDirection::Enum simultaneousBumpDir = TurnDirection::Random,
-                 double velocity = 0.5);
 };
 
 #endif
