@@ -50,6 +50,28 @@ Vector2& Vector2::operator/=(double divisor)
 }
 
 /**
+ * Compares the x and y values of both vectors. Returns true if they are equal.
+ *
+ * @ return True if the vectors are equal. False otherwise.
+ */ 
+bool Vector2::operator==(Vector2 const& other)
+{
+  return fabs(this->x - other.x) < EPSILON &&
+         fabs(this->y - other.y) < EPSILON;
+}
+
+/**
+ * Compares the x and y values of both vectors. Returns true if they are not equal.
+ *
+ * @ return True if the vectors are not equal. False otherwise.
+ */ 
+bool Vector2::operator!=(Vector2 const& other)
+{
+  return !(*this == other);
+}
+
+
+/**
  * Gets the magnitude, or distance, between points x and y of the given vector.
  *
  * @param vec2 - The Vector2 to get the magnitude of
