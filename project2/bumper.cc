@@ -45,13 +45,13 @@ void wallWorld(Robot& robot)
     robot.setSpeed(1.0, 0);
 
     // handle bumper
-    robot.handleBump((x < 11.0 && x > 0 && y < 11.0 && y > 0) ? rightConf : leftConf);
+    robot.handleBump((x < 11.0 && x > 0 && y < 11.0 && y > 0) ? rightConf : leftConf, M_PI_4);
   }
 
   // cicuit has been completed, go back to origin
   std::cout << "Returning to origin.\n\n";
   Vector2 origin(0,0);
-  robot.moveToWaypoint(origin);
+  robot.moveToWaypoint(origin, 1.0);
 }
 
 
