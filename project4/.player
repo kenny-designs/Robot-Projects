@@ -1,0 +1,356 @@
+plugins.cc:197 loading plugin libstageplugin
+plugins.cc:231 invoking player_driver_init()...
+plugins.cc:247 success
+plugins.cc:197 loading plugin libstageplugin
+plugins.cc:231 invoking player_driver_init()...
+plugins.cc:247 success
+plugins.cc:197 loading plugin libstageplugin
+plugins.cc:231 invoking player_driver_init()...
+plugins.cc:247 success
+plugins.cc:197 loading plugin libstageplugin
+plugins.cc:231 invoking player_driver_init()...
+plugins.cc:247 success
+playertcp.cc:291 accepted TCP client 0 on port 6665, fd 13
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+device.cc:296 warning : empty queue after waiting!
+playertcp.cc:855 read() read zero bytes
+playertcp.cc:467 failed to read from client 0
+playertcp.cc:390 closing TCP connection to client 0 on port 6665
+filewatcher.cc:84 error   : Select called failed in File Watcher: 4 Interrupted system call
+plugins.cc:197 loading plugin libstageplugin
+plugins.cc:231 invoking player_driver_init()...
+plugins.cc:247 success
+filewatcher.cc:84 error   : Select called failed in File Watcher: 4 Interrupted system call
+plugins.cc:197 loading plugin libstageplugin
+plugins.cc:231 invoking player_driver_init()...
+plugins.cc:247 success
+filewatcher.cc:84 error   : Select called failed in File Watcher: 4 Interrupted system call
+plugins.cc:197 loading plugin libstageplugin
+plugins.cc:231 invoking player_driver_init()...
+plugins.cc:247 success
+playertcp.cc:291 accepted TCP client 0 on port 6665, fd 13
+amcl.cc:507 setup
+amcl_laser.cc:157 AMCL loading map from map:0...
+amcl_laser.cc:174 AMCL loading map from map:0...Done
+amcl_laser.cc:257 Done
+amcl_laser.cc:131 laser geometry: 0.000000,0.000000,0.000000
+amcl.cc:525 running
+playertcp.cc:855 read() read zero bytes
+playertcp.cc:467 failed to read from client 0
+playertcp.cc:390 closing TCP connection to client 0 on port 6665
+amcl.cc:538 shutting down
+amcl.cc:551 shutdown done
+filewatcher.cc:84 error   : Select called failed in File Watcher: 4 Interrupted system call
+plugins.cc:197 loading plugin libstageplugin
+plugins.cc:231 invoking player_driver_init()...
+plugins.cc:247 success
+playertcp.cc:291 accepted TCP client 0 on port 6665, fd 13
+amcl.cc:507 setup
+amcl_laser.cc:157 AMCL loading map from map:0...
+amcl_laser.cc:174 AMCL loading map from map:0...Done
+amcl_laser.cc:257 Done
+amcl_laser.cc:131 laser geometry: 0.000000,0.000000,0.000000
+amcl.cc:525 running
+playertcp.cc:855 read() read zero bytes
+playertcp.cc:467 failed to read from client 0
+playertcp.cc:390 closing TCP connection to client 0 on port 6665
+amcl.cc:538 shutting down
+amcl.cc:551 shutdown done
+filewatcher.cc:84 error   : Select called failed in File Watcher: 4 Interrupted system call
