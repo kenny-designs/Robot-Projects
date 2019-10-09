@@ -1,3 +1,8 @@
+/**
+ * Proj3 Part2
+ * Group10: Aguilar, Andrew, Kamel, Kennedy
+ */
+
 #include "Robot.h"
 
 int main(int argc, char *argv[])
