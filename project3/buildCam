@@ -1,0 +1,6 @@
+#!/bin/sh -f
+#
+# A simple script to build robot controllers that make use of the
+# libplayerc++ library.
+
+g++ -o $1 `pkg-config --cflags playerc++` $1.cc `pkg-config --libs playerc++`

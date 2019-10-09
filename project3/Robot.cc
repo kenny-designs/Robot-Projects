@@ -80,7 +80,11 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
 void Robot::getFinalTicksAndVelocity(double distance, double& velocity, int& ticks)
 {
   // if distance or velocity is 0, return for there is nothing to be done
-  if (fabs(distance) < EPSILON || fabs(velocity) < EPSILON) { return; }
+  if (fabs(distance) < EPSILON || fabs(velocity) < EPSILON)
+  {
+    ticks = 0;
+    return;
+  }
 
   // if negative distance, negate the velocity
   if (distance < 0) { velocity *= -1; }
