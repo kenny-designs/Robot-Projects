@@ -45,7 +45,7 @@ class Robot
   PlayerCc::PlayerClient    robot;
   PlayerCc::BumperProxy     bp;         // The bumper proxy reads from the bumpers.
   PlayerCc::Position2dProxy pp;         // The 2D proxy is used to send motion commands.
-  PlayerCc::LaserProxy      sp;         // Laser proxy used to scan the environment
+  PlayerCc::LaserProxy     *sp;         // Laser proxy used to scan the environment
   bool isSimulation;                    // if false, adjusts settings to better accomodate the actual robot
   bool isHandlingBump;                  // true if the robot is currently correcting its position due to a bumper press
 
@@ -71,7 +71,7 @@ class Robot
 
 public:
   // constructor
-  Robot(bool isSimulation = true, std::string hostname = "localhost");
+  Robot(bool isUsingLaser = true, bool isSimulation = true, std::string hostname = "localhost");
 
   // get position based on odometer
   double getXPos();

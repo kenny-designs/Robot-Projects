@@ -14,19 +14,22 @@
  * Set up proxy. Proxies are the datastructures that Player uses to
  * talk to the simulator and the real robot.
  *
+ * @param isUsingLaser - if true, sets up the LaserProxy to be used by the robot
  * @param isSimulation - if false, adjusts settings to better accomodate the actual robot
  * @param hostname     - address to connect to
  */
-Robot::Robot(bool isSimulation, std::string hostname) :
+Robot::Robot(bool isUsingLaser, bool isSimulation, std::string hostname) :
   isSimulation(isSimulation),
   isHandlingBump(false),
   robot(hostname),
   pp(&robot, 0),
-  bp(&robot, 0),
-  sp(&robot, 0)
+  bp(&robot, 0)
 {
   // initial read to prevent segmentation defaults with proxies
   robot.Read();
+
+  // TODO: create destructor to free memory when program is finished
+  sp = isUsingLaser ? new PlayerCc::LaserProxy(&robot, 0) : NULL;
 }
 
 /**
@@ -216,13 +219,15 @@ void Robot::printBumper()
 /** Prints data from the laser */
 void Robot::printLaserData()
 {
+  if (!sp) return;
+
   robot.Read();
-  std::cout << "Max laser distance:        " << sp.GetMaxRange() << "\n" <<
-               "Number of readings:        " << sp.GetCount()    << "\n" <<
-               "Closest thing on left:     " << sp.MinLeft()     << "\n" <<
-               "Closest thing on right:    " << sp.MinRight()    << "\n" <<
-               "Range of a single point:   " << sp.GetRange(5)   << "\n" <<
-               "Bearing of a single point: " << sp.GetBearing(5) << "\n\n";
+  std::cout << "Max laser distance:        " << sp->GetMaxRange() << "\n" <<
+               "Number of readings:        " << sp->GetCount()    << "\n" <<
+               "Closest thing on left:     " << sp->MinLeft()     << "\n" <<
+               "Closest thing on right:    " << sp->MinRight()    << "\n" <<
+               "Range of a single point:   " << sp->GetRange(5)   << "\n" <<
+               "Bearing of a single point: " << sp->GetBearing(5) << "\n\n";
 }
 
 /**
@@ -392,6 +397,8 @@ void Robot::moveToWaypoint(Vector2& wp, double velocity, double angularVelocity,
  */ 
 void Robot::autoPilotLaser(double forwardVelocity, double angularVelocity)
 {
+  if (!sp) return;
+
   double minLeft, minRight;
   TurnDirection::Enum dir;
 
@@ -400,8 +407,8 @@ void Robot::autoPilotLaser(double forwardVelocity, double angularVelocity)
     printLaserData();
 
     // get min left and right data from the laser
-    minLeft  = sp.MinLeft();
-    minRight = sp.MinRight();
+    minLeft  = sp->MinLeft();
+    minRight = sp->MinRight();
 
     // reached a dead end, stop moving
     if (minLeft < 0.30 && minRight < 0.30) break;

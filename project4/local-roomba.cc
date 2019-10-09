@@ -3,16 +3,23 @@
  * Group10: Aguilar, Andrew, Kamel, Kennedy
  */
 
-#include <iostream>
-#include <libplayerc++/playerc++.h>
-using namespace PlayerCc;  
+#include "Robot.h"
 
 // Forward declarations
+/*
 player_pose2d_t readPosition(LocalizeProxy& lp);
 void printRobotData(BumperProxy& bp, player_pose2d_t pose);
+*/
 
 int main(int argc, char *argv[])
 {
+  // Initialize our robot with lasers disabled
+  Robot robot(false);
+
+  // Enable motors
+  robot.setMotorEnable(true);
+
+  /*
   // Variables
   int counter = 0;
   double speed;         // How fast do we want the robot to go forwards?
@@ -62,9 +69,8 @@ int main(int argc, char *argv[])
     // Count how many times we do this
     counter++;
   }
-
+  */
 }
-
 
 /**
  * Read the position of the robot from the localization proxy. 
@@ -72,6 +78,7 @@ int main(int argc, char *argv[])
  * The localization proxy gives us a hypothesis, and from that we extract
  * the mean, which is a pose. 
  */
+/*
 player_pose2d_t readPosition(LocalizeProxy& lp)
 {
   player_localize_hypoth_t hypothesis;
@@ -89,12 +96,13 @@ player_pose2d_t readPosition(LocalizeProxy& lp)
 
   return pose;
 }
-
+*/
 
 /**
  * Print out data on the state of the bumpers and the current location
  * of the robot.
  */
+/*
 void printRobotData(BumperProxy& bp, player_pose2d_t pose)
 {
   // Print out what the bumpers tell us:
@@ -107,3 +115,4 @@ void printRobotData(BumperProxy& bp, player_pose2d_t pose)
   std::cout << "Y: " << pose.py << std::endl;
   std::cout << "A: " << pose.pa << std::endl;
 }
+*/
