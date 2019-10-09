@@ -33,27 +33,43 @@ void wallWorld(Robot& robot)
   // define how the robot should handle bumper presses
   HandleBumpConfig leftConf(TurnDirection::Left, TurnDirection::Left, TurnDirection::Left),
                    rightConf(TurnDirection::Right, TurnDirection::Right, TurnDirection::Right);
-  double x, y;
+
+  // track and current and previous positions of the robot
+  Vector2 cur(0, 0), prev(-1.0, -1.0);
+
+  // true if the robot is centered on the map, false if along the edges.
+  bool isCentered = false;
   while (1)
   {
     // get the robot's current position
-    x = robot.getXPos(),
-    y = robot.getYPos();
+    cur.x = robot.getXPos(),
+    cur.y = robot.getYPos();
 
-    // break upon reentering quadrant in which we started from    
-    if (x > -2.0 && x < 2.0 && y > 4.0 && y < 5.0) break;
+    // break upon reentering the initial quadrant
+    if (cur.x > -2.0 && cur.x < 2.0 && cur.y > 4.0 && cur.y < 5.0) break;
 
-    // handle bumper depending on if the robot is in the center of the map or not
-    robot.handleBump((x < 11.0 && x > 0 && y < 11.0 && y > 0) ? rightConf : leftConf, M_PI_4, 0.5, 1.0);
+    // check if the robot is in the center of the map or along the edges
+    isCentered = cur.x < 11.0 && cur.x > 0 && cur.y < 11.0 && cur.y > 0;
 
-    // advance forward at 1m/s
+    // handle bumper presses
+    robot.handleBump(isCentered ? rightConf : leftConf, M_PI_4, 0.5, 1.0);
+
+    // handle the rare case in which the bumpers do not trigger despite the robot being stuck
+    if (cur == prev) robot.setSpeed(-1.0, 1.0, isCentered ? TurnDirection::Right : TurnDirection::Left);
+
+    // regular movement at 1m/s
     robot.setSpeed(1.0, 0);
+
+    // set current location to now be the  previous location.
+    prev.x = cur.x;
+    prev.y = cur.y;
   }
 
-  // cicuit has been completed, go back to origin
-  std::cout << "Returning to origin.\n\n";
+  // cicuit has been completed, go back to origin with a single waypoint
+  std::cout << "The circuit has been completed! Returning to origin.\n";
   Vector2 origin(0,0);
   robot.moveToWaypoint(origin, 1.0);
+  std::cout << "It is done.\n";
 }
 
 /**
