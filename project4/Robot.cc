@@ -23,7 +23,8 @@ Robot::Robot(bool isUsingLaser, bool isSimulation, std::string hostname) :
   isHandlingBump(false),
   robot(hostname),
   pp(&robot, 0),
-  bp(&robot, 0)
+  bp(&robot, 0),
+  lp(&robot, 0)
 {
   // initial read to prevent segmentation defaults with proxies
   robot.Read();

@@ -43,8 +43,9 @@ struct HandleBumpConfig
 class Robot
 {
   PlayerCc::PlayerClient    robot;
-  PlayerCc::BumperProxy     bp;         // The bumper proxy reads from the bumpers.
   PlayerCc::Position2dProxy pp;         // The 2D proxy is used to send motion commands.
+  PlayerCc::BumperProxy     bp;         // The bumper proxy reads from the bumpers.
+  PlayerCc::LocalizeProxy   lp;         // Used to control a localize device for localization
   PlayerCc::LaserProxy     *sp;         // Laser proxy used to scan the environment
   bool isSimulation;                    // if false, adjusts settings to better accomodate the actual robot
   bool isHandlingBump;                  // true if the robot is currently correcting its position due to a bumper press
