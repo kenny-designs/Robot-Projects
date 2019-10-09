@@ -43,11 +43,11 @@ void wallWorld(Robot& robot)
     // break upon reentering quadrant in which we started from    
     if (x > -2.0 && x < 2.0 && y > 4.0 && y < 5.0) break;
 
+    // handle bumper depending on if the robot is in the center of the map or not
+    robot.handleBump((x < 11.0 && x > 0 && y < 11.0 && y > 0) ? rightConf : leftConf, M_PI_4, 0.5, 1.0);
+
     // advance forward at 1m/s
     robot.setSpeed(1.0, 0);
-
-    // handle bumper depending on if the robot is in the center of the map or not
-    robot.handleBump((x < 11.0 && x > 0 && y < 11.0 && y > 0) ? rightConf : leftConf, M_PI_4);
   }
 
   // cicuit has been completed, go back to origin
