@@ -320,7 +320,7 @@ void Robot::handleBump(HandleBumpConfig bumpConfig,
       angle *= rand() % 2 ? 1 : -1;
       break;
 
-    case TurnDirection::Left:
+    case TurnDirection::Right:
       angle *= -1;
       break;
 
@@ -363,9 +363,7 @@ void Robot::moveToWaypoint(Vector2& wp, double velocity, double angularVelocity,
     moveForwardByMeters(distance, velocity);
 
     // handle any bumper events
-    // TODO: simplify this
-    HandleBumpConfig hbc;    
-    handleBump(hbc);
+    handleBump();
   }
 }
 

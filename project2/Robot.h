@@ -95,7 +95,7 @@ public:
   void setSpeed(double forwardVelocity = 0.5, double angularVelocity = 0.5, TurnDirection::Enum dir = TurnDirection::Left);
 
   // bumper movement
-  void handleBump(HandleBumpConfig bumpConfig,
+  void handleBump(HandleBumpConfig bumpConfig = HandleBumpConfig(),
                   double angle = 5.0 * M_PI / 12.0,  // 75 degrees or 5/12*PI radians
                   double distance = 1.0,
                   double velocity = 0.5,
