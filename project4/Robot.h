@@ -88,6 +88,9 @@ public:
   void printPosition();
   void printBumper();
   void printLaserData();
+  
+  // get pose from the LocalizeProxy 
+  player_pose2d_t getPoseFromLocalizeProxy();
 
   // motor
   void setMotorEnable(bool isMotorEnabled);

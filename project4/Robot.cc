@@ -232,6 +232,32 @@ void Robot::printLaserData()
 }
 
 /**
+ * Read the position of the robot from the localization proxy. 
+ *
+ * The localization proxy gives us a hypothesis, and from that we extract
+ * the mean, which is a pose.
+ *
+ * @return - the pose of the robot
+ */
+player_pose2d_t Robot::getPoseFromLocalizeProxy()
+{
+  player_localize_hypoth_t hypothesis;
+  player_pose2d_t          pose;
+  uint32_t                           hCount;
+
+  // Need some messing around to avoid a crash when the proxy is starting up.
+  hCount = lp.GetHypothCount();
+
+  if (hCount > 0)
+  {
+    hypothesis = lp.GetHypoth(0);
+    pose       = hypothesis.mean;
+  }
+
+  return pose;
+}
+
+/**
  * Enable or disable the robot's motor
  *
  * @param isMotorEnabled - true to enable the motor, false to disable
