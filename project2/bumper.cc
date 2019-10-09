@@ -30,6 +30,8 @@ int main(int argc, char *argv[])
  */ 
 void wallWorld(Robot& robot)
 {
+  HandleBumpConfig leftConf(TurnDirection::Left, TurnDirection::Left, TurnDirection::Left),
+                   rightConf(TurnDirection::Right, TurnDirection::Right, TurnDirection::Right);
   double x, y;
   while (1)
   {
@@ -42,7 +44,7 @@ void wallWorld(Robot& robot)
     robot.setSpeed(1.0, 0);
 
     // handle bumper
-    robot.handleBump((x < 11.0 && x > 0 && y < 11.0 && y > 0) ? TurnDirection::Right : TurnDirection::Left);
+    robot.handleBump((x < 11.0 && x > 0 && y < 11.0 && y > 0) ? leftConf : rightConf);
   }
 
   // cicuit has been completed, go back to origin

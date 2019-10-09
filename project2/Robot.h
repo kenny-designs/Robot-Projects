@@ -22,6 +22,22 @@ namespace TurnDirection
 }
 
 /**
+ * Struct utilized to define the direction the robot should rotate
+ * depending 
+ */ 
+struct HandleBumpConfig
+{
+  TurnDirection::Enum both,  // direction to turn if both bumpers hit
+                      left,  // direction to turn if left bumper hit
+                      right; // direction to turn if right bumper hit
+
+  /** Constructs a new HandleBumpConfig object */
+  HandleBumpConfig(TurnDirection::Enum both  = TurnDirection::Random,
+                   TurnDirection::Enum left  = TurnDirection::Right,
+                   TurnDirection::Enum right = TurnDirection::Left) : both(both), left(left), right(right) {};
+};
+
+/**
  * Wrapper class used to simplify use of the Robot
  */ 
 class Robot
@@ -79,7 +95,7 @@ public:
   void setSpeed(double forwardVelocity = 0.5, double angularVelocity = 0.5, TurnDirection::Enum dir = TurnDirection::Left);
 
   // bumper movement
-  void handleBump(TurnDirection::Enum simultaneousBumpDir = TurnDirection::Random,
+  void handleBump(HandleBumpConfig bumpConfig,
                   double angle = 5.0 * M_PI / 12.0,  // 75 degrees or 5/12*PI radians
                   double distance = 1.0,
                   double velocity = 0.5,

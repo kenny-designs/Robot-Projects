@@ -288,13 +288,13 @@ void Robot::setSpeed(double forwardVelocity, double angularVelocity, TurnDirecti
  * Corrects the robot's position if a bumper has been pressed by adjusting its
  * orientation and location based on the given parameters.
  *
- * @param simultaneousBumpDir - direction to turn if both bumpers are pressed
- * @param angle               - the angle to rotate the robot
- * @param distance            - the distance for the robot to move
- * @param velocity            - the velocity to move at
- * @param angVelocity         - the velocity to rotate at
+ * @param bumpConfig  - how the robot should respond to bumpers being pressed
+ * @param angle       - the angle to rotate the robot
+ * @param distance    - the distance for the robot to move
+ * @param velocity    - the velocity to move at
+ * @param angVelocity - the velocity to rotate at
  */
-void Robot::handleBump(TurnDirection::Enum simultaneousBumpDir,
+void Robot::handleBump(HandleBumpConfig bumpConfig,
                        double angle, double distance,
                        double velocity, double angVelocity)
 {
@@ -305,23 +305,28 @@ void Robot::handleBump(TurnDirection::Enum simultaneousBumpDir,
   // return if neither bumper is pressed
   if (!(isLeft || isRight)) return;
 
-  // rotate in random direction if both bumpers have been pressed
-  if (isLeft && isRight)
+  TurnDirection::Enum dir;
+
+  // determine how to rotate the robot
+  if      (isLeft && isRight) dir = bumpConfig.both;
+  else if (isLeft)            dir = bumpConfig.left;
+  else                        dir = bumpConfig.right;
+
+  // adjust the angle depending on the robot should rotate
+  switch(dir)
   {
-    if (simultaneousBumpDir == TurnDirection::Random)
-    {
+    case TurnDirection::Random:
       srand(time(NULL));
       angle *= rand() % 2 ? 1 : -1;
-    }
-    else if (simultaneousBumpDir == TurnDirection::Right)
-    {
+      break;
+
+    case TurnDirection::Left:
       angle *= -1;
-    }
-  }
-  // rotate to the right if the left bumper has been pressed
-  else if (isLeft)
-  {
-    angle *= -1;
+      break;
+
+    case TurnDirection::None:
+      angle = 0;
+      break;
   }
 
   // robot is now addressing bumper press event
@@ -358,7 +363,9 @@ void Robot::moveToWaypoint(Vector2& wp, double velocity, double angularVelocity,
     moveForwardByMeters(distance, velocity);
 
     // handle any bumper events
-    handleBump();
+    // TODO: simplify this
+    HandleBumpConfig hbc;    
+    handleBump(hbc);
   }
 }
 
