@@ -40,6 +40,7 @@ int main(int argc, char *argv[])
     // Print data on the robot to the terminal
     printRobotData(bp, pose);
 
+    // If either bumper is pressed, stop. Otherwise just go forwards
     if(bp[0] || bp[1])
     {
       speed    = 0;
