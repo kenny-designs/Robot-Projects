@@ -16,9 +16,13 @@ int main(int argc, char *argv[])
   // Enable motors
   robot.setMotorEnable(true);
 
-  player_pose2d_t pose = robot.getPoseFromLocalizeProxy();
+  //player_pose2d_t pose = robot.getPoseFromLocalizeProxy();
 
-  printRobotData(pose);
+  while (true)
+  {
+    printRobotData(robot.getPoseFromLocalizeProxy());
+    robot.setSpeed(1.0, 0);
+  }
 }
 
 /**
@@ -27,9 +31,8 @@ int main(int argc, char *argv[])
  */
 void printRobotData(player_pose2d_t pose)
 {
-  // Print out where we are
-  std::cout << "We are at" << std::endl;
-  std::cout << "X: " << pose.px << std::endl;
-  std::cout << "Y: " << pose.py << std::endl;
-  std::cout << "A: " << pose.pa << std::endl;
+  std::cout << "We are at"      << "\n" <<
+               "X: " << pose.px << "\n" <<
+               "Y: " << pose.py << "\n" <<
+               "A: " << pose.pa << "\n\n";
 }

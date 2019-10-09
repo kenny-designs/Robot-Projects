@@ -243,7 +243,7 @@ player_pose2d_t Robot::getPoseFromLocalizeProxy()
 {
   player_localize_hypoth_t hypothesis;
   player_pose2d_t          pose;
-  uint32_t                           hCount;
+  uint32_t                 hCount;
 
   // Need some messing around to avoid a crash when the proxy is starting up.
   hCount = lp.GetHypothCount();
