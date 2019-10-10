@@ -76,9 +76,9 @@ public:
   ~Robot();
 
   // get position based on odometer
-  double getXPos();
-  double getYPos();
-  double getYaw();
+  double getOdometerXPos();
+  double getOdometerYPos();
+  double getOdometerYaw();
   Vector2 getOdometerPos();
 
   // check status of bumpers
@@ -87,7 +87,7 @@ public:
   bool isAnyPressed();
 
   // print information about the robot
-  void printPosition();
+  void printOdometerPosition();
   void printLocalizedPosition();
   void printBumper();
   void printLaserData();

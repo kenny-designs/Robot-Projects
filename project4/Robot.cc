@@ -167,30 +167,30 @@ bool Robot::hasReachedWaypoint(Vector2& pos, Vector2& wp, double errorRange)
 }
 
 /**
- * Gets Robot X position based on Position2dProxy
+ * Gets Robot X position based on odometry
  * @return X position as double
  */
-double Robot::getXPos()
+double Robot::getOdometerXPos()
 {
   robot.Read();
   return pp.GetXPos();
 }
 
 /**
- * Gets Robot Y position based on Position2dProxy
+ * Gets Robot Y position based on odometry
  * @return Y position as double
  */
-double Robot::getYPos()
+double Robot::getOdometerYPos()
 {
   robot.Read();
   return pp.GetYPos();
 }
 
 /**
- * Gets Robot Yaw rotation based on Position2dProxy
+ * Gets Robot Yaw rotation based on odometry
  * @return Yaw rotation as double
  */
-double Robot::getYaw()
+double Robot::getOdometerYaw()
 {
   robot.Read();
   return pp.GetYaw();
@@ -202,7 +202,7 @@ double Robot::getYaw()
  */ 
 Vector2 Robot::getOdometerPos()
 {
-  return Vector2(getXPos(), getYPos());
+  return Vector2(getOdometerXPos(), getOdometerYPos());
 }
 
 /**
@@ -232,23 +232,26 @@ bool Robot::isAnyPressed()
   return bp.IsAnyBumped();
 }
 
-/** Prints the X, Y, and Yaw positions of the Robot */
-void Robot::printPosition()
+/** Prints the X, Y, and Yaw odometry positions of the Robot */
+void Robot::printOdometerPosition()
 {
   robot.Read();
-  std::cout << "Robot x position: " << getXPos() << "\n" <<
-               "      y position: " << getYPos() << "\n" <<
-               "      yaw:        " << getYaw()  << "\n\n";
+  std::cout << "Robot Odometer Position"    << "\n" <<
+               "-----------------------"    << "\n" <<
+               "X:   " << getOdometerXPos() << "\n" <<
+               "Y:   " << getOdometerYPos() << "\n" <<
+               "Yaw: " << getOdometerYaw()  << "\n\n";
 }
 
 /** Prints the X, Y, and Yaw positions of the robot based on localization */
 void Robot::printLocalizedPosition()
 {
   player_pose2d_t pose = getPoseFromLocalizeProxy();
-  std::cout << "We are at"      << "\n" <<
-               "X: " << pose.px << "\n" <<
-               "Y: " << pose.py << "\n" <<
-               "A: " << pose.pa << "\n\n";
+  std::cout << "Robot Localized Position"  << "\n" <<
+               "------------------------"  << "\n" <<
+               "X:   " << pose.px          << "\n" <<
+               "Y:   " << pose.py          << "\n" <<
+               "Yaw: " << pose.pa          << "\n\n";
 }
 
 /** Prints state of the bumpers */
@@ -477,7 +480,7 @@ void Robot::moveToWaypoint(Vector2& wp, bool useLocalization, double velocity, d
     else
     {
       pos = getOdometerPos();
-      yaw = getYaw();
+      yaw = getOdometerYaw();
     }
 
     // obtain angle and distance needed to reach the waypoint
