@@ -50,7 +50,7 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
   {
     // read from proxies
     robot.Read();
-    
+
     // break if a bumper has been pressed and we're not currently handling a bumper event
     if (!isHandlingBump && isAnyPressed()) break;
   }
@@ -214,6 +214,16 @@ void Robot::printPosition()
   std::cout << "Robot x position: " << getXPos() << "\n" <<
                "      y position: " << getYPos() << "\n" <<
                "      yaw:        " << getYaw()  << "\n\n";
+}
+
+/** Prints the X, Y, and Yaw positions of the robot based on localization */
+void Robot::printLocalizedPosition()
+{
+  player_pose2d_t pose = getPoseFromLocalizeProxy();
+  std::cout << "We are at"      << "\n" <<
+               "X: " << pose.px << "\n" <<
+               "Y: " << pose.py << "\n" <<
+               "A: " << pose.pa << "\n\n";
 }
 
 /** Prints state of the bumpers */
@@ -444,9 +454,15 @@ void Robot::moveToWaypoint(Vector2& wp, bool useLocalization, double velocity, d
       pos = getOdometerPos();
       yaw = getYaw();
     }
-
+    
     // obtain angle and distance needed to reach the waypoint
     getAngleDistanceToWaypoint(pos, yaw, wp, angle, distance);
+
+    std::cout << "X: " << pos.x << "\n" <<
+                 "Y: " << pos.y << "\n" <<
+                 "A: " << yaw  << "\n" <<
+                 "Angle to turn:      " << angle << "\n" <<
+                 "Distance to travel: " << distance << "\n\n";
 
     // rotate towards then travel to the given waypoint
     rotateByRadians(angle, angularVelocity);
