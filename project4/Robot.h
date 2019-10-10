@@ -23,7 +23,7 @@ namespace TurnDirection
 
 /**
  * Struct utilized to define the direction the robot should rotate
- * depending 
+ * depending on which bumper was pressed
  */ 
 struct HandleBumpConfig
 {
@@ -50,11 +50,11 @@ class Robot
   bool isHandlingBump;                  // true if the robot is currently correcting its position due to a bumper press
 
   // tick interval of the robot
-  const double INTERVAL_SIM;
+  const double TICK_INTERVAL;
 
   // scale movement and rotation of the robot to ensure accurate locomotion
-  const double MOVEMENT_TICK_SCALE,
-               ROTATION_TICK_SCALE;
+  const double MOVEMENT_SCALE,
+               ROTATION_SCALE;
 
   // movement
   void moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks);

@@ -1,5 +1,4 @@
 #include "Robot.h"
-#include "Vector2.h"
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -15,16 +14,16 @@
  * talk to the simulator and the real robot.
  *
  * @param isUsingLaser  - if true, sets up the LaserProxy to be used by the robot
- * @param movementScale - scales the velocity of the robot
- * @param rotationScale - scales the angular velocity of the robot
+ * @param movementScale - scales the overall velocity of the robot
+ * @param rotationScale - scales the overall angular velocity of the robot
  * @param tickInterval  - the interval that of which the robot ticks at
  * @param hostname      - address to connect to
  */
 Robot::Robot(bool isUsingLaser, double movementScale, double rotationScale, double tickInterval,  std::string hostname) :
   isHandlingBump(false),
-  MOVEMENT_TICK_SCALE(movementScale),
-  ROTATION_TICK_SCALE(rotationScale),
-  INTERVAL_SIM(tickInterval),
+  MOVEMENT_SCALE(movementScale),
+  ROTATION_SCALE(rotationScale),
+  TICK_INTERVAL(tickInterval),
   robot(hostname),
   pp(&robot, 0),
   bp(&robot, 0),
@@ -97,7 +96,7 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
  *
  * For example, to cover 1 meter while traveling at 0.1 m/s, we divide
  * 1m by 0.1m/s to get 10s. We then divide that result by the number of ticks
- * that occur in a second (default is 10 as per INTERVAL_SIM). So 10s divided
+ * that occur in a second (default is 10 as per TICK_INTERVAL). So 10s divided
  * by 0.1s is 100. So, for the robot to travel 1 meter while going at 0.1 m/s,
  * it will take a total of 100 ticks.
  *
@@ -119,7 +118,7 @@ void Robot::getFinalTicksAndVelocity(double distance, double& velocity, int& tic
   // if negative distance, negate the velocity
   if (distance < 0) { velocity *= -1; }
 
-  ticks = abs((int)(distance / velocity / INTERVAL_SIM));
+  ticks = abs((int)(distance / velocity / TICK_INTERVAL));
 }
 
 /**
@@ -343,7 +342,7 @@ void Robot::setMotorEnable(bool isMotorEnabled)
 void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
 {
   // scale movement
-  distanceInMeters *= MOVEMENT_TICK_SCALE;
+  distanceInMeters *= MOVEMENT_SCALE;
 
   int ticks;
   getFinalTicksAndVelocity(distanceInMeters, forwardVelocity, ticks);
@@ -361,7 +360,7 @@ void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
 void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
 {
   // scale rotation
-  radiansToRotate *= ROTATION_TICK_SCALE;
+  radiansToRotate *= ROTATION_SCALE;
 
   int ticks;
   getFinalTicksAndVelocity(radiansToRotate, angularVelocity, ticks);
