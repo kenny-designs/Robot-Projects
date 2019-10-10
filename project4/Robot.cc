@@ -41,10 +41,7 @@ Robot::Robot(bool isUsingLaser, bool isSimulation, std::string hostname) :
  * @param ticks           - number of ticks to apply the forward/angular velocities to the robot for
  */
 void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks)
-{
-  // Send the motion commands that we decided on to the robot.
-  //pp.SetSpeed(forwardVelocity, angularVelocity);
-  
+{ 
   // Enter movement control loop
   for (int curTick = 1; curTick <= ticks; ++curTick)
   {
@@ -54,9 +51,11 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     // scale movement and rotation
     double percent = 1.0 - ((double)curTick) / ((double)ticks);
     std::cout << "Tick " << curTick << " out of " << ticks << " percentage is: " << percent << "\n";
+
+    // Send the motion commands that we decided on to the robot.
     pp.SetSpeed(percent * forwardVelocity * 2.0,
                 percent * angularVelocity * 2.0);
-
+    
     // break if a bumper has been pressed and we're not currently handling a bumper event
     if (!isHandlingBump && isAnyPressed()) break;
   }
@@ -463,13 +462,6 @@ void Robot::moveToWaypoint(Vector2& wp, bool useLocalization, double velocity, d
 
     // obtain angle and distance needed to reach the waypoint
     getAngleDistanceToWaypoint(pos, yaw, wp, angle, distance);
-
-    // TODO: remove later
-    std::cout << "X: " << pos.x << "\n" <<
-                 "Y: " << pos.y << "\n" <<
-                 "A: " << yaw  << "\n" <<
-                 "Angle to turn:      " << angle << "\n" <<
-                 "Distance to travel: " << distance << "\n\n";
 
     // rotate towards then travel to the given waypoint
     // TODO: remove these hard coded values
