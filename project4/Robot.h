@@ -67,8 +67,8 @@ class Robot
   void getFinalTicksAndVelocity(double distance, double& velocity, int& ticks);
 
   // waypoint movement
-  void getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& distance);
-  bool hasReachedWaypoint(Vector2& wp, double errorRange);
+  void getAngleDistanceToWaypoint(Vector2& pos, double yaw, Vector2& wp, double& angle, double& distance);
+  bool hasReachedWaypoint(Vector2& pos, Vector2& wp, double errorRange);
 
 public:
   // constructor
@@ -78,6 +78,7 @@ public:
   double getXPos();
   double getYPos();
   double getYaw();
+  Vector2 getOdometerPos();
 
   // check status of bumpers
   bool isLeftPressed();
@@ -91,6 +92,10 @@ public:
   
   // get pose from the LocalizeProxy 
   player_pose2d_t getPoseFromLocalizeProxy();
+
+  // get the localized position of the robot
+  Vector2 getLocalizedPos();
+  double getLocalizedYaw();
 
   // motor
   void setMotorEnable(bool isMotorEnabled);
@@ -108,7 +113,8 @@ public:
                   double angularVelocity = 0.5);
 
   // handle waypoint movement
-  void moveToWaypoint(Vector2& wp, double velocity = 0.5, double angularVelocity = 0.5, double errorRange = 0.25);
+  void moveToWaypoint(Vector2& wp, bool useLocalization = false,
+                      double velocity = 0.5, double angularVelocity = 0.5, double errorRange = 0.25);
 
   // auto movement
   void autoPilotLaser(double forwardVelocity = 0.5, double angularVelocity = 1.0);

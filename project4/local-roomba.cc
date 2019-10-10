@@ -16,13 +16,18 @@ int main(int argc, char *argv[])
   // Enable motors
   robot.setMotorEnable(true);
 
+  Vector2 wp(5.0, -3.5);
+  robot.moveToWaypoint(wp, true);
+
   //player_pose2d_t pose = robot.getPoseFromLocalizeProxy();
 
+  /*
   while (true)
   {
     printRobotData(robot.getPoseFromLocalizeProxy());
     robot.setSpeed(1.0, 0);
   }
+  */
 }
 
 /**
