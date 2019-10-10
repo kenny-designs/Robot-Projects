@@ -122,8 +122,7 @@ void Robot::getFinalTicksAndVelocity(double distance, double& velocity, int& tic
 }
 
 /**
- * Generates the angle and distance needed to first rotate to face then
- * approach the given waypoint.
+ * Generates the angle and distance needed to reach a given waypoint.
  *
  * @param pos      - the current position of the robot
  * @param yaw      - the current yaw of the robot
@@ -172,7 +171,6 @@ bool Robot::hasReachedWaypoint(Vector2& pos, Vector2& wp, double errorRange)
  */
 double Robot::getOdometerXPos()
 {
-  robot.Read();
   return pp.GetXPos();
 }
 
@@ -182,7 +180,6 @@ double Robot::getOdometerXPos()
  */
 double Robot::getOdometerYPos()
 {
-  robot.Read();
   return pp.GetYPos();
 }
 
@@ -192,7 +189,6 @@ double Robot::getOdometerYPos()
  */
 double Robot::getOdometerYaw()
 {
-  robot.Read();
   return pp.GetYaw();
 }
 
