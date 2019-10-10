@@ -33,6 +33,9 @@ Robot::Robot(bool isUsingLaser, double movementScale, double rotationScale, doub
   // initial read to prevent segmentation defaults with proxies
   robot.Read();
 
+  // turn on the motor
+  setMotorEnable(true);
+
   // laser setup
   sp = isUsingLaser ? new PlayerCc::LaserProxy(&robot, 0) : NULL;
 }
@@ -40,7 +43,13 @@ Robot::Robot(bool isUsingLaser, double movementScale, double rotationScale, doub
 /** Destructor used to release memory */
 Robot::~Robot()
 {
+  // turn off the motor
+  setMotorEnable(true);
+
+  // free memory used by the laser proxy
   delete sp;
+
+  // Have Mr. Robot say goodbye for it is the polite thing to do
   std::cout << "Powering off. Goodbye!\n";
 }
 
