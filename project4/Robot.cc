@@ -458,6 +458,7 @@ void Robot::moveToWaypoint(Vector2& wp, bool useLocalization, double velocity, d
     // obtain angle and distance needed to reach the waypoint
     getAngleDistanceToWaypoint(pos, yaw, wp, angle, distance);
 
+    // TODO: remove later
     std::cout << "X: " << pos.x << "\n" <<
                  "Y: " << pos.y << "\n" <<
                  "A: " << yaw  << "\n" <<

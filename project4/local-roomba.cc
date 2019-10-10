@@ -13,11 +13,11 @@ int main(int argc, char *argv[])
   // Enable motors
   robot.setMotorEnable(true);
 
+  /*
   Vector2 wp(5.0, -3.5);
   robot.moveToWaypoint(wp, true);
-
-  /*
-  robot.rotateByRadians(0.78, 0.25);
-  robot.moveForwardByMeters(1.0, 0.25);
   */
+
+  robot.rotateByRadians(0.78, 0.25);
+  robot.moveForwardByMeters(3.0, 0.25);
 }
