@@ -14,13 +14,17 @@
  * Set up proxy. Proxies are the datastructures that Player uses to
  * talk to the simulator and the real robot.
  *
- * @param isUsingLaser - if true, sets up the LaserProxy to be used by the robot
- * @param isSimulation - if false, adjusts settings to better accomodate the actual robot
- * @param hostname     - address to connect to
+ * @param isUsingLaser  - if true, sets up the LaserProxy to be used by the robot
+ * @param movementScale - scales the velocity of the robot
+ * @param rotationScale - scales the angular velocity of the robot
+ * @param tickInterval  - the interval that of which the robot ticks at
+ * @param hostname      - address to connect to
  */
-Robot::Robot(bool isUsingLaser, bool isSimulation, std::string hostname) :
-  isSimulation(isSimulation),
+Robot::Robot(bool isUsingLaser, double movementScale, double rotationScale, double tickInterval,  std::string hostname) :
   isHandlingBump(false),
+  MOVEMENT_TICK_SCALE(movementScale),
+  ROTATION_TICK_SCALE(rotationScale),
+  INTERVAL_SIM(tickInterval),
   robot(hostname),
   pp(&robot, 0),
   bp(&robot, 0),
@@ -50,7 +54,7 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
 
     // scale movement and rotation
     double percent = 1.0 - ((double)curTick) / ((double)ticks);
-    std::cout << "Tick " << curTick << " out of " << ticks << " percentage is: " << percent << "\n";
+    //std::cout << "Tick " << curTick << " out of " << ticks << " percentage is: " << percent << "\n";
 
     // Send the motion commands that we decided on to the robot.
     pp.SetSpeed(percent * forwardVelocity * 2.0,
@@ -321,11 +325,11 @@ void Robot::setMotorEnable(bool isMotorEnabled)
  */
 void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
 {
+  // scale movement
+  distanceInMeters *= MOVEMENT_TICK_SCALE;
+
   int ticks;
   getFinalTicksAndVelocity(distanceInMeters, forwardVelocity, ticks);
-
-  // adjust for actual robot if needed
-  if (!isSimulation) { ticks *= MOVEMENT_TICK_SCALE; }
 
   moveAndRotateOverTicks(forwardVelocity, 0, ticks);
 }
@@ -339,11 +343,11 @@ void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
  */ 
 void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
 {
+  // scale rotation
+  radiansToRotate *= ROTATION_TICK_SCALE;
+
   int ticks;
   getFinalTicksAndVelocity(radiansToRotate, angularVelocity, ticks);
-
-  // adjust for actual robot if needed
-  if (!isSimulation) { ticks *= ROTATION_TICK_SCALE; }
 
   moveAndRotateOverTicks(0, angularVelocity, ticks);
 }
@@ -465,8 +469,8 @@ void Robot::moveToWaypoint(Vector2& wp, bool useLocalization, double velocity, d
 
     // rotate towards then travel to the given waypoint
     // TODO: remove these hard coded values
-    rotateByRadians(angle * 1.35, angularVelocity);
-    moveForwardByMeters(distance * 1.35, velocity);
+    rotateByRadians(angle, angularVelocity);
+    moveForwardByMeters(distance, velocity);
 
     // handle any bumper events
     handleBump();

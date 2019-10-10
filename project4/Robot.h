@@ -47,20 +47,14 @@ class Robot
   PlayerCc::BumperProxy     bp;         // The bumper proxy reads from the bumpers.
   PlayerCc::LocalizeProxy   lp;         // Used to control a localize device for localization
   PlayerCc::LaserProxy     *sp;         // Laser proxy used to scan the environment
-  bool isSimulation;                    // if false, adjusts settings to better accomodate the actual robot
   bool isHandlingBump;                  // true if the robot is currently correcting its position due to a bumper press
 
-  // By default, the interval is 100 milliseconds as per the
-  // How to Use Player/Stage guide at
-  // http://playerstage.sourceforge.net/doc/playerstage_instructions_2.0.pdf
-  static const double INTERVAL_SIM = 0.1;
+  // tick interval of the robot
+  const double INTERVAL_SIM;
 
-  // Due to restraints with the robots actuators (i.e. its wheels),
-  // we must scale the ticks calculated from the method getFinalTicksAndVelocity()
-  // to sync with how the robot is actually moving.
-  // These are only applied if isSimulation is set to false
-  static const double MOVEMENT_TICK_SCALE = 0.5;
-  static const double ROTATION_TICK_SCALE = 0.25;
+  // scale movement and rotation of the robot to ensure accurate locomotion
+  const double MOVEMENT_TICK_SCALE,
+               ROTATION_TICK_SCALE;
 
   // movement
   void moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks);
@@ -72,7 +66,11 @@ class Robot
 
 public:
   // constructor
-  Robot(bool isUsingLaser = true, bool isSimulation = true, std::string hostname = "localhost");
+  Robot(bool isUsingLaser    = true,
+        double movementScale = 1.0,
+        double rotationScale = 1.0,
+        double tickInterval  = 0.1,
+        std::string hostname = "localhost");
 
   // get position based on odometer
   double getXPos();
