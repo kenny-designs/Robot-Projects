@@ -337,11 +337,12 @@ player_pose2d_t Robot::getPoseFromLocalizeProxy()
       }
 
       // print results
-      std::printf("[Loc %d] X: %.5f, Y: %.5f, Yaw: %.5f, Weight: %.5f\n", i+1, curPose.px, curPose.py, curPose.pa, weight);
+      std::printf("[Loc %d] X: %.5f, Y: %.5f, Yaw: %.5f, Weight: %.5f\n", i, curPose.px, curPose.py, curPose.pa, weight);
     }
     std::cout << "\n";
   }
-  // Returns the mean of the last hypothesis, it isn't necessarily the right one.
+
+  // Returns pose with the most weight
   return pose;
 }
 
@@ -504,6 +505,9 @@ void Robot::moveToWaypoint(Vector2& wp, bool useLocalization, double velocity, d
       pos = getOdometerPos();
       yaw = getOdometerYaw();
     }
+
+    // TODO: remove
+    printLocalizedPosition();
 
     // obtain angle and distance needed to reach the waypoint
     getAngleDistanceToWaypoint(pos, yaw, wp, angle, distance);
