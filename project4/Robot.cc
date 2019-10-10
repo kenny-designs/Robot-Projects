@@ -33,8 +33,15 @@ Robot::Robot(bool isUsingLaser, double movementScale, double rotationScale, doub
   // initial read to prevent segmentation defaults with proxies
   robot.Read();
 
-  // TODO: create destructor to free memory when program is finished
+  // laser setup
   sp = isUsingLaser ? new PlayerCc::LaserProxy(&robot, 0) : NULL;
+}
+
+/** Destructor used to release memory */
+Robot::~Robot()
+{
+  delete sp;
+  std::cout << "Powering off. Goodbye!\n";
 }
 
 /**
@@ -468,7 +475,6 @@ void Robot::moveToWaypoint(Vector2& wp, bool useLocalization, double velocity, d
     getAngleDistanceToWaypoint(pos, yaw, wp, angle, distance);
 
     // rotate towards then travel to the given waypoint
-    // TODO: remove these hard coded values
     rotateByRadians(angle, angularVelocity);
     moveForwardByMeters(distance, velocity);
 

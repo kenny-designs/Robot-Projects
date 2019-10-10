@@ -72,6 +72,9 @@ public:
         double tickInterval  = 0.1,
         std::string hostname = "localhost");
 
+  // destructor
+  ~Robot();
+
   // get position based on odometer
   double getXPos();
   double getYPos();
