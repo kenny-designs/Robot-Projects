@@ -27,8 +27,8 @@ window
 # load an environment bitmap
 map
 ( 
-  #bitmap "bitmaps/maze.png"
-  bitmap "bitmaps/wall-world.png"
+  bitmap "bitmaps/maze.png"
+  #bitmap "bitmaps/wall-world.png"
   size [16 16]
   name "cave"
 )
