@@ -43,13 +43,19 @@ Robot::Robot(bool isUsingLaser, bool isSimulation, std::string hostname) :
 void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks)
 {
   // Send the motion commands that we decided on to the robot.
-  pp.SetSpeed(forwardVelocity, angularVelocity);
-
+  //pp.SetSpeed(forwardVelocity, angularVelocity);
+  
   // Enter movement control loop
-  for (int curTick = 0; curTick < ticks; ++curTick)
+  for (int curTick = 1; curTick <= ticks; ++curTick)
   {
     // read from proxies
     robot.Read();
+
+    // scale movement and rotation
+    double percent = 1.0 - ((double)curTick) / ((double)ticks);
+    std::cout << "Tick " << curTick << " out of " << ticks << " percentage is: " << percent << "\n";
+    pp.SetSpeed(percent * forwardVelocity * 2.0,
+                percent * angularVelocity * 2.0);
 
     // break if a bumper has been pressed and we're not currently handling a bumper event
     if (!isHandlingBump && isAnyPressed()) break;
@@ -466,8 +472,9 @@ void Robot::moveToWaypoint(Vector2& wp, bool useLocalization, double velocity, d
                  "Distance to travel: " << distance << "\n\n";
 
     // rotate towards then travel to the given waypoint
-    rotateByRadians(angle, angularVelocity);
-    moveForwardByMeters(distance, velocity);
+    // TODO: remove these hard coded values
+    rotateByRadians(angle * 1.35, angularVelocity);
+    moveForwardByMeters(distance * 1.35, velocity);
 
     // handle any bumper events
     handleBump();
