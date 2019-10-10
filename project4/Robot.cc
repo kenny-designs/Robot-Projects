@@ -61,20 +61,21 @@ Robot::~Robot()
  * @param ticks           - number of ticks to apply the forward/angular velocities to the robot for
  */
 void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks)
-{ 
+{
+  // used for proportional movement based on lerping (linear interpolation)
+  double lerpMultiplier;
+
   // Enter movement control loop
   for (int curTick = 1; curTick <= ticks; ++curTick)
   {
     // read from proxies
     robot.Read();
 
-    // scale movement and rotation
-    double percent = 1.0 - ((double)curTick) / ((double)ticks);
-    //std::cout << "Tick " << curTick << " out of " << ticks << " percentage is: " << percent << "\n";
+    // lerp based on current and max ticks
+    lerpMultiplier = (1.0 - ((double)curTick) / ((double)ticks)) * 2.0;
 
-    // Send the motion commands that we decided on to the robot.
-    pp.SetSpeed(percent * forwardVelocity * 2.0,
-                percent * angularVelocity * 2.0);
+    // move the robot
+    pp.SetSpeed(forwardVelocity * lerpMultiplier, angularVelocity * lerpMultiplier);
     
     // break if a bumper has been pressed and we're not currently handling a bumper event
     if (!isHandlingBump && isAnyPressed()) break;
