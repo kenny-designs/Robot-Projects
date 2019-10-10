@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
   std::vector<Vector2> waypointsVector2;
 
   waypointsVector2.push_back(Vector2(0,0));
-  waypointsVector2.push_back(Vector2(12,1));
+  waypointsVector2.push_back(Vector2(1,12));
   waypointsVector2.push_back(Vector2(12,4));
   waypointsVector2.push_back(Vector2(1,4));
   waypointsVector2.push_back(Vector2(1,8));
