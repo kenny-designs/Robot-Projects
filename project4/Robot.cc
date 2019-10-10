@@ -5,6 +5,7 @@
 #include <limits>   // std::numeric_limits
 #include <stdlib.h> // srand, rand
 #include <time.h>   // time
+#include <cstdio>   // printf
 
 // used for comparing doubles to 0
 #define EPSILON std::numeric_limits<double>::epsilon()
@@ -50,6 +51,12 @@ Robot::~Robot()
 
   // Have Mr. Robot say goodbye for it is the polite thing to do
   std::cout << "Powering off. Goodbye!\n";
+}
+
+/** Read from the environment */
+void Robot::read()
+{
+  robot.Read();
 }
 
 /**
@@ -294,36 +301,6 @@ void Robot::printLaserData()
 }
 
 /**
- * Read the position of the robot from the localization proxy.
- * The localization proxy gives us a hypothesis, and from that we extract
- * the mean, which is a pose.
- *
- * @return the pose of the robot
- */
-// TODO: renable if need be
-/*
-player_pose2d_t Robot::getPoseFromLocalizeProxy()
-{
-  player_localize_hypoth_t hypothesis;
-  player_pose2d_t          pose;
-  uint32_t                 hCount;
-
-  robot.Read();
-
-  // Need some messing around to avoid a crash when the proxy is starting up.
-  hCount = lp.GetHypothCount();
-
-  if (hCount > 0)
-  {
-    hypothesis = lp.GetHypoth(0);
-    pose       = hypothesis.mean;
-  }
-
-  return pose;
-}
-*/
-
-/**
  * Read the position of the robot from the localization proxy. 
  *
  * The localization proxy gives us a set of "hypotheses", each of
@@ -336,28 +313,33 @@ player_pose2d_t Robot::getPoseFromLocalizeProxy()
 player_pose2d_t Robot::getPoseFromLocalizeProxy()
 {
   player_localize_hypoth_t hypothesis;
-  player_pose2d_t          pose;
+  player_pose2d_t          pose, curPose;
   uint32_t                 hCount;
-  double                   weight;
+  double                   weight, maxWeight = 0;
 
   // Need some messing around to avoid a crash when the proxy is starting up.
   hCount = lp.GetHypothCount();
 
-  std::cout << "AMCL gives us " << hCount + 1 
-    << " possible locations:" << std::endl;
+  std::cout << "AMCL gives us " << hCount + 1 << " possible locations:\n";
 
   if (hCount > 0)
   {
     for (int i = 0; i <= hCount; i++)
     {
       hypothesis = lp.GetHypoth(i);
-      pose       = hypothesis.mean;
+      curPose    = hypothesis.mean;
       weight     = hypothesis.alpha;
-      std::cout << "X: " << pose.px << "\t";
-      std::cout << "Y: " << pose.py << "\t";
-      std::cout << "A: " << pose.pa << "\t";
-      std::cout << "W: " << weight  << std::endl;
+
+      if (weight > maxWeight)
+      {
+        maxWeight = weight;
+        pose = curPose;
+      }
+
+      // print results
+      std::printf("[Loc %d] X: %.5f, Y: %.5f, Yaw: %.5f, Weight: %.5f\n", i+1, curPose.px, curPose.py, curPose.pa, weight);
     }
+    std::cout << "\n";
   }
   // Returns the mean of the last hypothesis, it isn't necessarily the right one.
   return pose;
@@ -511,6 +493,7 @@ void Robot::moveToWaypoint(Vector2& wp, bool useLocalization, double velocity, d
   double yaw, angle, distance;
   do
   {
+    robot.Read();
     if (useLocalization)
     {
       pos = getLocalizedPos();

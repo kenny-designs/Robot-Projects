@@ -75,6 +75,9 @@ public:
   // destructor
   ~Robot();
 
+  // read from the environment
+  void read();
+
   // get position based on odometer
   double getOdometerXPos();
   double getOdometerYPos();
