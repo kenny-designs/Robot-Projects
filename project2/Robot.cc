@@ -6,8 +6,10 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include <limits> // std::numeric_limits
-#include <cmath>  // acos(), cos(), sin()
+#include <limits>   // std::numeric_limits
+#include <cmath>    // acos(), cos(), sin()
+#include <stdlib.h> // srand, rand
+#include <time.h>   // time
 
 // used for comparing doubles to 0
 #define EPSILON std::numeric_limits<double>::epsilon()
@@ -20,7 +22,11 @@
  * @param hostname     - address to connect to (localhost by default)
  */
 Robot::Robot(bool isSimulation, std::string hostname) :
-  isSimulation(isSimulation), robot(hostname), pp(&robot, 0), bp(&robot, 0) {}
+  isSimulation(isSimulation),
+  isCorrectingPosition(false),
+  robot(hostname),
+  pp(&robot, 0),
+  bp(&robot, 0) {}
 
 /**
  * Move and rotate the robot over the given number of ticks
@@ -40,8 +46,8 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     // read from proxies
     robot.Read();
 
-    // break if bumper hit
-    if (isLeftPressed() || isRightPressed()) break;
+    // break if bumper hit and we're not currently correcting the position
+    if (!isCorrectingPosition && (isLeftPressed() || isRightPressed())) break;
   }
 
   // stop moving
@@ -114,6 +120,59 @@ void Robot::getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& dista
 }
 
 /**
+ * Corrects the robots position if a bumper has been pressed
+ */
+void Robot::handleBump()
+{
+  isCorrectingPosition = true;
+
+  robot.Read();
+  bool isLeft  = isLeftPressed(),
+       isRight = isRightPressed();
+
+  printBumper();
+
+  double angle = M_PI_4 + M_PI_4 / 2.0;  // default rotate left
+  if (isLeft && isRight)
+  {
+    // initialize random seed
+    srand(time(NULL));
+
+    // rotate in random direction based on rand()
+    angle *= rand() % 2 ? 1 : -1;
+  }
+  else if (isLeft)
+  {
+    angle *= -1;
+  }
+
+  // correct robot position
+  moveForwardByMeters(-1.0, 0.5);  // back up by 1.0 meters
+  rotateByRadians(angle, 0.5);     // rotate by the angle
+  moveForwardByMeters(1.0, 0.5);   // move forward by 1.0 meters
+
+  isCorrectingPosition = false;
+}
+
+/**
+ * Returns true if the robot has reached the given waypoint within the
+ * given error range
+ *
+ * @param wp         - the waypoint we are testing to see if we reached
+ * @param errorRange - the range in which the robot must be to the wp
+ * @return           - true if the robot has reached the robot. Otherwise, false
+ */ 
+bool Robot::hasReachedWaypoint(Vector2& wp, double errorRange)
+{
+  // obtain the robots x and y position
+  Vector2 pos(getXPos(), getYPos());
+
+  // return true if reached the waypoint within the error range
+  return (pos.x + errorRange > wp.x && pos.x - errorRange < wp.x) &&
+         (pos.y + errorRange > wp.y && pos.y - errorRange < wp.y);
+}
+
+/**
  * Gets Robot X position based on Position2dProxy
  * @return X position as double
  */
@@ -175,7 +234,7 @@ void Robot::printBumper()
 {
   // must read data from the server to find bumper state
   robot.Read();
-  std::cout << "Left  bumper pressed: " << isLeftPressed()  << "\n" <<
+  std::cout << "Left  bumper pressed:  " << isLeftPressed()  << "\n" <<
                "Right bumper pressed:  " << isRightPressed() << "\n";
 }
 
@@ -233,12 +292,26 @@ void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
  */ 
 void Robot::moveToWaypoint(Vector2& wp)
 {
-  double angle, distance;
-  getAngleDistanceToWaypoint(wp, angle, distance);
+  // move to waypoint wp until within 0.5m of it
+  bool isAtDestination = hasReachedWaypoint(wp, 0.25);
+  while (!isAtDestination)
+  {
+    double angle, distance;
+    getAngleDistanceToWaypoint(wp, angle, distance);
 
-  if (isnan(angle)) return;
+    if (isnan(angle)) return;
 
-  // rotate towards then travel to the given waypoint
-  rotateByRadians(angle, 0.5);
-  moveForwardByMeters(distance, 0.5);
+    // rotate towards then travel to the given waypoint
+    rotateByRadians(angle, 0.5);
+    moveForwardByMeters(distance, 0.5);
+
+    // check again if the robot has reached the destination
+    isAtDestination = hasReachedWaypoint(wp, 0.25);
+
+    // if not yet at the destination, correct position then try again
+    if (!isAtDestination)
+    {
+      handleBump();
+    }
+  }
 }
