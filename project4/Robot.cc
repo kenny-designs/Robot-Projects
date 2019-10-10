@@ -258,7 +258,6 @@ bool Robot::isAnyPressed()
 /** Prints the X, Y, and Yaw odometry positions of the Robot */
 void Robot::printOdometerPosition()
 {
-  robot.Read();
   std::cout << "Robot Odometer Position"    << "\n" <<
                "-----------------------"    << "\n" <<
                "X:   " << getOdometerXPos() << "\n" <<
@@ -281,7 +280,6 @@ void Robot::printLocalizedPosition()
 void Robot::printBumper()
 {
   // must read data from the server to find bumper state
-  robot.Read();
   std::cout << "Left  bumper pressed:  " << isLeftPressed()  << "\n" <<
                "Right bumper pressed:  " << isRightPressed() << "\n";
 }
@@ -291,7 +289,6 @@ void Robot::printLaserData()
 {
   if (!sp) return;
 
-  robot.Read();
   std::cout << "Max laser distance:        " << sp->GetMaxRange() << "\n" <<
                "Number of readings:        " << sp->GetCount()    << "\n" <<
                "Closest thing on left:     " << sp->MinLeft()     << "\n" <<
