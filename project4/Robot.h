@@ -81,7 +81,11 @@ public:
   double getOdometerYaw();
   Vector2 getOdometerPos();
 
-  // check status of bumpers
+  // get position based on localization
+  Vector2 getLocalizedPos();
+  double getLocalizedYaw();
+
+  // get status of bumpers
   bool isLeftPressed();
   bool isRightPressed();
   bool isAnyPressed();
@@ -94,10 +98,6 @@ public:
   
   // get pose from the LocalizeProxy 
   player_pose2d_t getPoseFromLocalizeProxy();
-
-  // get the localized position of the robot
-  Vector2 getLocalizedPos();
-  double getLocalizedYaw();
 
   // motor
   void setMotorEnable(bool isMotorEnabled);

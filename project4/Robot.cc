@@ -206,6 +206,26 @@ Vector2 Robot::getOdometerPos()
 }
 
 /**
+ * Gets the current position of the robot based off of localization
+ * @return Vector2 of the robot's current localized position
+ */ 
+Vector2 Robot::getLocalizedPos()
+{
+  player_pose2d_t pose = getPoseFromLocalizeProxy();
+
+  return Vector2(pose.px, pose.py);
+}
+
+/**
+ * Gets Robot Yaw rotation based on localization
+ * @return Localized Yaw rotation as double
+ */ 
+double Robot::getLocalizedYaw()
+{
+  return getPoseFromLocalizeProxy().pa;
+}
+
+/**
  * Returns true if the left bumper is pressed
  * @return True if left bumper pressed
  */
@@ -302,26 +322,6 @@ player_pose2d_t Robot::getPoseFromLocalizeProxy()
   }
 
   return pose;
-}
-
-/**
- * Gets the current position of the robot based off of localization
- * @return Vector2 of the robot's current localized position
- */ 
-Vector2 Robot::getLocalizedPos()
-{
-  player_pose2d_t pose = getPoseFromLocalizeProxy();
-
-  return Vector2(pose.px, pose.py);
-}
-
-/**
- * Gets Robot Yaw rotation based on localization
- * @return Localized Yaw rotation as double
- */ 
-double Robot::getLocalizedYaw()
-{
-  return getPoseFromLocalizeProxy().pa;
 }
 
 /**
