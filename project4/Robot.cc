@@ -300,6 +300,8 @@ void Robot::printLaserData()
  *
  * @return the pose of the robot
  */
+// TODO: renable if need be
+/*
 player_pose2d_t Robot::getPoseFromLocalizeProxy()
 {
   player_localize_hypoth_t hypothesis;
@@ -317,6 +319,47 @@ player_pose2d_t Robot::getPoseFromLocalizeProxy()
     pose       = hypothesis.mean;
   }
 
+  return pose;
+}
+*/
+
+/**
+ * Read the position of the robot from the localization proxy. 
+ *
+ * The localization proxy gives us a set of "hypotheses", each of
+ * which is a number of possible locations for the robot, and from
+ * each we extract the mean, which is a pose.
+ *
+ * As the number of hypotheses drops, the robot should be more sure
+ * of where it is.
+ */
+player_pose2d_t Robot::getPoseFromLocalizeProxy()
+{
+  player_localize_hypoth_t hypothesis;
+  player_pose2d_t          pose;
+  uint32_t                 hCount;
+  double                   weight;
+
+  // Need some messing around to avoid a crash when the proxy is starting up.
+  hCount = lp.GetHypothCount();
+
+  std::cout << "AMCL gives us " << hCount + 1 
+    << " possible locations:" << std::endl;
+
+  if (hCount > 0)
+  {
+    for (int i = 0; i <= hCount; i++)
+    {
+      hypothesis = lp.GetHypoth(i);
+      pose       = hypothesis.mean;
+      weight     = hypothesis.alpha;
+      std::cout << "X: " << pose.px << "\t";
+      std::cout << "Y: " << pose.py << "\t";
+      std::cout << "A: " << pose.pa << "\t";
+      std::cout << "W: " << weight  << std::endl;
+    }
+  }
+  // Returns the mean of the last hypothesis, it isn't necessarily the right one.
   return pose;
 }
 
