@@ -269,10 +269,7 @@ void Robot::printAllHypotheses()
     hypothesis = lp.GetHypoth(i);
     pose       = hypothesis.mean;
     weight     = hypothesis.alpha;
-    std::cout << "X: " << pose.px << "\t";
-    std::cout << "Y: " << pose.py << "\t";
-    std::cout << "A: " << pose.pa << "\t";
-    std::cout << "W: " << weight  << "\n";
+    printf("X:%10f Y:%10f A:%10f W:%10f\n", pose.px, pose.py, pose.pa, weight);
   }
 
   std::cout << "\n";
