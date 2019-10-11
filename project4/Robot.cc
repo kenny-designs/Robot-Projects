@@ -71,8 +71,10 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
   // scale velocity for proportional control
   double velocityScale;
 
+  // double ticks to account for proportional control
+  ticks *= 2;
+
   // Enter movement control loop
-  ticks *=2;
   for (int curTick = 1; curTick <= ticks; ++curTick)
   {
     // read from proxies
@@ -124,7 +126,10 @@ void Robot::getFinalTicksAndVelocity(double distance, double& velocity, int& tic
   }
 
   // if negative distance, negate the velocity
-  if (distance < 0) { velocity *= -1; }
+  if (distance < 0)
+  {
+    velocity *= -1;
+  }
 
   ticks = abs((int)(distance / velocity / TICK_INTERVAL));
 }
@@ -293,6 +298,8 @@ void Robot::printLaserData()
  *
  * As the number of hypotheses drops, the robot should be more sure
  * of where it is.
+ *
+ * @return the pose with the greatest amount of weight
  */
 player_pose2d_t Robot::getPoseFromLocalizeProxy()
 {
@@ -306,6 +313,7 @@ player_pose2d_t Robot::getPoseFromLocalizeProxy()
 
   std::cout << "AMCL gives us " << hCount + 1 << " possible locations:\n";
 
+  // TODO: we can simplify all of this
   if (hCount > 0)
   {
     for (int i = 0; i <= hCount; i++)
@@ -337,7 +345,6 @@ player_pose2d_t Robot::getPoseFromLocalizeProxy()
  */ 
 void Robot::setMotorEnable(bool isMotorEnabled)
 {
-  // Allow the program to take charge of the motors (take care now)
   pp.SetMotorEnable(isMotorEnabled);
 }
 
@@ -416,8 +423,8 @@ void Robot::setSpeed(double forwardVelocity, double angularVelocity, TurnDirecti
  * @param angVelocity - the velocity to rotate at
  */
 void Robot::handleBump(HandleBumpConfig bumpConfig,
-                  double angle, double distance,
-                  double velocity, double angVelocity)
+                       double angle, double distance,
+                       double velocity, double angVelocity)
 {
   robot.Read();
   bool isLeft  = isLeftPressed(),
