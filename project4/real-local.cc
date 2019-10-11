@@ -17,13 +17,11 @@ int main(int argc, char *argv[])
   double error = 1.0;
   bool isSuccessful = attemptToLocalize(robot, approxPos, error);
 
-  // Print the robots localized position
-  robot.printLocalizedPosition();
-
   // Check if localization was successful
   if (isSuccessful)
   {
-    std::cout << "Success! The robot is within " << error << " meter(s) of the starting coordinate (-6, -6)\n";
+    std::cout << "Success localization!\n" <<
+                 "The robot is within " << error << " meter(s) of the starting coordinate (-6, -6)\n";
   }
   else
   {
@@ -31,12 +29,15 @@ int main(int argc, char *argv[])
     return 0;
   }
 
+  // Print the robots localized position
+  robot.printLocalizedPosition();
+
   // Travel to point (5, -3.5)
   Vector2 wp(5.0, -3.5);
   robot.moveToWaypoint(wp, true, 3.0);
 
   // Report final destination
-  std::cout << "\nRobot has reached final destination:\n";
+  std::cout << "\nSuccess Navigation!\n";
   robot.printLocalizedPosition();
 }
 
