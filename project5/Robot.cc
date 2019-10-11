@@ -594,11 +594,8 @@ void Robot::autoPilotLaser(double forwardVelocity, double angularVelocity)
     // reached a dead end, stop moving
     if (minLeft < 0.30 && minRight < 0.30) break;
 
-    // TODO: uncomment and remove new
-    // steady the robot to the center of its lane
-    //if      (minLeft < 1.225 && minRight < 1.225) dir = TurnDirection::None;
-    if (minRight < minLeft)                  dir = TurnDirection::Left;
-    else if (minRight > minLeft)                  dir = TurnDirection::Right;
+    // determine the direction to rotate
+    dir = minRight < minLeft ? TurnDirection::Left : TurnDirection::Right;
 
     // move robot
     setSpeed(forwardVelocity, angularVelocity, dir);
