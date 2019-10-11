@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 
   // Attempt to localize the robot
   Vector2 approxPos(-6.0, -6.0);
-  double error = 0.5;
+  double error = 1.0;
   bool isSuccessful = attemptToLocalize(robot, approxPos, error);
 
   // Print the robots localized position

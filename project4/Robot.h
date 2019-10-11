@@ -93,6 +93,7 @@ public:
   // print information about the robot
   void printOdometerPosition();
   void printLocalizedPosition();
+  void printAllHypotheses();
   void printBumper();
   void printLaserData();
   

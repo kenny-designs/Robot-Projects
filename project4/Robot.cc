@@ -131,7 +131,7 @@ void Robot::getFinalTicksAndVelocity(double distance, double& velocity, int& tic
     velocity *= -1;
   }
 
-  ticks = abs((int)(distance / velocity / TICK_INTERVAL));
+  ticks = abs((int)(distance / velocity / TICK_INTERVAL)); 
 }
 
 /**
@@ -252,6 +252,32 @@ void Robot::printLocalizedPosition()
                "Yaw: " << pose.pa          << "\n\n";
 }
 
+/** Prints all hypotheses */
+void Robot::printAllHypotheses()
+{
+  player_localize_hypoth_t hypothesis;
+  player_pose2d_t          pose;
+  double                   weight;
+  uint32_t                 hCount = lp.GetHypothCount();
+
+  if (hCount < 1) return;
+
+  std::cout << "AMCL gives us " << hCount + 1 << " possible locations:" << "\n";
+
+  for (int i = 0; i <= hCount; i++)
+  {
+    hypothesis = lp.GetHypoth(i);
+    pose       = hypothesis.mean;
+    weight     = hypothesis.alpha;
+    std::cout << "X: " << pose.px << "\t";
+    std::cout << "Y: " << pose.py << "\t";
+    std::cout << "A: " << pose.pa << "\t";
+    std::cout << "W: " << weight  << "\n";
+  }
+
+  std::cout << "\n";
+}
+
 /** Prints state of the bumpers */
 void Robot::printBumper()
 {
@@ -288,9 +314,10 @@ void Robot::printLaserData()
 player_pose2d_t Robot::getPoseFromLocalizeProxy()
 {
   player_localize_hypoth_t hypothesis;
-  player_pose2d_t          pose;
+  int                      maxIndex;
   double                   weight, maxWeight = 0;
 
+  // Find pose with the most weight
   for (int i = 0; i <= lp.GetHypothCount(); i++)
   {
     hypothesis = lp.GetHypoth(i);
@@ -299,12 +326,12 @@ player_pose2d_t Robot::getPoseFromLocalizeProxy()
     if (weight > maxWeight)
     {
       maxWeight = weight;
-      pose = hypothesis.mean;
+      maxIndex  = i;
     }
   }
 
   // Returns pose with the most weight
-  return pose;
+  return lp.GetHypoth(maxIndex).mean;
 }
 
 /**
@@ -318,12 +345,13 @@ void Robot::localize()
   {
     robot.Read();
 
+    printAllHypotheses();
+
     // if only one hypothesis remains, return
     if (lp.GetHypothCount() == 1) return;
 
-    // adjust position
-    setSpeed(0, 0.5);
-    setSpeed(-1.0, 0);
+    // travel backwards in a circle shape
+    setSpeed(-0.75, 1.0);
   }
 }
 
@@ -501,16 +529,9 @@ void Robot::moveToWaypoint(Vector2& wp, bool useLocalization, double velocity, d
       pos = getOdometerPos();
       yaw = getOdometerYaw();
     }
-   
-    // TODO: remove 
-    std::cout << "moveToWaypoint() Pos:\n";
-    printLocalizedPosition();
-    
+       
     // obtain angle and distance needed to reach the waypoint
     getAngleDistanceToWaypoint(pos, yaw, wp, angle, distance);
-
-    // TODO: remove
-    std::printf("Distance to waypoint angle: %f, distance: %f\n\n", angle, distance);
 
     // rotate towards then travel to the given waypoint
     rotateByRadians(angle, angularVelocity);
