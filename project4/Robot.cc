@@ -505,8 +505,6 @@ void Robot::moveToWaypoint(Vector2& wp, bool useLocalization, double velocity, d
     // obtain angle and distance needed to reach the waypoint
     getAngleDistanceToWaypoint(pos, yaw, wp, angle, distance);
 
-    std::printf("Position: (%.5f, %.5f)", pos.x, pos.y);
-
     // rotate towards then travel to the given waypoint
     rotateByRadians(angle, angularVelocity);
     moveForwardByMeters(distance, velocity);

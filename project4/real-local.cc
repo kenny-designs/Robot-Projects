@@ -9,12 +9,12 @@ bool attemptToLocalize(Robot& robot, Vector2& approximatePos, double errorRange)
 
 int main(int argc, char *argv[])
 {
-  // Create robot with lasers disabled and movement+rotation scaled up by 1.215
+  // Create robot with lasers enabled and movement+rotation scaled up by 1.215
   Robot robot(true, 1.215, 1.215);
 
   // Attempt to localize the robot
   Vector2 approxPos(-6.0, -6.0);
-  double error = 1.0;
+  double error = 0.5;
   bool isSuccessful = attemptToLocalize(robot, approxPos, error);
 
   // Print the robots localized position
@@ -33,7 +33,11 @@ int main(int argc, char *argv[])
 
   // Travel to point (5, -3.5)
   Vector2 wp(5.0, -3.5);
-  robot.moveToWaypoint(wp, true, 1.0, 1.0);
+  robot.moveToWaypoint(wp, true, 3.0);
+
+  // Report final destination
+  std::cout << "\nRobot has reached final destination:\n";
+  robot.printLocalizedPosition();
 }
 
 /**
