@@ -501,6 +501,9 @@ void Robot::moveToWaypoint(Vector2& wp, bool useLocalization, double velocity, d
       pos = getOdometerPos();
       yaw = getOdometerYaw();
     }
+   
+    // TODO: remove 
+    //printLocalizedPosition();
     
     // obtain angle and distance needed to reach the waypoint
     getAngleDistanceToWaypoint(pos, yaw, wp, angle, distance);
