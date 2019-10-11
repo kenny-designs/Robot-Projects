@@ -36,10 +36,11 @@ int main(int argc, char *argv[])
   writePlan(plan, pLength);   // Write the plan to the file plan-out.txt
 
   // TODO: this is a bit crude. But it works
+  HandleBumpConfig bumpConfig(TurnDirection::Left); // if both bumpers pressed, turn left
   for (int i = 0; i < pLength; i += 2)
   {
     Vector2 wp(plan[i], plan[i+1]);
-    robot.moveToWaypoint(wp, true, 3.0, 0.5, 1.0);
+    robot.moveToWaypoint(wp, true, 3.0, 0.5, 1.0, bumpConfig);
   }
 }
 

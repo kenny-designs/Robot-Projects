@@ -131,7 +131,8 @@ public:
                       bool useLocalization   = false,
                       double velocity        = 0.5,
                       double angularVelocity = 0.5,
-                      double errorRange      = 0.25);
+                      double errorRange      = 0.25,
+                      HandleBumpConfig bumpConfig = HandleBumpConfig());
 
   // auto movement
   void autoPilotLaser(double forwardVelocity = 0.5, double angularVelocity = 1.0);
