@@ -166,22 +166,6 @@ void Robot::getAngleDistanceToWaypoint(Vector2& pos, double yaw, Vector2& wp, do
 }
 
 /**
- * Returns true if the robot has reached the given waypoint within the
- * given error range
- *
- * @param pos        - the waypoint the robot is currently at
- * @param wp         - the waypoint we are testing to see if we reached
- * @param errorRange - the range in which the robot must be to the wp
- * @return true if the robot has reached the robot. Otherwise, false
- */ 
-bool Robot::hasReachedWaypoint(Vector2& pos, Vector2& wp, double errorRange)
-{
-  // return true if reached the waypoint within the error range
-  return (pos.x + errorRange > wp.x && pos.x - errorRange < wp.x) &&
-         (pos.y + errorRange > wp.y && pos.y - errorRange < wp.y);
-}
-
-/**
  * Gets Robot Yaw rotation based on odometry
  * @return Yaw rotation as double
  */
@@ -472,6 +456,22 @@ void Robot::handleBump(HandleBumpConfig bumpConfig,
 
   // robot has finished addressing the bumper press event
   isHandlingBump = false;
+}
+
+/**
+ * Returns true if the robot has reached the given waypoint within the
+ * given error range
+ *
+ * @param pos        - the waypoint the robot is currently at
+ * @param wp         - the waypoint we are testing to see if we reached
+ * @param errorRange - the range in which the robot must be to the wp
+ * @return true if the robot has reached the robot. Otherwise, false
+ */ 
+bool Robot::hasReachedWaypoint(Vector2& pos, Vector2& wp, double errorRange)
+{
+  // return true if reached the waypoint within the error range
+  return (pos.x + errorRange > wp.x && pos.x - errorRange < wp.x) &&
+         (pos.y + errorRange > wp.y && pos.y - errorRange < wp.y);
 }
 
 /**

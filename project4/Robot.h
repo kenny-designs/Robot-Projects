@@ -62,7 +62,6 @@ class Robot
 
   // waypoint movement
   void getAngleDistanceToWaypoint(Vector2& pos, double yaw, Vector2& wp, double& angle, double& distance);
-  bool hasReachedWaypoint(Vector2& pos, Vector2& wp, double errorRange);
 
 public:
   // constructor
@@ -123,6 +122,7 @@ public:
                   double angularVelocity = 0.5);
 
   // handle waypoint movement
+  bool hasReachedWaypoint(Vector2& pos, Vector2& wp, double errorRange);
   void moveToWaypoint(Vector2& wp,
                       bool useLocalization   = false,
                       double velocity        = 0.5,

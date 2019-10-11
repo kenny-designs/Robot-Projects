@@ -4,15 +4,50 @@
  */
 #include "Robot.h"
 
+// Forward declarations
+bool attemptToLocalize(Robot& robot, Vector2& approximatePos, double errorRange);
+
 int main(int argc, char *argv[])
 {
   // Create robot with lasers disabled and movement+rotation scaled up by 1.215
   Robot robot(true, 1.215, 1.215);
 
-  // have the robot move around until it is certain of its position
-  robot.localize();
+  // Attempt to localize the robot
+  Vector2 approxPos(-6.0, -6.0);
+  double error = 1.0;
+  bool isSuccessful = attemptToLocalize(robot, approxPos, error);
+
+  // Print the robots localized position
+  robot.printLocalizedPosition();
+
+  // Check if localization was successful
+  if (isSuccessful)
+  {
+    std::cout << "Success! The robot is within " << error << " meter(s) of the starting coordinate (-6, -6)\n";
+  }
+  else
+  {
+    std::cout << "Failure. The robot is not within " << error << " meter(s) of the starting coordinate (-6, -6)\n";
+    return 0;
+  }
 
   // Travel to point (5, -3.5)
   Vector2 wp(5.0, -3.5);
   robot.moveToWaypoint(wp, true, 1.0, 1.0);
+}
+
+/**
+ * Localize the robot. Returns true if the robot the robot manages to localize
+ * itself approximately where we programmed it to start.
+ */ 
+bool attemptToLocalize(Robot& robot, Vector2& approximatePos, double errorRange)
+{
+  // have the robot move around until it is certain of its position
+  robot.localize();
+
+  // get our current position
+  Vector2 pos = robot.getLocalizedPos();
+
+  // true if the robot managed to localize itself roughly where it's supposed to be
+  return robot.hasReachedWaypoint(pos, approximatePos, errorRange);
 }
