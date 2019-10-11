@@ -44,7 +44,7 @@ Robot::Robot(bool isUsingLaser, double movementScale, double rotationScale, doub
 Robot::~Robot()
 {
   // turn off the motor
-  setMotorEnable(true);
+  setMotorEnable(false);
 
   // free memory used by the laser proxy
   delete sp;
@@ -68,20 +68,21 @@ void Robot::read()
  */
 void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks)
 {
-  // used for proportional movement based on lerping (linear interpolation)
-  double lerpMultiplier;
+  // scale velocity for proportional control
+  double velocityScale;
 
   // Enter movement control loop
+  ticks *=2;
   for (int curTick = 1; curTick <= ticks; ++curTick)
   {
     // read from proxies
     robot.Read();
 
-    // lerp based on current and max ticks
-    lerpMultiplier = (1.0 - ((double)curTick) / ((double)ticks)) * 2.0;
+    // scale velocity based on current and max ticks
+    velocityScale = (1.0 - ((double)curTick) / ((double)ticks));
 
     // move the robot
-    pp.SetSpeed(forwardVelocity * lerpMultiplier, angularVelocity * lerpMultiplier);
+    pp.SetSpeed(forwardVelocity * velocityScale, angularVelocity * velocityScale);
     
     // break if a bumper has been pressed and we're not currently handling a bumper event
     if (!isHandlingBump && isAnyPressed()) break;
@@ -504,10 +505,12 @@ void Robot::moveToWaypoint(Vector2& wp, bool useLocalization, double velocity, d
     }
 
     // TODO: remove
-    printLocalizedPosition();
+    //printLocalizedPosition();
 
     // obtain angle and distance needed to reach the waypoint
     getAngleDistanceToWaypoint(pos, yaw, wp, angle, distance);
+
+    std::printf("Position: (%.5f, %.5f)", pos.x, pos.y);
 
     // rotate towards then travel to the given waypoint
     rotateByRadians(angle, angularVelocity);

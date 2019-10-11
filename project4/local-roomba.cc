@@ -11,5 +11,5 @@ int main(int argc, char *argv[])
 
   // Travel to point (5, -3.5)
   Vector2 wp(5.0, -3.5);
-  robot.moveToWaypoint(wp, true, 1.0);
+  robot.moveToWaypoint(wp, true, 3.0);  
 }
