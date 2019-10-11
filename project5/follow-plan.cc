@@ -3,18 +3,20 @@
  * Group10: Aguilar, Andrew, Kamel, Kennedy
  */
 
-#include <iostream>
+#include "Robot.h"
 #include <fstream>
-#include <libplayerc++/playerc++.h>
-using namespace PlayerCc;  
 
+// Forward declarations
 int  readPlanLength(void);
-void readPlan(double *, int);
-void printPlan(double *,int);  
-void writePlan(double *, int);
+void readPlan(double*, int);
+void printPlan(double*,int);  
+void writePlan(double*, int);
 
 int main(int argc, char *argv[])
 {  
+  // Create robot with lasers enabled and movement+rotation scaled up by 1.215
+  Robot robot(true, 1.35, 1.35);
+
   // The set of coordinates that makes up the plan
   int pLength;
   double *plan;
@@ -33,10 +35,11 @@ int main(int argc, char *argv[])
   printPlan(plan,pLength);    // Print the plan on the screen
   writePlan(plan, pLength);   // Write the plan to the file plan-out.txt
 
-  // Main control loop
-  while(true) 
+  // TODO: this is a bit crude. But it works
+  for (int i = 0; i < pLength; i += 2)
   {
-    //
+    Vector2 wp(plan[i], plan[i+1]);
+    robot.moveToWaypoint(wp, true, 3.0, 0.5, 1.0);
   }
 }
 
@@ -67,7 +70,7 @@ int readPlanLength(void)
  * Given the number of coordinates, read them in from plan.txt and put
  * them in the array plan.
  */
-void readPlan(double *plan, int length)
+void readPlan(double* plan, int length)
 {
   int skip;
 
@@ -86,7 +89,7 @@ void readPlan(double *plan, int length)
  * Print the plan on the screen, two coordinates to a line, x then y
  * with a header to remind us which is which.
  */
-void printPlan(double *plan , int length)
+void printPlan(double* plan, int length)
 {
   std::cout << std::endl;
   std::cout << "   x     y" << std::endl;
@@ -105,7 +108,7 @@ void printPlan(double *plan , int length)
  * Send the plan to the file plan-out.txt, preceeded by the information
  * about how long it is.
  */
-void writePlan(double *plan , int length)
+void writePlan(double* plan, int length)
 {
   std::ofstream planFile;
   planFile.open("plan-out.txt");
