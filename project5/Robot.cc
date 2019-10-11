@@ -529,7 +529,7 @@ void Robot::moveToWaypoint(Vector2& wp,
   // move to waypoint wp until within the error range
   Vector2 pos;
   double yaw, angle, distance;
-  do
+  while (1)
   {
     robot.Read();
 
@@ -544,6 +544,8 @@ void Robot::moveToWaypoint(Vector2& wp,
       pos = getOdometerPos();
       yaw = getOdometerYaw();
     }
+
+    if (hasReachedWaypoint(pos, wp, errorRange)) return;
        
     // obtain angle and distance needed to reach the waypoint
     getAngleDistanceToWaypoint(pos, yaw, wp, angle, distance);
@@ -554,7 +556,7 @@ void Robot::moveToWaypoint(Vector2& wp,
    
     // handle any bumper events
     handleBump(bumpConfig);
-  } while (!hasReachedWaypoint(pos, wp, errorRange));
+  }
 }
 
 /**
