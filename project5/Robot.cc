@@ -447,8 +447,10 @@ void Robot::setSpeed(double forwardVelocity, double angularVelocity, TurnDirecti
  * @param angVelocity - the velocity to rotate at
  */
 void Robot::handleBump(HandleBumpConfig bumpConfig,
-                       double angle, double distance,
-                       double velocity, double angVelocity)
+                       double angle,
+                       double distance,
+                       double velocity,
+                       double angVelocity)
 {
   robot.Read();
   bool isLeft  = isLeftPressed(),
@@ -486,8 +488,15 @@ void Robot::handleBump(HandleBumpConfig bumpConfig,
 
   // correct robot position by dislodging it
   moveForwardByMeters(-distance, velocity);  // back up by the given distance
+
+  // TODO: uncomment
+  /*
   rotateByRadians(angle, angVelocity);       // rotate by the given angle
   moveForwardByMeters(distance, velocity);   // move forward by the given distance
+  */
+
+  // TODO: remove
+  autoPilotLaser();
 
   // robot has finished addressing the bumper press event
   isHandlingBump = false;
@@ -573,9 +582,10 @@ void Robot::autoPilotLaser(double forwardVelocity, double angularVelocity)
   double minLeft, minRight;
   TurnDirection::Enum dir;
 
-  while (1)
+  int i = 0;
+  while (i++ < 50)
   {
-    printLaserData();
+    robot.Read();
 
     // get min left and right data from the laser
     minLeft  = sp->MinLeft();
@@ -584,9 +594,10 @@ void Robot::autoPilotLaser(double forwardVelocity, double angularVelocity)
     // reached a dead end, stop moving
     if (minLeft < 0.30 && minRight < 0.30) break;
 
+    // TODO: uncomment and remove new
     // steady the robot to the center of its lane
-    if      (minLeft < 1.225 && minRight < 1.225) dir = TurnDirection::None;
-    else if (minRight < minLeft)                  dir = TurnDirection::Left;
+    //if      (minLeft < 1.225 && minRight < 1.225) dir = TurnDirection::None;
+    if (minRight < minLeft)                  dir = TurnDirection::Left;
     else if (minRight > minLeft)                  dir = TurnDirection::Right;
 
     // move robot
