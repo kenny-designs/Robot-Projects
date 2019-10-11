@@ -100,6 +100,9 @@ public:
   // get pose from the LocalizeProxy 
   player_pose2d_t getPoseFromLocalizeProxy();
 
+  // localizes the robot
+  void localize();
+
   // motor
   void setMotorEnable(bool isMotorEnabled);
 

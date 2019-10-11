@@ -304,38 +304,43 @@ void Robot::printLaserData()
 player_pose2d_t Robot::getPoseFromLocalizeProxy()
 {
   player_localize_hypoth_t hypothesis;
-  player_pose2d_t          pose, curPose;
-  uint32_t                 hCount;
+  player_pose2d_t          pose;
   double                   weight, maxWeight = 0;
 
-  // Need some messing around to avoid a crash when the proxy is starting up.
-  hCount = lp.GetHypothCount();
-
-  std::cout << "AMCL gives us " << hCount + 1 << " possible locations:\n";
-
-  // TODO: we can simplify all of this
-  if (hCount > 0)
+  for (int i = 0; i <= lp.GetHypothCount(); i++)
   {
-    for (int i = 0; i <= hCount; i++)
+    hypothesis = lp.GetHypoth(i);
+    weight     = hypothesis.alpha;
+
+    if (weight > maxWeight)
     {
-      hypothesis = lp.GetHypoth(i);
-      curPose    = hypothesis.mean;
-      weight     = hypothesis.alpha;
-
-      if (weight > maxWeight)
-      {
-        maxWeight = weight;
-        pose = curPose;
-      }
-
-      // print results
-      std::printf("[Loc %d] X: %.5f, Y: %.5f, Yaw: %.5f, Weight: %.5f\n", i, curPose.px, curPose.py, curPose.pa, weight);
+      maxWeight = weight;
+      pose = hypothesis.mean;
     }
-    std::cout << "\n";
   }
 
   // Returns pose with the most weight
   return pose;
+}
+
+/**
+ * Robot localizes itself by moving around the map until it is certain of
+ * its position
+ */ 
+void Robot::localize()
+{
+  // endlessly loop until the robot is certain of where it is
+  while (1)
+  {
+    robot.Read();
+
+    // if only one hypothesis remains, return
+    if (lp.GetHypothCount() == 1) return;
+
+    // adjust position
+    setSpeed(0, 0.5);
+    setSpeed(-1.0, 0);
+  }
 }
 
 /**
