@@ -97,7 +97,10 @@ public:
   void printBumper();
   void printLaserData();
   
-  // get pose from the LocalizeProxy 
+  // get the best Hypothesis from the LocalizeProxy 
+  player_localize_hypoth_t getBestLocalizeHypothesis();
+
+  // get the best pose from the LocalizeProxy
   player_pose2d_t getPoseFromLocalizeProxy();
 
   // localizes the robot

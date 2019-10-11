@@ -50,7 +50,7 @@ Robot::~Robot()
   delete sp;
 
   // Have Mr. Robot say goodbye for it is the polite thing to do
-  std::cout << "Powering off. Goodbye!\n";
+  std::cout << "\nPowering off. Goodbye! o7\n";
 }
 
 /** Read from the environment */
@@ -238,7 +238,7 @@ void Robot::printOdometerPosition()
                "-----------------------"   << "\n" <<
                "X:   " << pos.x            << "\n" <<
                "Y:   " << pos.y            << "\n" <<
-               "Yaw: " << getOdometerYaw() << "\n\n";
+               "Yaw: " << getOdometerYaw() << "\n";
 }
 
 /** Prints the X, Y, and Yaw positions of the robot based on localization */
@@ -249,7 +249,7 @@ void Robot::printLocalizedPosition()
                "------------------------"  << "\n" <<
                "X:   " << pose.px          << "\n" <<
                "Y:   " << pose.py          << "\n" <<
-               "Yaw: " << pose.pa          << "\n\n";
+               "Yaw: " << pose.pa          << "\n";
 }
 
 /** Prints all hypotheses */
@@ -296,22 +296,15 @@ void Robot::printLaserData()
                "Closest thing on left:     " << sp->MinLeft()     << "\n" <<
                "Closest thing on right:    " << sp->MinRight()    << "\n" <<
                "Range of a single point:   " << sp->GetRange(5)   << "\n" <<
-               "Bearing of a single point: " << sp->GetBearing(5) << "\n\n";
+               "Bearing of a single point: " << sp->GetBearing(5) << "\n";
 }
 
 /**
- * Read the position of the robot from the localization proxy. 
+ * Finds the hypothesis with the greatest weight
  *
- * The localization proxy gives us a set of "hypotheses", each of
- * which is a number of possible locations for the robot, and from
- * each we extract the mean, which is a pose.
- *
- * As the number of hypotheses drops, the robot should be more sure
- * of where it is.
- *
- * @return the pose with the greatest amount of weight
- */
-player_pose2d_t Robot::getPoseFromLocalizeProxy()
+ * @return hypothesis with greatest weight
+ */ 
+player_localize_hypoth_t Robot::getBestLocalizeHypothesis()
 {
   player_localize_hypoth_t hypothesis;
   int                      maxIndex;
@@ -330,8 +323,25 @@ player_pose2d_t Robot::getPoseFromLocalizeProxy()
     }
   }
 
-  // Returns pose with the most weight
-  return lp.GetHypoth(maxIndex).mean;
+  // Returns hypothesis with the most weight
+  return lp.GetHypoth(maxIndex);
+}
+
+/**
+ * Read the position of the robot from the localization proxy. 
+ *
+ * The localization proxy gives us a set of "hypotheses", each of
+ * which is a number of possible locations for the robot, and from
+ * each we extract the mean, which is a pose.
+ *
+ * As the number of hypotheses drops, the robot should be more sure
+ * of where it is.
+ *
+ * @return the pose with the greatest amount of weight
+ */
+player_pose2d_t Robot::getPoseFromLocalizeProxy()
+{
+  return getBestLocalizeHypothesis().mean;
 }
 
 /**
@@ -519,6 +529,8 @@ void Robot::moveToWaypoint(Vector2& wp, bool useLocalization, double velocity, d
   do
   {
     robot.Read();
+
+    // get robot's current position based on either localization or odometry
     if (useLocalization)
     {
       pos = getLocalizedPos();
@@ -536,6 +548,11 @@ void Robot::moveToWaypoint(Vector2& wp, bool useLocalization, double velocity, d
     // rotate towards then travel to the given waypoint
     rotateByRadians(angle, angularVelocity);
     moveForwardByMeters(distance, velocity);
+   
+    // print robot's current position
+    std::cout << "\n";
+    if (useLocalization) printLocalizedPosition();
+    else                 printOdometerPosition();
 
     // handle any bumper events
     handleBump();

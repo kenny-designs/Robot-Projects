@@ -14,23 +14,18 @@ int main(int argc, char *argv[])
 
   // Attempt to localize the robot
   Vector2 approxPos(-6.0, -6.0);
-  double error = 1.0;
-  bool isSuccessful = attemptToLocalize(robot, approxPos, error);
+  bool isSuccessful = attemptToLocalize(robot, approxPos, 1.0);
 
-  // Check if localization was successful
-  if (isSuccessful)
-  {
-    std::cout << "Success localization!\n" <<
-                 "The robot is within " << error << " meter(s) of the starting coordinate (-6, -6)\n";
-  }
-  else
-  {
-    std::cout << "Failure. The robot is not within " << error << " meter(s) of the starting coordinate (-6, -6)\n";
-    return 0;
-  }
+  // Quit program if localization failed
+  if (!isSuccessful) return 0;
 
-  // Print the robots localized position
+  // Report success
+  std::cout << "Success Localization!\n";
+
+  // Report where the robot is and with the probability of it being there
+  std::cout << "I am at:\n";
   robot.printLocalizedPosition();
+  std::cout << "I am " << robot.getBestLocalizeHypothesis().alpha << " percent sure of my position.\n";
 
   // Travel to point (5, -3.5)
   Vector2 wp(5.0, -3.5);
