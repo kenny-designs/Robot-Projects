@@ -120,7 +120,7 @@ public:
 
   // bumper movement
   void handleBump(HandleBumpConfig bumpConfig = HandleBumpConfig(),
-                  double angle           = M_PI_4,  // 45 degrees
+                  double angle           = 5.0 * M_PI / 12.0,  // ~75 degrees
                   double distance        = 0.75,
                   double velocity        = 1.0,
                   double angularVelocity = 0.5);

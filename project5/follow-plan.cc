@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
   for (int i = 0; i < pLength; i += 2)
   {
     Vector2 wp(plan[i], plan[i+1]);
-    robot.moveToWaypoint(wp, true, 3.0, 0.5, 1.0, bumpConfig);
+    robot.moveToWaypoint(wp, true, 3.0, 1.0, 1.0, bumpConfig);
   }
 }
 
