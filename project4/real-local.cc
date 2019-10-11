@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
   // Report where the robot is and with the probability of it being there
   std::cout << "I am at:\n";
   robot.printLocalizedPosition();
-  std::cout << "I am " << robot.getBestLocalizeHypothesis().alpha << " percent sure of my position.\n";
+  std::cout << "I am " << robot.getBestLocalizeHypothesis().alpha * 100.0 << " percent sure of my position.\n";
 
   // Travel to point (5, -3.5)
   Vector2 wp(5.0, -3.5);
