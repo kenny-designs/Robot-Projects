@@ -66,7 +66,7 @@ class Robot
 
 public:
   // constructor
-  Robot(bool isUsingLaser    = true,
+  Robot(bool   isUsingLaser  = true,
         double movementScale = 1.0,
         double rotationScale = 1.0,
         double tickInterval  = 0.1,
@@ -79,8 +79,6 @@ public:
   void read();
 
   // get position based on odometer
-  double getOdometerXPos();
-  double getOdometerYPos();
   double getOdometerYaw();
   Vector2 getOdometerPos();
 

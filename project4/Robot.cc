@@ -154,7 +154,10 @@ void Robot::getAngleDistanceToWaypoint(Vector2& pos, double yaw, Vector2& wp, do
   angle = acos(wpNorm.x * dir.x + wpNorm.y * dir.y);
 
   // zed value for cross product. If negative, flip angle
-  if (wpNorm.x * dir.y - wpNorm.y * dir.x > 0) { angle *= -1; }
+  if (wpNorm.x * dir.y - wpNorm.y * dir.x > 0)
+  {
+    angle *= -1;
+  }
 }
 
 /**
@@ -174,24 +177,6 @@ bool Robot::hasReachedWaypoint(Vector2& pos, Vector2& wp, double errorRange)
 }
 
 /**
- * Gets Robot X position based on odometry
- * @return X position as double
- */
-double Robot::getOdometerXPos()
-{
-  return pp.GetXPos();
-}
-
-/**
- * Gets Robot Y position based on odometry
- * @return Y position as double
- */
-double Robot::getOdometerYPos()
-{
-  return pp.GetYPos();
-}
-
-/**
  * Gets Robot Yaw rotation based on odometry
  * @return Yaw rotation as double
  */
@@ -206,7 +191,7 @@ double Robot::getOdometerYaw()
  */ 
 Vector2 Robot::getOdometerPos()
 {
-  return Vector2(getOdometerXPos(), getOdometerYPos());
+  return Vector2(pp.GetXPos(), pp.GetYPos());
 }
 
 /**
@@ -259,11 +244,12 @@ bool Robot::isAnyPressed()
 /** Prints the X, Y, and Yaw odometry positions of the Robot */
 void Robot::printOdometerPosition()
 {
-  std::cout << "Robot Odometer Position"    << "\n" <<
-               "-----------------------"    << "\n" <<
-               "X:   " << getOdometerXPos() << "\n" <<
-               "Y:   " << getOdometerYPos() << "\n" <<
-               "Yaw: " << getOdometerYaw()  << "\n\n";
+  Vector2 pos = getOdometerPos();
+  std::cout << "Robot Odometer Position"   << "\n" <<
+               "-----------------------"   << "\n" <<
+               "X:   " << pos.x            << "\n" <<
+               "Y:   " << pos.y            << "\n" <<
+               "Yaw: " << getOdometerYaw() << "\n\n";
 }
 
 /** Prints the X, Y, and Yaw positions of the robot based on localization */
@@ -503,10 +489,7 @@ void Robot::moveToWaypoint(Vector2& wp, bool useLocalization, double velocity, d
       pos = getOdometerPos();
       yaw = getOdometerYaw();
     }
-
-    // TODO: remove
-    //printLocalizedPosition();
-
+    
     // obtain angle and distance needed to reach the waypoint
     getAngleDistanceToWaypoint(pos, yaw, wp, angle, distance);
 
