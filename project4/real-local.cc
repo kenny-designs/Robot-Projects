@@ -43,6 +43,11 @@ int main(int argc, char *argv[])
 /**
  * Localize the robot. Returns true if the robot the robot manages to localize
  * itself approximately where we programmed it to start.
+ *
+ * @param robot          - the robot we wish to localize
+ * @param approximatePos - the assumed starting location of the robot
+ * @param errorRange     - the maximum error allowed for localization to still be considered successful
+ * @return True if the robot manages to almost guess its position correctly. False otherwise
  */ 
 bool attemptToLocalize(Robot& robot, Vector2& approximatePos, double errorRange)
 {
