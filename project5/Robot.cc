@@ -552,11 +552,6 @@ void Robot::moveToWaypoint(Vector2& wp,
     rotateByRadians(angle, angularVelocity);
     moveForwardByMeters(distance, velocity);
    
-    // print robot's current position
-    std::cout << "\n";
-    if (useLocalization) printLocalizedPosition();
-    else                 printOdometerPosition();
-
     // handle any bumper events
     handleBump(bumpConfig);
   } while (!hasReachedWaypoint(pos, wp, errorRange));

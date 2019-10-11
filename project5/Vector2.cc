@@ -71,6 +71,18 @@ bool Vector2::operator!=(Vector2 const& other)
 }
 
 /**
+ * Simply pretty prints the Vector2 to the given ostream
+ *
+ * @param out - the output stream we wish to write to
+ * @param vec - the vector we are printing to the screen
+ * @return the given ostream
+ */ 
+std::ostream& operator<<(std::ostream& out, const Vector2& vec)
+{
+  return out << "(" << vec.x << ", " << vec.y << ")";
+}
+
+/**
  * Gets the magnitude, or distance, between points x and y of the given vector.
  *
  * @param vec2 - The Vector2 to get the magnitude of

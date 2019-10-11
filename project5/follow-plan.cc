@@ -2,7 +2,6 @@
  * Proj5
  * Group10: Aguilar, Andrew, Kamel, Kennedy
  */
-
 #include "Robot.h"
 #include <fstream>
 
@@ -14,7 +13,7 @@ void writePlan(double*, int);
 
 int main(int argc, char *argv[])
 {  
-  // Create robot with lasers enabled and movement+rotation scaled up by 1.215
+  // Create robot with lasers enabled and movement+rotation scaled up by 1.35
   Robot robot(true, 1.35, 1.35);
 
   // The set of coordinates that makes up the plan
@@ -39,8 +38,18 @@ int main(int argc, char *argv[])
   HandleBumpConfig bumpConfig(TurnDirection::Left); // if both bumpers pressed, turn left
   for (int i = 0; i < pLength; i += 2)
   {
+    // obtain the next step in our master plan
     Vector2 wp(plan[i], plan[i+1]);
+
+    // print where we are heading to
+    std::cout << "\nNow moving to coordinate: " << wp << "\n";
+
+    // move to given location
     robot.moveToWaypoint(wp, true, 3.0, 1.0, 1.0, bumpConfig);
+
+    // report the robot's actual final location
+    std::cout << "Now at the following position:\n";
+    robot.printLocalizedPosition();
   }
 }
 
