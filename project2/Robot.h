@@ -2,7 +2,11 @@
 #define ROBOT_H
 #pragma once
 
+// mathematical constants to help with rotating the robot in radians e.g. M_PI
+#define _USE_MATH_DEFINES
+
 #include <libplayerc++/playerc++.h>
+#include <cmath>
 #include "Vector2.h"
 
 /**
@@ -14,7 +18,7 @@ class Robot
   PlayerCc::BumperProxy     bp;         // The bumper proxy reads from the bumpers.
   PlayerCc::Position2dProxy pp;         // The 2D proxy is used to send motion commands.
   bool isSimulation;                    // if false, adjusts settings to better accomodate the actual robot
-  bool isCorrectingPosition;            // true if the robot is currently correcting its position
+  bool isHandlingBump;                  // true if the robot is currently correcting its position due to a bumper press
 
   // By default, the interval is 100 milliseconds as per the
   // How to Use Player/Stage guide at
@@ -28,11 +32,19 @@ class Robot
   static const double MOVEMENT_TICK_SCALE = 0.5;
   static const double ROTATION_TICK_SCALE = 0.25;
 
+  // movement
   void moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks);
   void getFinalTicksAndVelocity(double distance, double& velocity, int& ticks);
+
+  // waypoint movement
   void getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& distance);
-  void handleBump();
   bool hasReachedWaypoint(Vector2& wp, double errorRange);
+
+  // bumper movement
+  void handleBump(double distance = 1.0,
+                  double velocity = 0.5,
+                  double angle = 5.0 * M_PI / 12.0,  // 75 degrees or 5/12*PI radians
+                  double angularVelocity = 0.5);
 
 public:
   // constructor
@@ -43,9 +55,10 @@ public:
   double getYPos();
   double getYaw();
 
-  // check if left or right bumper is pressed
+  // check status of bumpers
   bool isLeftPressed();
   bool isRightPressed();
+  bool isAnyPressed();
 
   // print information about the robot
   void printPosition();
@@ -55,11 +68,11 @@ public:
   void setMotorEnable(bool isMotorEnabled);
 
   // handle basic movement
-  void moveForwardByMeters(double distanceInMeters, double forwardVelocity = 0.1);
-  void rotateByRadians(double radiansToRotate, double angularVelocity = 0.1);
+  void moveForwardByMeters(double distanceInMeters, double forwardVelocity = 0.5);
+  void rotateByRadians(double radiansToRotate, double angularVelocity = 0.5);
 
   // handle waypoint movement
-  void moveToWaypoint(Vector2& wp);
+  void moveToWaypoint(Vector2& wp, double velocity = 0.5, double angularVelocity = 0.5, double errorRange = 0.25);
 };
 
 #endif

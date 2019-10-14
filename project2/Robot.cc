@@ -1,13 +1,9 @@
-// mathematical constants to help with rotating the robot in radians e.g. M_PI
-#define _USE_MATH_DEFINES
-
 #include "Robot.h"
 #include "Vector2.h"
 #include <cstdlib>
 #include <iostream>
 #include <string>
 #include <limits>   // std::numeric_limits
-#include <cmath>    // acos(), cos(), sin()
 #include <stdlib.h> // srand, rand
 #include <time.h>   // time
 
@@ -18,12 +14,12 @@
  * Set up proxy. Proxies are the datastructures that Player uses to
  * talk to the simulator and the real robot.
  *
- * @param isSimulation - if false, adjusts settings to better accomodate the actual robot (true by default)
- * @param hostname     - address to connect to (localhost by default)
+ * @param isSimulation - if false, adjusts settings to better accomodate the actual robot
+ * @param hostname     - address to connect to
  */
 Robot::Robot(bool isSimulation, std::string hostname) :
   isSimulation(isSimulation),
-  isCorrectingPosition(false),
+  isHandlingBump(false),
   robot(hostname),
   pp(&robot, 0),
   bp(&robot, 0) {}
@@ -46,8 +42,8 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     // read from proxies
     robot.Read();
 
-    // break if we're not currently correcting the position and a bumper has been pressed
-    if (!isCorrectingPosition && (isLeftPressed() || isRightPressed())) break;
+    // break if a bumper has been pressed and we're not currently handling a bumper event
+    if (!isHandlingBump && isAnyPressed()) break;
   }
 
   // stop moving
@@ -111,55 +107,8 @@ void Robot::getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& dista
   // find the angle to rotate the robot so that it faces the given waypoint
   angle = acos(wpNorm.x * dir.x + wpNorm.y * dir.y);
 
-  // if angle is nan, return
-  // TODO: this isn't very clean. Find a way to protect against nan
-  if (isnan(angle)) return;
-
   // zed value for cross product. If negative, flip angle
   if (wpNorm.x * dir.y - wpNorm.y * dir.x > 0) { angle *= -1; }
-}
-
-/**
- * Corrects the robots position if a bumper has been pressed
- */
-void Robot::handleBump()
-{
-  robot.Read();
-  bool isLeft  = isLeftPressed(),
-       isRight = isRightPressed();
-
-  // neither bumper was pressed, return
-  if (!(isLeft || isRight)) return;
-
-  // default angle is to rotate left at about 67.5 degrees
-  double angle = M_PI_4 + M_PI_4 / 2.0;
-
-  // adjust rotation based on bumpers
-  if (isLeft && isRight)
-  {
-    // TODO: can this be simplified? must we always generate a new seed? (probably yes)
-    // initialize random seed
-    srand(time(NULL));
-
-    // rotate in random direction based on rand()
-    angle *= rand() % 2 ? 1 : -1;
-  }
-  else if (isLeft)
-  {
-    angle *= -1;
-  }
-
-  // let all methods know that the robot is now in a position correction state
-  // TODO: we could create an enum to set the robot's current state
-  isCorrectingPosition = true;
-
-  // adjust the robot's current position
-  moveForwardByMeters(-1.0, 0.5);  // back up by 1.0 meters
-  rotateByRadians(angle, 0.5);     // rotate by the angle
-  moveForwardByMeters(1.0, 0.5);   // move forward by 1.0 meters
-
-  // let all methods know that the robot is no longer correcting its position
-  isCorrectingPosition = false;
 }
 
 /**
@@ -178,6 +127,48 @@ bool Robot::hasReachedWaypoint(Vector2& wp, double errorRange)
   // return true if reached the waypoint within the error range
   return (pos.x + errorRange > wp.x && pos.x - errorRange < wp.x) &&
          (pos.y + errorRange > wp.y && pos.y - errorRange < wp.y);
+}
+
+/**
+ * Corrects the robot's position if a bumper has been pressed by adjusting its
+ * orientation and location based on the given parameters.
+ *
+ * @param distance    - the distance for the robot to move
+ * @param velocity    - the velocity to move at
+ * @param angle       - the angle to rotate the robot
+ * @param angVelocity - the velocity to rotate at
+ */
+void Robot::handleBump(double distance, double velocity, double angle, double angVelocity)
+{
+  robot.Read();
+  bool isLeft  = isLeftPressed(),
+       isRight = isRightPressed();
+
+  // return if neither bumper is pressed
+  if (!(isLeft || isRight)) return;
+
+  // rotate in random direction if both bumpers have been pressed
+  if (isLeft && isRight)
+  {
+    srand(time(NULL));
+    angle *= rand() % 2 ? 1 : -1;
+  }
+  // rotate to the right if the left bumper has been pressed
+  else if (isLeft)
+  {
+    angle *= -1;
+  }
+
+  // robot is now addressing bumper press event
+  isHandlingBump = true;
+
+  // correct robot position by dislodging it
+  moveForwardByMeters(-distance, velocity);  // back up by the given distance
+  rotateByRadians(angle, angVelocity);       // rotate by the given angle
+  moveForwardByMeters(distance, velocity);   // move forward by the given distance
+
+  // robot has finished addressing the bumper press event
+  isHandlingBump = false;
 }
 
 /**
@@ -228,6 +219,15 @@ bool Robot::isRightPressed()
   return bp[1];
 }
 
+/**
+ * Returns true if any bumper is pressed
+ * @return True if any bumper pressed
+ */
+bool Robot::isAnyPressed()
+{
+  return bp.IsAnyBumped();
+}
+
 /** Prints the X, Y, and Yaw positions of the Robot */
 void Robot::printPosition()
 {
@@ -261,7 +261,7 @@ void Robot::setMotorEnable(bool isMotorEnabled)
  * Move the robot by the given distance in meters
  *
  * @param distanceInMeters - total distance to move in meters. Negative values move backwards
- * @param forwardVelocity  - rate to move forward in meters per second (default 0.1). Negative values
+ * @param forwardVelocity  - rate to move forward in meters per second. Negative values
  *                           move backwards
  */
 void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
@@ -279,7 +279,7 @@ void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
  * Rotates the robot counter-clockwise in radians
  *
  * @param radiansToRotate - total angular distance to rotate in radians. Negative values rotate clockwise
- * @param angularVelocity - rate to rotate in radians per second (default 0.1). Negative values
+ * @param angularVelocity - rate to rotate in radians per second. Negative values
  *                          rotate clockwise
  */ 
 void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
@@ -296,30 +296,25 @@ void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
 /**
  * The robot will move to the specified Waypoint even if obstacles are in the way
  *
- * @param wp - the waypoint for the robot to move to
+ * @param wp              - the waypoint for the robot to move to
+ * @param velocity        - velocity for the robot to move in m/s
+ * @param angularVelocity - angular velocity for the robot to rotate in rad/s
+ * @param errorRange      - minimum distance robot must be from waypoint in meters
  */ 
-void Robot::moveToWaypoint(Vector2& wp)
+void Robot::moveToWaypoint(Vector2& wp, double velocity, double angularVelocity, double errorRange)
 {
-  // move to waypoint wp until within 0.5m of it
-  bool isAtDestination = hasReachedWaypoint(wp, 0.25);
-  while (!isAtDestination)
+  // move to waypoint wp until within the error range
+  while (!hasReachedWaypoint(wp, errorRange))
   {
+    // obtain angle and distance needed to reach the waypoint
     double angle, distance;
     getAngleDistanceToWaypoint(wp, angle, distance);
 
-    if (isnan(angle)) return;
-
     // rotate towards then travel to the given waypoint
-    rotateByRadians(angle, 0.5);
-    moveForwardByMeters(distance, 0.5);
+    rotateByRadians(angle, angularVelocity);
+    moveForwardByMeters(distance, velocity);
 
-    // check again if the robot has reached the destination
-    isAtDestination = hasReachedWaypoint(wp, 0.25);
-
-    // if not yet at the destination, correct position then try again
-    if (!isAtDestination)
-    {
-      handleBump();
-    }
+    // handle any bumper events
+    handleBump();
   }
 }

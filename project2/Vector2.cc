@@ -1,6 +1,3 @@
-// mathematical constants to help with rotating the robot in radians e.g. M_PI
-#define _USE_MATH_DEFINES
-
 #include "Vector2.h"
 #include <limits> // std::numeric_limits
 #include <cmath>  // hypot()
