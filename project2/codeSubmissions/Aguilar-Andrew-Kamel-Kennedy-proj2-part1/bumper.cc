@@ -1,3 +1,8 @@
+/**
+ * Proj2 Part1
+ * Group10: Aguilar, Andrew, Kamel, Kennedy
+ */
+
 #include "Robot.h"
 #include "Vector2.h" // struct that holds x and y coordinates
 #include <vector>    // holding a series of waypoints
