@@ -6,8 +6,8 @@
 using namespace PlayerCc;
 
 // definitions
-#define LEFT_X   135
-#define RIGHT_X  185
+#define LEFT_X   30
+#define RIGHT_X  210
 #define MAX_AREA 4500
 
 // forward declarations
@@ -81,8 +81,9 @@ int main(int argc, char *argv[])
     // apply calculated velocity and angularVelocity to the robot
     std::cout << "Velocity:        " << velocity        << "\n";      
     std::cout << "AngularVelocity: " << angularVelocity << "\n\n";
-    pp.SetSpeed(velocity, angularVelocity);
+    pp.SetSpeed(0, angularVelocity);
   }
+
 }
 
 /** Returns true if we are dealing with a red blob */
@@ -146,11 +147,10 @@ double getVelocityToBeacon(player_blobfinder_blob_t& blob)
   double vel = 0.1;
 
   // adjust to scale with distance from the beacon
-  vel *= blob.area / MAX_AREA;
+  vel *= MAX_AREA / blob.area;
 
   // if the velocity is now below 0.05m/s, set it to 0.05m/s
   if (vel < 0.05) vel = 0.05;
-  if (vel > 0.1) vel = 0.1;
 
   return vel;
 }
