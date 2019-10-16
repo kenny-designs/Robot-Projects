@@ -26,8 +26,6 @@ int main(int argc, char *argv[])
   PlayerClient    blobfinder("localhost");
   BlobfinderProxy bf(&blobfinder,0);
 
-
-
   // Variables
   player_blobfinder_blob_t  blob;
   double velocity, angularVelocity;
@@ -79,36 +77,39 @@ int main(int argc, char *argv[])
     }
 
     // apply calculated velocity and angularVelocity to the robot
-    std::cout << "Velocity:        " << velocity        << "\n";      
-    std::cout << "AngularVelocity: " << angularVelocity << "\n\n";
+    std::cout << "Velocity:        " << velocity        << "\n" <<
+                 "AngularVelocity: " << angularVelocity << "\n\n";
     pp.SetSpeed(velocity, angularVelocity);
   }
 }
 
-/** Returns true if we are dealing with a red blob */
+/**
+ * Returns true if we are dealing with a red blob
+ *
+ * @param blob - the blob we wish to check the color of
+ * @return     - true if the color of the blob is red
+ */
 bool isRedBlob(player_blobfinder_blob_t& blob)
 {
   return ((short)blob.color) == 0;
 }
 
-/** Returns true if we are currently facing the beacon */
+/**
+ * Returns true if we are currently facing the beacon
+ *
+ * @param blob - the blob that we are checking if centered on the screen
+ * @return     - true if facing the beacon. i.e. the blob
+ */
 bool isFacingBeacon(player_blobfinder_blob_t& blob)
 {
-  // TODO: find what values constitue as 'facing' the beacon
-  bool canSee = blob.x >= LEFT_X && blob.x <= RIGHT_X;
-  if (canSee) 
-  {
-    std::cout << "Can see\n";
-  }
-  else
-  {
-    std::cout << "NO SEE!\n";
-  }
-
-  return canSee;
+  return blob.x >= LEFT_X && blob.x <= RIGHT_X;
 }
 
-/** Print blob data */
+/**
+ * Print blob data
+ *
+ * @param blob - the blob that we wish to print the data of
+ */
 void printBlob(player_blobfinder_blob_t& blob)
 {
   std::cout << "Id:    " << blob.id           << "\n" <<
@@ -118,12 +119,16 @@ void printBlob(player_blobfinder_blob_t& blob)
                "Y:     " << blob.y            << "\n\n";
 }
 
-/** Returns the appropriate angular velocity needed to face the beacon */
+/**
+ * Returns the appropriate angular velocity needed to face the beacon
+ *
+ * @param blob - the blob, or beacon, that the robot should face
+ * @return     - the angular velocity in rad/s the robot must rotate to face the beacon
+ */
 double getAngularVelocityToBeacon(player_blobfinder_blob_t& blob)
 {
   if (isFacingBeacon(blob)) return 0;
 
-  // TODO: find what values of LEFT_X and RIGHT_X should be
   // looking too far left, right turn
   if (blob.x < LEFT_X)
   {
@@ -134,23 +139,30 @@ double getAngularVelocityToBeacon(player_blobfinder_blob_t& blob)
   return -0.05;
 }
 
-/** Returns the appropriate velocity needed to reach the beacon */
+/**
+ * Returns the appropriate velocity needed to reach the beacon
+ *
+ * @param blob - the blob, or beacon, the robot must approach within two feet
+ * @return     - the velocity the robot should travel to visit the beacon
+ */
 double getVelocityToBeacon(player_blobfinder_blob_t& blob)
 {
-  // TODO: check minimum area must be for us to consider the movement complete
   // if already within 2ft, stop
   if (blob.area >= MAX_AREA) return 0;
 
-  // by default, we move at 0.1 m/s
-  // TODO: test for the smoothest experience when scaling these values
+  // default velocity is 0.1 m/s
   double vel = 0.1;
 
-  // adjust to scale with distance from the beacon
+  // scale velocity based on distance between the robot and beacon
+  // TODO: Find a nice way to scale the robots movement for the smoothest movement.
+  // This ones for you Yasmine!
+  // Maybe try 0.5 m/s as the base speed then reduce down to 0.05 m/s as it gets close?
   vel *= blob.area / MAX_AREA;
 
-  // if the velocity is now below 0.05m/s, set it to 0.05m/s
-  if (vel < 0.05) vel = 0.05;
-  if (vel > 0.1) vel = 0.1;
+  // cap velocity between 0.05 m/s and 0.1 m/s
+  // TODO: be sure to change this to match what you did above!
+  if      (vel < 0.05) vel = 0.05;
+  else if (vel > 0.1)  vel = 0.1;
 
   return vel;
 }
