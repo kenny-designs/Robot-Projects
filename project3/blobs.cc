@@ -150,19 +150,29 @@ double getVelocityToBeacon(player_blobfinder_blob_t& blob)
   // if already within 2ft, stop
   if (blob.area >= MAX_AREA) return 0;
 
-  // default velocity is 0.1 m/s
+  // left default velocity is 0.1 m/s because it should adjust using the algorithm below
   double vel = 0.1;
 
   // scale velocity based on distance between the robot and beacon
-  // TODO: Find a nice way to scale the robots movement for the smoothest movement.
-  // This ones for you Yasmine!
-  // Maybe try 0.5 m/s as the base speed then reduce down to 0.05 m/s as it gets close?
-  vel *= blob.area / MAX_AREA;
+  /*From Yasmine: I think that the previous algorithm: vel *= blob.area/MAX_Area
+  was actually reducing the speed when further away from our beacon, because the blob.area 
+  value is smaller the further the beacon is, therefore we were dividing a large number (max area = 4500)
+  into a small number and getting a small decimal factor to multiply into our 0.1/s velocity,
+  giving us a slower velocity. For example if the blob.area is 1000 (so much farther away than 2ft), 
+  then our velocity would be 0.1 (0.2222) which 0.02/sec velocity. I think this was leading us to 
+  evoke the 0.05 min speed condition previously set below. 
 
-  // cap velocity between 0.05 m/s and 0.1 m/s
-  // TODO: be sure to change this to match what you did above!
-  if      (vel < 0.05) vel = 0.05;
-  else if (vel > 0.1)  vel = 0.1;
+  So I’ve switched them around, now the blob.area divides into the Max_Area, 
+  I left the default/initial speed at 0.1 because it’s going to adjust anyway 
+  (as I understand it) and I’ve set the max speed cap as 0.5/s and min speed cap of 0.1/s.
+  Hard to say what this will look like in real life, but hopefully will be easy to adjust
+  if necessary.
+  */
+  vel *=  MAX_AREA/blob.area ;
+
+  // cap velocity between 0.1 m/s and 0.5 m/s
+  if      (vel < 0.1) vel = 0.1;
+  else if (vel > 0.5)  vel = 0.5;
 
   return vel;
 }
