@@ -4,6 +4,7 @@
 
 // forward declarations
 void wallWorld(Robot& robot);
+bool wallWorldStopCondition(Robot* robot);
 void mazeWorld(Robot& robot);
 void traverseWaypoints(std::vector<Vector2>& waypoints, Robot& robot);
 
@@ -23,29 +24,45 @@ int main(int argc, char *argv[])
 }
 
 /**
- * Generates waypoints for the robot to follow to solve the
- * wall-world.png level. In particular, it will complete a circuit
- * around the blob in the center of the world and end up where it
- * started.
+ * The given robot will complete a circuit around the blob in
+ * the center of the world and end up where it started. In particular,
+ * the robot will do this by strictly using its bumpers.
  *
  * @param robot - the robot that will be solving the level
  */ 
 void wallWorld(Robot& robot)
 {
-  // vector to hold all waypoints for the robot to travel to
-  std::vector<Vector2> waypoints;
+  // guide the robot around the blob in a counter-clockwise direction
+  robot.autoPilot(wallWorldStopCondition, TurnDirection::Left);
 
-  // populate vector with waypoints
-  waypoints.push_back(Vector2( 0,  0));
-  waypoints.push_back(Vector2(10,  3));
-  waypoints.push_back(Vector2(10,  6));
-  waypoints.push_back(Vector2( 9,  9));
-  waypoints.push_back(Vector2( 4, 10));
-  waypoints.push_back(Vector2( 1,  6));
-  waypoints.push_back(Vector2( 0,  0));
+  // robot finished moving around the blob, go back to starting point
+  std::cout << "Returning to origin.\n\n";
+  Vector2 origin(0,0);
+  robot.moveToWaypoint(origin);
+}
 
-  // have robot travel to each waypoint
-  traverseWaypoints(waypoints, robot);
+
+/**
+ * Passed as a function pointer to the robot's autoPilot method
+ * to determine when to stop movement. In particular, the robot
+ * will stop auto pilot movement upon entering the rectangular space
+ * between the points (-2, 5) and (2, 4)
+ *
+ * @param robot - The robot we are checking if meets the stop condition
+ */ 
+bool wallWorldStopCondition(Robot* robot)
+{
+  double x = robot->getXPos(),
+         y = robot->getYPos();
+
+  if (x > -2.0 && x < 2.0 && y > 4.0 && y < 5.0)
+  {
+    std::cout << "Robot is now within the rectangular space between points\n" <<
+                 "(-2,5) and (2,4). Stop condition has been reached. Ceasing auto-pilot.\n\n";
+    return true;
+  }
+
+  return false;
 }
 
 /**
