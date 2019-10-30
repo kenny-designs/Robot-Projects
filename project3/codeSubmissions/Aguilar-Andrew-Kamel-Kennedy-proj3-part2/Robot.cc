@@ -22,7 +22,8 @@ Robot::Robot(bool isSimulation, std::string hostname) :
   isHandlingBump(false),
   robot(hostname),
   pp(&robot, 0),
-  bp(&robot, 0)
+  bp(&robot, 0),
+  sp(&robot, 0)
 {
   // initial read to prevent segmentation defaults with proxies
   robot.Read();
@@ -212,6 +213,18 @@ void Robot::printBumper()
                "Right bumper pressed:  " << isRightPressed() << "\n";
 }
 
+/** Prints data from the laser */
+void Robot::printLaserData()
+{
+  robot.Read();
+  std::cout << "Max laser distance:        " << sp.GetMaxRange() << "\n" <<
+               "Number of readings:        " << sp.GetCount()    << "\n" <<
+               "Closest thing on left:     " << sp.MinLeft()     << "\n" <<
+               "Closest thing on right:    " << sp.MinRight()    << "\n" <<
+               "Range of a single point:   " << sp.GetRange(5)   << "\n" <<
+               "Bearing of a single point: " << sp.GetBearing(5) << "\n\n";
+}
+
 /**
  * Enable or disable the robot's motor
  *
@@ -284,7 +297,6 @@ void Robot::setSpeed(double forwardVelocity, double angularVelocity, TurnDirecti
       break;
   }
 
-  robot.Read();
   pp.SetSpeed(forwardVelocity, angularVelocity);
 }
 
@@ -299,8 +311,8 @@ void Robot::setSpeed(double forwardVelocity, double angularVelocity, TurnDirecti
  * @param angVelocity - the velocity to rotate at
  */
 void Robot::handleBump(HandleBumpConfig bumpConfig,
-                       double angle, double distance,
-                       double velocity, double angVelocity)
+                  double angle, double distance,
+                  double velocity, double angVelocity)
 {
   robot.Read();
   bool isLeft  = isLeftPressed(),
@@ -368,5 +380,38 @@ void Robot::moveToWaypoint(Vector2& wp, double velocity, double angularVelocity,
 
     // handle any bumper events
     handleBump();
+  }
+}
+
+/**
+ * The robot will constantly move forward whilst only relying on its laser.
+ * It will cease movement upon reaching a dead end.
+ *
+ * @param forwardVelocity - velocity that the robot moves forward at in m/s
+ * @param angularVelocity - angular velocity that the robot rotates at in rad/s
+ */ 
+void Robot::autoPilotLaser(double forwardVelocity, double angularVelocity)
+{
+  double minLeft, minRight;
+  TurnDirection::Enum dir;
+
+  while (1)
+  {
+    printLaserData();
+
+    // get min left and right data from the laser
+    minLeft  = sp.MinLeft();
+    minRight = sp.MinRight();
+
+    // reached a dead end, stop moving
+    if (minLeft < 0.30 && minRight < 0.30) break;
+
+    // steady the robot to the center of its lane
+    if      (minLeft < 1.225 && minRight < 1.225) dir = TurnDirection::None;
+    else if (minRight < minLeft)                  dir = TurnDirection::Left;
+    else if (minRight > minLeft)                  dir = TurnDirection::Right;
+
+    // move robot
+    setSpeed(forwardVelocity, angularVelocity, dir);
   }
 }

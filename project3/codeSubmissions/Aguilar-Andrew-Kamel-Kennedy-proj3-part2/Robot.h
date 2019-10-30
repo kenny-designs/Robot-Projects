@@ -45,6 +45,7 @@ class Robot
   PlayerCc::PlayerClient    robot;
   PlayerCc::BumperProxy     bp;         // The bumper proxy reads from the bumpers.
   PlayerCc::Position2dProxy pp;         // The 2D proxy is used to send motion commands.
+  PlayerCc::LaserProxy      sp;         // Laser proxy used to scan the environment
   bool isSimulation;                    // if false, adjusts settings to better accomodate the actual robot
   bool isHandlingBump;                  // true if the robot is currently correcting its position due to a bumper press
 
@@ -85,6 +86,7 @@ public:
   // print information about the robot
   void printPosition();
   void printBumper();
+  void printLaserData();
 
   // motor
   void setMotorEnable(bool isMotorEnabled);
@@ -103,6 +105,9 @@ public:
 
   // handle waypoint movement
   void moveToWaypoint(Vector2& wp, double velocity = 0.5, double angularVelocity = 0.5, double errorRange = 0.25);
+
+  // auto movement
+  void autoPilotLaser(double forwardVelocity = 0.5, double angularVelocity = 1.0);
 };
 
 #endif
