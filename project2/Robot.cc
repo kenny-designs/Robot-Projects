@@ -366,24 +366,3 @@ void Robot::moveToWaypoint(Vector2& wp, double velocity, double angularVelocity,
     handleBump();
   }
 }
-
-/**
- * The robot will constantly move forward and only change its course
- * if a collision is detected via the bumpers. If the given stop
- * condition ever returns true, the robot will exit auto pilot completely.
- *
- * @param stopCondition       - function pointer that takes a pointer to Robot.
- *                              If returns true, stop auto pilot.
- * @param simultaneousBumpDir - direction to turn if both bumpers are pressed
- * @param velocity            - velocity of robot's forward movement
- */ 
-void Robot::autoPilot(bool (*stopCondition)(Robot*), TurnDirection::Enum simultaneousBumpDir, double velocity)
-{
-  while (!(*stopCondition)(this))
-  {
-    robot.Read();
-    pp.SetSpeed(velocity, 0);
-    handleBump(simultaneousBumpDir, M_PI_4, 0.5);
-  }
-}
-

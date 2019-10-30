@@ -80,7 +80,11 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
 void Robot::getFinalTicksAndVelocity(double distance, double& velocity, int& ticks)
 {
   // if distance or velocity is 0, return for there is nothing to be done
-  if (fabs(distance) < EPSILON || fabs(velocity) < EPSILON) { return; }
+  if (fabs(distance) < EPSILON || fabs(velocity) < EPSILON)
+  {
+    ticks = 0;
+    return;
+  }
 
   // if negative distance, negate the velocity
   if (distance < 0) { velocity *= -1; }
@@ -132,58 +136,6 @@ bool Robot::hasReachedWaypoint(Vector2& wp, double errorRange)
   // return true if reached the waypoint within the error range
   return (pos.x + errorRange > wp.x && pos.x - errorRange < wp.x) &&
          (pos.y + errorRange > wp.y && pos.y - errorRange < wp.y);
-}
-
-/**
- * Corrects the robot's position if a bumper has been pressed by adjusting its
- * orientation and location based on the given parameters.
- *
- * @param simultaneousBumpDir - direction to turn if both bumpers are pressed
- * @param angle               - the angle to rotate the robot
- * @param distance            - the distance for the robot to move
- * @param velocity            - the velocity to move at
- * @param angVelocity         - the velocity to rotate at
- */
-void Robot::handleBump(TurnDirection::Enum simultaneousBumpDir,
-                       double angle, double distance,
-                       double velocity, double angVelocity)
-{
-  robot.Read();
-  bool isLeft  = isLeftPressed(),
-       isRight = isRightPressed();
-
-  // return if neither bumper is pressed
-  if (!(isLeft || isRight)) return;
-
-  // rotate in random direction if both bumpers have been pressed
-  if (isLeft && isRight)
-  {
-    if (simultaneousBumpDir == TurnDirection::Random)
-    {
-      srand(time(NULL));
-      angle *= rand() % 2 ? 1 : -1;
-    }
-    else if (simultaneousBumpDir == TurnDirection::Right)
-    {
-      angle *= -1;
-    }
-  }
-  // rotate to the right if the left bumper has been pressed
-  else if (isLeft)
-  {
-    angle *= -1;
-  }
-
-  // robot is now addressing bumper press event
-  isHandlingBump = true;
-
-  // correct robot position by dislodging it
-  moveForwardByMeters(-distance, velocity);  // back up by the given distance
-  rotateByRadians(angle, angVelocity);       // rotate by the given angle
-  moveForwardByMeters(distance, velocity);   // move forward by the given distance
-
-  // robot has finished addressing the bumper press event
-  isHandlingBump = false;
 }
 
 /**
@@ -349,6 +301,63 @@ void Robot::setSpeed(double forwardVelocity, double angularVelocity, TurnDirecti
 }
 
 /**
+ * Corrects the robot's position if a bumper has been pressed by adjusting its
+ * orientation and location based on the given parameters.
+ *
+ * @param bumpConfig  - how the robot should respond to bumpers being pressed
+ * @param angle       - the angle to rotate the robot
+ * @param distance    - the distance for the robot to move
+ * @param velocity    - the velocity to move at
+ * @param angVelocity - the velocity to rotate at
+ */
+void Robot::handleBump(HandleBumpConfig bumpConfig,
+                  double angle, double distance,
+                  double velocity, double angVelocity)
+{
+  robot.Read();
+  bool isLeft  = isLeftPressed(),
+       isRight = isRightPressed();
+
+  // return if neither bumper is pressed
+  if (!(isLeft || isRight)) return;
+
+  TurnDirection::Enum dir;
+
+  // determine how to rotate the robot
+  if      (isLeft && isRight) dir = bumpConfig.both;
+  else if (isLeft)            dir = bumpConfig.left;
+  else                        dir = bumpConfig.right;
+
+  // adjust the angle depending on the robot should rotate
+  switch(dir)
+  {
+    case TurnDirection::Random:
+      srand(time(NULL));
+      angle *= rand() % 2 ? 1 : -1;
+      break;
+
+    case TurnDirection::Right:
+      angle *= -1;
+      break;
+
+    case TurnDirection::None:
+      angle = 0;
+      break;
+  }
+
+  // robot is now addressing bumper press event
+  isHandlingBump = true;
+
+  // correct robot position by dislodging it
+  moveForwardByMeters(-distance, velocity);  // back up by the given distance
+  rotateByRadians(angle, angVelocity);       // rotate by the given angle
+  moveForwardByMeters(distance, velocity);   // move forward by the given distance
+
+  // robot has finished addressing the bumper press event
+  isHandlingBump = false;
+}
+
+/**
  * The robot will move to the specified Waypoint even if obstacles are in the way
  *
  * @param wp              - the waypoint for the robot to move to
@@ -371,26 +380,6 @@ void Robot::moveToWaypoint(Vector2& wp, double velocity, double angularVelocity,
 
     // handle any bumper events
     handleBump();
-  }
-}
-
-/**
- * The robot will constantly move forward and only change its course
- * if a collision is detected via the bumpers. If the given stop
- * condition ever returns true, the robot will exit auto pilot completely.
- *
- * @param stopCondition       - function pointer that takes a pointer to Robot.
- *                              If returns true, stop auto pilot.
- * @param simultaneousBumpDir - direction to turn if both bumpers are pressed
- * @param velocity            - velocity of robot's forward movement
- */ 
-void Robot::autoPilot(bool (*stopCondition)(Robot*), TurnDirection::Enum simultaneousBumpDir, double velocity)
-{
-  while (!(*stopCondition)(this))
-  {
-    robot.Read();
-    pp.SetSpeed(velocity, 0);
-    handleBump(simultaneousBumpDir, M_PI_4, 0.5);
   }
 }
 
