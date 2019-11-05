@@ -19,6 +19,10 @@ struct Vector2
   Vector2  operator/(double divisor);
   Vector2& operator/=(double divisor);
 
+  // Overload comparison
+  bool operator==(Vector2 const& other);
+  bool operator!=(Vector2 const& other);
+
   // Static helper methods
   static double getMagnitude(Vector2 const& vec2);
   static void normalize(Vector2& vec2);
