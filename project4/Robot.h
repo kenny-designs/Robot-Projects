@@ -23,7 +23,7 @@ namespace TurnDirection
 
 /**
  * Struct utilized to define the direction the robot should rotate
- * depending 
+ * depending on which bumper was pressed
  */ 
 struct HandleBumpConfig
 {
@@ -50,11 +50,11 @@ class Robot
   bool isHandlingBump;                  // true if the robot is currently correcting its position due to a bumper press
 
   // tick interval of the robot
-  const double INTERVAL_SIM;
+  const double TICK_INTERVAL;
 
   // scale movement and rotation of the robot to ensure accurate locomotion
-  const double MOVEMENT_TICK_SCALE,
-               ROTATION_TICK_SCALE;
+  const double MOVEMENT_SCALE,
+               ROTATION_SCALE;
 
   // movement
   void moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks);
@@ -76,18 +76,22 @@ public:
   ~Robot();
 
   // get position based on odometer
-  double getXPos();
-  double getYPos();
-  double getYaw();
+  double getOdometerXPos();
+  double getOdometerYPos();
+  double getOdometerYaw();
   Vector2 getOdometerPos();
 
-  // check status of bumpers
+  // get position based on localization
+  Vector2 getLocalizedPos();
+  double getLocalizedYaw();
+
+  // get status of bumpers
   bool isLeftPressed();
   bool isRightPressed();
   bool isAnyPressed();
 
   // print information about the robot
-  void printPosition();
+  void printOdometerPosition();
   void printLocalizedPosition();
   void printBumper();
   void printLaserData();
@@ -95,28 +99,31 @@ public:
   // get pose from the LocalizeProxy 
   player_pose2d_t getPoseFromLocalizeProxy();
 
-  // get the localized position of the robot
-  Vector2 getLocalizedPos();
-  double getLocalizedYaw();
-
   // motor
   void setMotorEnable(bool isMotorEnabled);
 
   // handle basic movement
   void moveForwardByMeters(double distanceInMeters, double forwardVelocity = 0.5);
   void rotateByRadians(double radiansToRotate, double angularVelocity = 0.5);
-  void setSpeed(double forwardVelocity = 0.5, double angularVelocity = 0.5, TurnDirection::Enum dir = TurnDirection::Left);
+
+  // wrapper method for pp.SetSpeed()
+  void setSpeed(double forwardVelocity = 0.5,
+                double angularVelocity = 0.5,
+                TurnDirection::Enum dir = TurnDirection::Left);
 
   // bumper movement
   void handleBump(HandleBumpConfig bumpConfig = HandleBumpConfig(),
-                  double angle = 5.0 * M_PI / 12.0,  // 75 degrees or 5/12*PI radians
-                  double distance = 1.0,
-                  double velocity = 0.5,
+                  double angle           = 5.0 * M_PI / 12.0,  // ~75 degrees
+                  double distance        = 1.0,
+                  double velocity        = 0.5,
                   double angularVelocity = 0.5);
 
   // handle waypoint movement
-  void moveToWaypoint(Vector2& wp, bool useLocalization = false,
-                      double velocity = 0.5, double angularVelocity = 0.5, double errorRange = 0.25);
+  void moveToWaypoint(Vector2& wp,
+                      bool useLocalization   = false,
+                      double velocity        = 0.5,
+                      double angularVelocity = 0.5,
+                      double errorRange      = 0.25);
 
   // auto movement
   void autoPilotLaser(double forwardVelocity = 0.5, double angularVelocity = 1.0);

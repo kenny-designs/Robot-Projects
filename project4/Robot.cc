@@ -1,5 +1,4 @@
 #include "Robot.h"
-#include "Vector2.h"
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -15,16 +14,16 @@
  * talk to the simulator and the real robot.
  *
  * @param isUsingLaser  - if true, sets up the LaserProxy to be used by the robot
- * @param movementScale - scales the velocity of the robot
- * @param rotationScale - scales the angular velocity of the robot
+ * @param movementScale - scales the overall velocity of the robot
+ * @param rotationScale - scales the overall angular velocity of the robot
  * @param tickInterval  - the interval that of which the robot ticks at
  * @param hostname      - address to connect to
  */
 Robot::Robot(bool isUsingLaser, double movementScale, double rotationScale, double tickInterval,  std::string hostname) :
   isHandlingBump(false),
-  MOVEMENT_TICK_SCALE(movementScale),
-  ROTATION_TICK_SCALE(rotationScale),
-  INTERVAL_SIM(tickInterval),
+  MOVEMENT_SCALE(movementScale),
+  ROTATION_SCALE(rotationScale),
+  TICK_INTERVAL(tickInterval),
   robot(hostname),
   pp(&robot, 0),
   bp(&robot, 0),
@@ -97,7 +96,7 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
  *
  * For example, to cover 1 meter while traveling at 0.1 m/s, we divide
  * 1m by 0.1m/s to get 10s. We then divide that result by the number of ticks
- * that occur in a second (default is 10 as per INTERVAL_SIM). So 10s divided
+ * that occur in a second (default is 10 as per TICK_INTERVAL). So 10s divided
  * by 0.1s is 100. So, for the robot to travel 1 meter while going at 0.1 m/s,
  * it will take a total of 100 ticks.
  *
@@ -119,12 +118,11 @@ void Robot::getFinalTicksAndVelocity(double distance, double& velocity, int& tic
   // if negative distance, negate the velocity
   if (distance < 0) { velocity *= -1; }
 
-  ticks = abs((int)(distance / velocity / INTERVAL_SIM));
+  ticks = abs((int)(distance / velocity / TICK_INTERVAL));
 }
 
 /**
- * Generates the angle and distance needed to first rotate to face then
- * approach the given waypoint.
+ * Generates the angle and distance needed to reach a given waypoint.
  *
  * @param pos      - the current position of the robot
  * @param yaw      - the current yaw of the robot
@@ -168,32 +166,29 @@ bool Robot::hasReachedWaypoint(Vector2& pos, Vector2& wp, double errorRange)
 }
 
 /**
- * Gets Robot X position based on Position2dProxy
+ * Gets Robot X position based on odometry
  * @return X position as double
  */
-double Robot::getXPos()
+double Robot::getOdometerXPos()
 {
-  robot.Read();
   return pp.GetXPos();
 }
 
 /**
- * Gets Robot Y position based on Position2dProxy
+ * Gets Robot Y position based on odometry
  * @return Y position as double
  */
-double Robot::getYPos()
+double Robot::getOdometerYPos()
 {
-  robot.Read();
   return pp.GetYPos();
 }
 
 /**
- * Gets Robot Yaw rotation based on Position2dProxy
+ * Gets Robot Yaw rotation based on odometry
  * @return Yaw rotation as double
  */
-double Robot::getYaw()
+double Robot::getOdometerYaw()
 {
-  robot.Read();
   return pp.GetYaw();
 }
 
@@ -203,7 +198,27 @@ double Robot::getYaw()
  */ 
 Vector2 Robot::getOdometerPos()
 {
-  return Vector2(getXPos(), getYPos());
+  return Vector2(getOdometerXPos(), getOdometerYPos());
+}
+
+/**
+ * Gets the current position of the robot based off of localization
+ * @return Vector2 of the robot's current localized position
+ */ 
+Vector2 Robot::getLocalizedPos()
+{
+  player_pose2d_t pose = getPoseFromLocalizeProxy();
+
+  return Vector2(pose.px, pose.py);
+}
+
+/**
+ * Gets Robot Yaw rotation based on localization
+ * @return Localized Yaw rotation as double
+ */ 
+double Robot::getLocalizedYaw()
+{
+  return getPoseFromLocalizeProxy().pa;
 }
 
 /**
@@ -233,23 +248,26 @@ bool Robot::isAnyPressed()
   return bp.IsAnyBumped();
 }
 
-/** Prints the X, Y, and Yaw positions of the Robot */
-void Robot::printPosition()
+/** Prints the X, Y, and Yaw odometry positions of the Robot */
+void Robot::printOdometerPosition()
 {
   robot.Read();
-  std::cout << "Robot x position: " << getXPos() << "\n" <<
-               "      y position: " << getYPos() << "\n" <<
-               "      yaw:        " << getYaw()  << "\n\n";
+  std::cout << "Robot Odometer Position"    << "\n" <<
+               "-----------------------"    << "\n" <<
+               "X:   " << getOdometerXPos() << "\n" <<
+               "Y:   " << getOdometerYPos() << "\n" <<
+               "Yaw: " << getOdometerYaw()  << "\n\n";
 }
 
 /** Prints the X, Y, and Yaw positions of the robot based on localization */
 void Robot::printLocalizedPosition()
 {
   player_pose2d_t pose = getPoseFromLocalizeProxy();
-  std::cout << "We are at"      << "\n" <<
-               "X: " << pose.px << "\n" <<
-               "Y: " << pose.py << "\n" <<
-               "A: " << pose.pa << "\n\n";
+  std::cout << "Robot Localized Position"  << "\n" <<
+               "------------------------"  << "\n" <<
+               "X:   " << pose.px          << "\n" <<
+               "Y:   " << pose.py          << "\n" <<
+               "Yaw: " << pose.pa          << "\n\n";
 }
 
 /** Prints state of the bumpers */
@@ -303,26 +321,6 @@ player_pose2d_t Robot::getPoseFromLocalizeProxy()
 }
 
 /**
- * Gets the current position of the robot based off of localization
- * @return Vector2 of the robot's current localized position
- */ 
-Vector2 Robot::getLocalizedPos()
-{
-  player_pose2d_t pose = getPoseFromLocalizeProxy();
-
-  return Vector2(pose.px, pose.py);
-}
-
-/**
- * Gets Robot Yaw rotation based on localization
- * @return Localized Yaw rotation as double
- */ 
-double Robot::getLocalizedYaw()
-{
-  return getPoseFromLocalizeProxy().pa;
-}
-
-/**
  * Enable or disable the robot's motor
  *
  * @param isMotorEnabled - true to enable the motor, false to disable
@@ -343,7 +341,7 @@ void Robot::setMotorEnable(bool isMotorEnabled)
 void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
 {
   // scale movement
-  distanceInMeters *= MOVEMENT_TICK_SCALE;
+  distanceInMeters *= MOVEMENT_SCALE;
 
   int ticks;
   getFinalTicksAndVelocity(distanceInMeters, forwardVelocity, ticks);
@@ -361,7 +359,7 @@ void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
 void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
 {
   // scale rotation
-  radiansToRotate *= ROTATION_TICK_SCALE;
+  radiansToRotate *= ROTATION_SCALE;
 
   int ticks;
   getFinalTicksAndVelocity(radiansToRotate, angularVelocity, ticks);
@@ -478,7 +476,7 @@ void Robot::moveToWaypoint(Vector2& wp, bool useLocalization, double velocity, d
     else
     {
       pos = getOdometerPos();
-      yaw = getYaw();
+      yaw = getOdometerYaw();
     }
 
     // obtain angle and distance needed to reach the waypoint

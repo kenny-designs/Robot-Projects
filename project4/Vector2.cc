@@ -2,7 +2,7 @@
 #include <limits> // std::numeric_limits
 #include <cmath>  // hypot()
 
-// used for comparing doubles to 0
+// used for comparing doubles to zero
 #define EPSILON std::numeric_limits<double>::epsilon()
 
 /**
