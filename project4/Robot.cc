@@ -14,19 +14,43 @@
  * Set up proxy. Proxies are the datastructures that Player uses to
  * talk to the simulator and the real robot.
  *
- * @param isSimulation - if false, adjusts settings to better accomodate the actual robot
- * @param hostname     - address to connect to
+ * @param isUsingLaser  - if true, sets up the LaserProxy to be used by the robot
+ * @param movementScale - scales the velocity of the robot
+ * @param rotationScale - scales the angular velocity of the robot
+ * @param tickInterval  - the interval that of which the robot ticks at
+ * @param hostname      - address to connect to
  */
-Robot::Robot(bool isSimulation, std::string hostname) :
-  isSimulation(isSimulation),
+Robot::Robot(bool isUsingLaser, double movementScale, double rotationScale, double tickInterval,  std::string hostname) :
   isHandlingBump(false),
+  MOVEMENT_TICK_SCALE(movementScale),
+  ROTATION_TICK_SCALE(rotationScale),
+  INTERVAL_SIM(tickInterval),
   robot(hostname),
   pp(&robot, 0),
   bp(&robot, 0),
-  sp(&robot, 0)
+  lp(&robot, 0)
 {
   // initial read to prevent segmentation defaults with proxies
   robot.Read();
+
+  // turn on the motor
+  setMotorEnable(true);
+
+  // laser setup
+  sp = isUsingLaser ? new PlayerCc::LaserProxy(&robot, 0) : NULL;
+}
+
+/** Destructor used to release memory */
+Robot::~Robot()
+{
+  // turn off the motor
+  setMotorEnable(true);
+
+  // free memory used by the laser proxy
+  delete sp;
+
+  // Have Mr. Robot say goodbye for it is the polite thing to do
+  std::cout << "Powering off. Goodbye!\n";
 }
 
 /**
@@ -38,14 +62,20 @@ Robot::Robot(bool isSimulation, std::string hostname) :
  */
 void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks)
 {
-  // Send the motion commands that we decided on to the robot.
-  pp.SetSpeed(forwardVelocity, angularVelocity);
+  // used for proportional movement based on lerping (linear interpolation)
+  double lerpMultiplier;
 
   // Enter movement control loop
-  for (int curTick = 0; curTick < ticks; ++curTick)
+  for (int curTick = 1; curTick <= ticks; ++curTick)
   {
     // read from proxies
     robot.Read();
+
+    // lerp based on current and max ticks
+    lerpMultiplier = (1.0 - ((double)curTick) / ((double)ticks)) * 2.0;
+
+    // move the robot
+    pp.SetSpeed(forwardVelocity * lerpMultiplier, angularVelocity * lerpMultiplier);
     
     // break if a bumper has been pressed and we're not currently handling a bumper event
     if (!isHandlingBump && isAnyPressed()) break;
@@ -96,15 +126,16 @@ void Robot::getFinalTicksAndVelocity(double distance, double& velocity, int& tic
  * Generates the angle and distance needed to first rotate to face then
  * approach the given waypoint.
  *
+ * @param pos      - the current position of the robot
+ * @param yaw      - the current yaw of the robot
  * @param wp       - the waypoint we want to move to as a Vector2
  * @param angle    - angle the robot must turn to face the waypoint
  * @param distance - distance the robot must travel to reach the waypoint
  */ 
-void Robot::getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& distance)
+void Robot::getAngleDistanceToWaypoint(Vector2& pos, double yaw, Vector2& wp, double& angle, double& distance)
 {
-  // obtain both the direction and position vector of the robot
-  Vector2 dir(cos(getYaw()), sin(getYaw())),
-          pos(getXPos(), getYPos());
+  // obtain the direction and vector of the robot
+  Vector2 dir(cos(yaw), sin(yaw));
 
   // center waypoint to the origin then normalize it
   Vector2 wpNorm = wp - pos;
@@ -124,15 +155,13 @@ void Robot::getAngleDistanceToWaypoint(Vector2& wp, double& angle, double& dista
  * Returns true if the robot has reached the given waypoint within the
  * given error range
  *
+ * @param pos        - the waypoint the robot is currently at
  * @param wp         - the waypoint we are testing to see if we reached
  * @param errorRange - the range in which the robot must be to the wp
- * @return           - true if the robot has reached the robot. Otherwise, false
+ * @return true if the robot has reached the robot. Otherwise, false
  */ 
-bool Robot::hasReachedWaypoint(Vector2& wp, double errorRange)
+bool Robot::hasReachedWaypoint(Vector2& pos, Vector2& wp, double errorRange)
 {
-  // obtain the robots x and y position
-  Vector2 pos(getXPos(), getYPos());
-
   // return true if reached the waypoint within the error range
   return (pos.x + errorRange > wp.x && pos.x - errorRange < wp.x) &&
          (pos.y + errorRange > wp.y && pos.y - errorRange < wp.y);
@@ -166,6 +195,15 @@ double Robot::getYaw()
 {
   robot.Read();
   return pp.GetYaw();
+}
+
+/**
+ * Gets the current position of the robot based off of the odometer
+ * @return Vector2 of the robot's current odometer position
+ */ 
+Vector2 Robot::getOdometerPos()
+{
+  return Vector2(getXPos(), getYPos());
 }
 
 /**
@@ -204,6 +242,16 @@ void Robot::printPosition()
                "      yaw:        " << getYaw()  << "\n\n";
 }
 
+/** Prints the X, Y, and Yaw positions of the robot based on localization */
+void Robot::printLocalizedPosition()
+{
+  player_pose2d_t pose = getPoseFromLocalizeProxy();
+  std::cout << "We are at"      << "\n" <<
+               "X: " << pose.px << "\n" <<
+               "Y: " << pose.py << "\n" <<
+               "A: " << pose.pa << "\n\n";
+}
+
 /** Prints state of the bumpers */
 void Robot::printBumper()
 {
@@ -216,13 +264,62 @@ void Robot::printBumper()
 /** Prints data from the laser */
 void Robot::printLaserData()
 {
+  if (!sp) return;
+
   robot.Read();
-  std::cout << "Max laser distance:        " << sp.GetMaxRange() << "\n" <<
-               "Number of readings:        " << sp.GetCount()    << "\n" <<
-               "Closest thing on left:     " << sp.MinLeft()     << "\n" <<
-               "Closest thing on right:    " << sp.MinRight()    << "\n" <<
-               "Range of a single point:   " << sp.GetRange(5)   << "\n" <<
-               "Bearing of a single point: " << sp.GetBearing(5) << "\n\n";
+  std::cout << "Max laser distance:        " << sp->GetMaxRange() << "\n" <<
+               "Number of readings:        " << sp->GetCount()    << "\n" <<
+               "Closest thing on left:     " << sp->MinLeft()     << "\n" <<
+               "Closest thing on right:    " << sp->MinRight()    << "\n" <<
+               "Range of a single point:   " << sp->GetRange(5)   << "\n" <<
+               "Bearing of a single point: " << sp->GetBearing(5) << "\n\n";
+}
+
+/**
+ * Read the position of the robot from the localization proxy.
+ * The localization proxy gives us a hypothesis, and from that we extract
+ * the mean, which is a pose.
+ *
+ * @return the pose of the robot
+ */
+player_pose2d_t Robot::getPoseFromLocalizeProxy()
+{
+  player_localize_hypoth_t hypothesis;
+  player_pose2d_t          pose;
+  uint32_t                 hCount;
+
+  robot.Read();
+
+  // Need some messing around to avoid a crash when the proxy is starting up.
+  hCount = lp.GetHypothCount();
+
+  if (hCount > 0)
+  {
+    hypothesis = lp.GetHypoth(0);
+    pose       = hypothesis.mean;
+  }
+
+  return pose;
+}
+
+/**
+ * Gets the current position of the robot based off of localization
+ * @return Vector2 of the robot's current localized position
+ */ 
+Vector2 Robot::getLocalizedPos()
+{
+  player_pose2d_t pose = getPoseFromLocalizeProxy();
+
+  return Vector2(pose.px, pose.py);
+}
+
+/**
+ * Gets Robot Yaw rotation based on localization
+ * @return Localized Yaw rotation as double
+ */ 
+double Robot::getLocalizedYaw()
+{
+  return getPoseFromLocalizeProxy().pa;
 }
 
 /**
@@ -245,11 +342,11 @@ void Robot::setMotorEnable(bool isMotorEnabled)
  */
 void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
 {
+  // scale movement
+  distanceInMeters *= MOVEMENT_TICK_SCALE;
+
   int ticks;
   getFinalTicksAndVelocity(distanceInMeters, forwardVelocity, ticks);
-
-  // adjust for actual robot if needed
-  if (!isSimulation) { ticks *= MOVEMENT_TICK_SCALE; }
 
   moveAndRotateOverTicks(forwardVelocity, 0, ticks);
 }
@@ -263,11 +360,11 @@ void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
  */ 
 void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
 {
+  // scale rotation
+  radiansToRotate *= ROTATION_TICK_SCALE;
+
   int ticks;
   getFinalTicksAndVelocity(radiansToRotate, angularVelocity, ticks);
-
-  // adjust for actual robot if needed
-  if (!isSimulation) { ticks *= ROTATION_TICK_SCALE; }
 
   moveAndRotateOverTicks(0, angularVelocity, ticks);
 }
@@ -361,18 +458,31 @@ void Robot::handleBump(HandleBumpConfig bumpConfig,
  * The robot will move to the specified Waypoint even if obstacles are in the way
  *
  * @param wp              - the waypoint for the robot to move to
+ * @param useLocalization - uses localization if set to true. Otherwise, use odometry
  * @param velocity        - velocity for the robot to move in m/s
  * @param angularVelocity - angular velocity for the robot to rotate in rad/s
  * @param errorRange      - minimum distance robot must be from waypoint in meters
  */ 
-void Robot::moveToWaypoint(Vector2& wp, double velocity, double angularVelocity, double errorRange)
+void Robot::moveToWaypoint(Vector2& wp, bool useLocalization, double velocity, double angularVelocity, double errorRange)
 {
   // move to waypoint wp until within the error range
-  while (!hasReachedWaypoint(wp, errorRange))
+  Vector2 pos;
+  double yaw, angle, distance;
+  do
   {
+    if (useLocalization)
+    {
+      pos = getLocalizedPos();
+      yaw = getLocalizedYaw();
+    }
+    else
+    {
+      pos = getOdometerPos();
+      yaw = getYaw();
+    }
+
     // obtain angle and distance needed to reach the waypoint
-    double angle, distance;
-    getAngleDistanceToWaypoint(wp, angle, distance);
+    getAngleDistanceToWaypoint(pos, yaw, wp, angle, distance);
 
     // rotate towards then travel to the given waypoint
     rotateByRadians(angle, angularVelocity);
@@ -380,7 +490,7 @@ void Robot::moveToWaypoint(Vector2& wp, double velocity, double angularVelocity,
 
     // handle any bumper events
     handleBump();
-  }
+  } while (!hasReachedWaypoint(pos, wp, errorRange));
 }
 
 /**
@@ -392,6 +502,8 @@ void Robot::moveToWaypoint(Vector2& wp, double velocity, double angularVelocity,
  */ 
 void Robot::autoPilotLaser(double forwardVelocity, double angularVelocity)
 {
+  if (!sp) return;
+
   double minLeft, minRight;
   TurnDirection::Enum dir;
 
@@ -400,8 +512,8 @@ void Robot::autoPilotLaser(double forwardVelocity, double angularVelocity)
     printLaserData();
 
     // get min left and right data from the laser
-    minLeft  = sp.MinLeft();
-    minRight = sp.MinRight();
+    minLeft  = sp->MinLeft();
+    minRight = sp->MinRight();
 
     // reached a dead end, stop moving
     if (minLeft < 0.30 && minRight < 0.30) break;

@@ -9,6 +9,7 @@ struct Vector2
 {
   double x, y;
 
+  Vector2() : x(0), y(0) {};
   Vector2(double xPos, double yPos) : x(xPos), y(yPos) {};
 
   // Overload subtraction operators
