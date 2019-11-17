@@ -5,6 +5,7 @@
 #include <limits>   // std::numeric_limits
 #include <stdlib.h> // srand, rand
 #include <time.h>   // time
+#include <cstdio>   // printf
 
 // used for comparing doubles to 0
 #define EPSILON std::numeric_limits<double>::epsilon()
@@ -43,13 +44,19 @@ Robot::Robot(bool isUsingLaser, double movementScale, double rotationScale, doub
 Robot::~Robot()
 {
   // turn off the motor
-  setMotorEnable(true);
+  setMotorEnable(false);
 
   // free memory used by the laser proxy
   delete sp;
 
   // Have Mr. Robot say goodbye for it is the polite thing to do
-  std::cout << "Powering off. Goodbye!\n";
+  std::cout << "\nPowering off. Goodbye! o7\n";
+}
+
+/** Read from the environment */
+void Robot::read()
+{
+  robot.Read();
 }
 
 /**
@@ -61,8 +68,11 @@ Robot::~Robot()
  */
 void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks)
 {
-  // used for proportional movement based on lerping (linear interpolation)
-  double lerpMultiplier;
+  // scale velocity for proportional control
+  double velocityScale;
+
+  // double ticks to account for proportional control
+  ticks *= 2;
 
   // Enter movement control loop
   for (int curTick = 1; curTick <= ticks; ++curTick)
@@ -70,11 +80,11 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     // read from proxies
     robot.Read();
 
-    // lerp based on current and max ticks
-    lerpMultiplier = (1.0 - ((double)curTick) / ((double)ticks)) * 2.0;
+    // scale velocity based on current and max ticks
+    velocityScale = (1.0 - ((double)curTick) / ((double)ticks));
 
     // move the robot
-    pp.SetSpeed(forwardVelocity * lerpMultiplier, angularVelocity * lerpMultiplier);
+    pp.SetSpeed(forwardVelocity * velocityScale, angularVelocity * velocityScale);
     
     // break if a bumper has been pressed and we're not currently handling a bumper event
     if (!isHandlingBump && isAnyPressed()) break;
@@ -116,9 +126,12 @@ void Robot::getFinalTicksAndVelocity(double distance, double& velocity, int& tic
   }
 
   // if negative distance, negate the velocity
-  if (distance < 0) { velocity *= -1; }
+  if (distance < 0)
+  {
+    velocity *= -1;
+  }
 
-  ticks = abs((int)(distance / velocity / TICK_INTERVAL));
+  ticks = abs((int)(distance / velocity / TICK_INTERVAL)); 
 }
 
 /**
@@ -146,41 +159,10 @@ void Robot::getAngleDistanceToWaypoint(Vector2& pos, double yaw, Vector2& wp, do
   angle = acos(wpNorm.x * dir.x + wpNorm.y * dir.y);
 
   // zed value for cross product. If negative, flip angle
-  if (wpNorm.x * dir.y - wpNorm.y * dir.x > 0) { angle *= -1; }
-}
-
-/**
- * Returns true if the robot has reached the given waypoint within the
- * given error range
- *
- * @param pos        - the waypoint the robot is currently at
- * @param wp         - the waypoint we are testing to see if we reached
- * @param errorRange - the range in which the robot must be to the wp
- * @return true if the robot has reached the robot. Otherwise, false
- */ 
-bool Robot::hasReachedWaypoint(Vector2& pos, Vector2& wp, double errorRange)
-{
-  // return true if reached the waypoint within the error range
-  return (pos.x + errorRange > wp.x && pos.x - errorRange < wp.x) &&
-         (pos.y + errorRange > wp.y && pos.y - errorRange < wp.y);
-}
-
-/**
- * Gets Robot X position based on odometry
- * @return X position as double
- */
-double Robot::getOdometerXPos()
-{
-  return pp.GetXPos();
-}
-
-/**
- * Gets Robot Y position based on odometry
- * @return Y position as double
- */
-double Robot::getOdometerYPos()
-{
-  return pp.GetYPos();
+  if (wpNorm.x * dir.y - wpNorm.y * dir.x > 0)
+  {
+    angle *= -1;
+  }
 }
 
 /**
@@ -198,7 +180,7 @@ double Robot::getOdometerYaw()
  */ 
 Vector2 Robot::getOdometerPos()
 {
-  return Vector2(getOdometerXPos(), getOdometerYPos());
+  return Vector2(pp.GetXPos(), pp.GetYPos());
 }
 
 /**
@@ -251,12 +233,12 @@ bool Robot::isAnyPressed()
 /** Prints the X, Y, and Yaw odometry positions of the Robot */
 void Robot::printOdometerPosition()
 {
-  robot.Read();
-  std::cout << "Robot Odometer Position"    << "\n" <<
-               "-----------------------"    << "\n" <<
-               "X:   " << getOdometerXPos() << "\n" <<
-               "Y:   " << getOdometerYPos() << "\n" <<
-               "Yaw: " << getOdometerYaw()  << "\n\n";
+  Vector2 pos = getOdometerPos();
+  std::cout << "Robot Odometer Position"   << "\n" <<
+               "-----------------------"   << "\n" <<
+               "X:   " << pos.x            << "\n" <<
+               "Y:   " << pos.y            << "\n" <<
+               "Yaw: " << getOdometerYaw() << "\n";
 }
 
 /** Prints the X, Y, and Yaw positions of the robot based on localization */
@@ -267,14 +249,39 @@ void Robot::printLocalizedPosition()
                "------------------------"  << "\n" <<
                "X:   " << pose.px          << "\n" <<
                "Y:   " << pose.py          << "\n" <<
-               "Yaw: " << pose.pa          << "\n\n";
+               "Yaw: " << pose.pa          << "\n";
+}
+
+/** Prints all hypotheses */
+void Robot::printAllHypotheses()
+{
+  player_localize_hypoth_t hypothesis;
+  player_pose2d_t          pose;
+  double                   weight;
+  uint32_t                 hCount = lp.GetHypothCount();
+
+  if (hCount < 1) return;
+
+  std::cout << "AMCL gives us " << hCount + 1 << " possible locations:" << "\n";
+
+  for (int i = 0; i <= hCount; i++)
+  {
+    hypothesis = lp.GetHypoth(i);
+    pose       = hypothesis.mean;
+    weight     = hypothesis.alpha;
+    std::cout << "X: " << pose.px << "\t";
+    std::cout << "Y: " << pose.py << "\t";
+    std::cout << "A: " << pose.pa << "\t";
+    std::cout << "W: " << weight  << "\n";
+  }
+
+  std::cout << "\n";
 }
 
 /** Prints state of the bumpers */
 void Robot::printBumper()
 {
   // must read data from the server to find bumper state
-  robot.Read();
   std::cout << "Left  bumper pressed:  " << isLeftPressed()  << "\n" <<
                "Right bumper pressed:  " << isRightPressed() << "\n";
 }
@@ -284,40 +291,78 @@ void Robot::printLaserData()
 {
   if (!sp) return;
 
-  robot.Read();
   std::cout << "Max laser distance:        " << sp->GetMaxRange() << "\n" <<
                "Number of readings:        " << sp->GetCount()    << "\n" <<
                "Closest thing on left:     " << sp->MinLeft()     << "\n" <<
                "Closest thing on right:    " << sp->MinRight()    << "\n" <<
                "Range of a single point:   " << sp->GetRange(5)   << "\n" <<
-               "Bearing of a single point: " << sp->GetBearing(5) << "\n\n";
+               "Bearing of a single point: " << sp->GetBearing(5) << "\n";
 }
 
 /**
- * Read the position of the robot from the localization proxy.
- * The localization proxy gives us a hypothesis, and from that we extract
- * the mean, which is a pose.
+ * Finds the hypothesis with the greatest weight
  *
- * @return the pose of the robot
+ * @return hypothesis with greatest weight
+ */ 
+player_localize_hypoth_t Robot::getBestLocalizeHypothesis()
+{
+  player_localize_hypoth_t hypothesis;
+  int                      maxIndex;
+  double                   weight, maxWeight = 0;
+
+  // Find pose with the most weight
+  for (int i = 0; i <= lp.GetHypothCount(); i++)
+  {
+    hypothesis = lp.GetHypoth(i);
+    weight     = hypothesis.alpha;
+
+    if (weight > maxWeight)
+    {
+      maxWeight = weight;
+      maxIndex  = i;
+    }
+  }
+
+  // Returns hypothesis with the most weight
+  return lp.GetHypoth(maxIndex);
+}
+
+/**
+ * Read the position of the robot from the localization proxy. 
+ *
+ * The localization proxy gives us a set of "hypotheses", each of
+ * which is a number of possible locations for the robot, and from
+ * each we extract the mean, which is a pose.
+ *
+ * As the number of hypotheses drops, the robot should be more sure
+ * of where it is.
+ *
+ * @return the pose with the greatest amount of weight
  */
 player_pose2d_t Robot::getPoseFromLocalizeProxy()
 {
-  player_localize_hypoth_t hypothesis;
-  player_pose2d_t          pose;
-  uint32_t                 hCount;
+  return getBestLocalizeHypothesis().mean;
+}
 
-  robot.Read();
-
-  // Need some messing around to avoid a crash when the proxy is starting up.
-  hCount = lp.GetHypothCount();
-
-  if (hCount > 0)
+/**
+ * Robot localizes itself by moving around the map until it is certain of
+ * its position
+ */ 
+void Robot::localize()
+{
+  // endlessly loop until the robot is certain of where it is
+  while (1)
   {
-    hypothesis = lp.GetHypoth(0);
-    pose       = hypothesis.mean;
-  }
+    robot.Read();
 
-  return pose;
+    printAllHypotheses();
+
+    // if only one hypothesis remains, return
+    if (lp.GetHypothCount() == 1) return;
+
+    // travel backwards in a circle shape
+    setSpeed(-0.75, 1.0);
+  }
 }
 
 /**
@@ -327,7 +372,6 @@ player_pose2d_t Robot::getPoseFromLocalizeProxy()
  */ 
 void Robot::setMotorEnable(bool isMotorEnabled)
 {
-  // Allow the program to take charge of the motors (take care now)
   pp.SetMotorEnable(isMotorEnabled);
 }
 
@@ -406,8 +450,8 @@ void Robot::setSpeed(double forwardVelocity, double angularVelocity, TurnDirecti
  * @param angVelocity - the velocity to rotate at
  */
 void Robot::handleBump(HandleBumpConfig bumpConfig,
-                  double angle, double distance,
-                  double velocity, double angVelocity)
+                       double angle, double distance,
+                       double velocity, double angVelocity)
 {
   robot.Read();
   bool isLeft  = isLeftPressed(),
@@ -453,6 +497,22 @@ void Robot::handleBump(HandleBumpConfig bumpConfig,
 }
 
 /**
+ * Returns true if the robot has reached the given waypoint within the
+ * given error range
+ *
+ * @param pos        - the waypoint the robot is currently at
+ * @param wp         - the waypoint we are testing to see if we reached
+ * @param errorRange - the range in which the robot must be to the wp
+ * @return true if the robot has reached the robot. Otherwise, false
+ */ 
+bool Robot::hasReachedWaypoint(Vector2& pos, Vector2& wp, double errorRange)
+{
+  // return true if reached the waypoint within the error range
+  return (pos.x + errorRange > wp.x && pos.x - errorRange < wp.x) &&
+         (pos.y + errorRange > wp.y && pos.y - errorRange < wp.y);
+}
+
+/**
  * The robot will move to the specified Waypoint even if obstacles are in the way
  *
  * @param wp              - the waypoint for the robot to move to
@@ -468,6 +528,9 @@ void Robot::moveToWaypoint(Vector2& wp, bool useLocalization, double velocity, d
   double yaw, angle, distance;
   do
   {
+    robot.Read();
+
+    // get robot's current position based on either localization or odometry
     if (useLocalization)
     {
       pos = getLocalizedPos();
@@ -478,13 +541,18 @@ void Robot::moveToWaypoint(Vector2& wp, bool useLocalization, double velocity, d
       pos = getOdometerPos();
       yaw = getOdometerYaw();
     }
-
+       
     // obtain angle and distance needed to reach the waypoint
     getAngleDistanceToWaypoint(pos, yaw, wp, angle, distance);
 
     // rotate towards then travel to the given waypoint
     rotateByRadians(angle, angularVelocity);
     moveForwardByMeters(distance, velocity);
+   
+    // print robot's current position
+    std::cout << "\n";
+    if (useLocalization) printLocalizedPosition();
+    else                 printOdometerPosition();
 
     // handle any bumper events
     handleBump();

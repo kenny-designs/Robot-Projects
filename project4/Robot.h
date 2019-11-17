@@ -62,11 +62,10 @@ class Robot
 
   // waypoint movement
   void getAngleDistanceToWaypoint(Vector2& pos, double yaw, Vector2& wp, double& angle, double& distance);
-  bool hasReachedWaypoint(Vector2& pos, Vector2& wp, double errorRange);
 
 public:
   // constructor
-  Robot(bool isUsingLaser    = true,
+  Robot(bool   isUsingLaser  = true,
         double movementScale = 1.0,
         double rotationScale = 1.0,
         double tickInterval  = 0.1,
@@ -75,9 +74,10 @@ public:
   // destructor
   ~Robot();
 
+  // read from the environment
+  void read();
+
   // get position based on odometer
-  double getOdometerXPos();
-  double getOdometerYPos();
   double getOdometerYaw();
   Vector2 getOdometerPos();
 
@@ -93,11 +93,18 @@ public:
   // print information about the robot
   void printOdometerPosition();
   void printLocalizedPosition();
+  void printAllHypotheses();
   void printBumper();
   void printLaserData();
   
-  // get pose from the LocalizeProxy 
+  // get the best Hypothesis from the LocalizeProxy 
+  player_localize_hypoth_t getBestLocalizeHypothesis();
+
+  // get the best pose from the LocalizeProxy
   player_pose2d_t getPoseFromLocalizeProxy();
+
+  // localizes the robot
+  void localize();
 
   // motor
   void setMotorEnable(bool isMotorEnabled);
@@ -115,10 +122,11 @@ public:
   void handleBump(HandleBumpConfig bumpConfig = HandleBumpConfig(),
                   double angle           = 5.0 * M_PI / 12.0,  // ~75 degrees
                   double distance        = 1.0,
-                  double velocity        = 0.5,
+                  double velocity        = 1.0,
                   double angularVelocity = 0.5);
 
   // handle waypoint movement
+  bool hasReachedWaypoint(Vector2& pos, Vector2& wp, double errorRange);
   void moveToWaypoint(Vector2& wp,
                       bool useLocalization   = false,
                       double velocity        = 0.5,
