@@ -51,20 +51,26 @@ public:
   /** Interface for handling bumper events */
   struct BumperEventState
   {
+    double distance, velocity, angularVelocity;
+
+    BumperEventState(double distance,
+                     double velocity,
+                     double angularVelocity) :
+      distance(distance),
+      velocity(velocity), 
+      angularVelocity(angularVelocity) {};
+
     virtual void handleBump(Robot *robot) = 0;
   };
 
   /** Corrects the robot's position via simple movement based on bumper data */
   struct SimpleBumper : public BumperEventState
   {
+    double angle;             // angle to rotate when correcting position
     TurnDirection::Enum both, // direction to turn if both bumpers hit
                         left, // direction to turn if left bumper hit
                        right; // direction to turn if right bumper hit
 
-    double angle,           // angle to rotate
-           distance,        // distance to travel
-           velocity,        // velocity to travel at
-           angularVelocity; // angular velocity to rotate at
 
     // TODO: this looks disgusting. Improve it.
     /** Constructs a new SimpleBumper object */
@@ -75,13 +81,11 @@ public:
                  double distance           = 0.75,
                  double velocity           = 1.0,
                  double angularVelocity    = 0.5) :
+      BumperEventState(distance, velocity, angularVelocity),
       both(both),
       left(left),
       right(right),
-      angle(angle),
-      distance(distance),
-      velocity(velocity),
-      angularVelocity(angularVelocity) {};
+      angle(angle) {};
 
     void handleBump(Robot *robot);
   };
@@ -89,19 +93,14 @@ public:
   /** Corrects the robot's position via auto-pilot movement */
   struct AutoPilot : public BumperEventState
   {
-    int ticks;              // the number of ticks to apply auto pilot
-    double distance,        // distance to travel upon initially backing up
-           velocity,        // velocity to move at
-           angularVelocity; // angular velocity to rotate at
+    int ticks; // the number of ticks to apply auto pilot
 
     AutoPilot(int ticks              = 50,
               double distance        = 1.0,
               double velocity        = 0.5,
               double angularVelocity = 1.0) :
-      ticks(ticks),
-      distance(distance),
-      velocity(velocity),
-      angularVelocity(angularVelocity) {}
+      BumperEventState(distance, velocity, angularVelocity),
+      ticks(ticks) {}
 
     void handleBump(Robot *robot);
   };
