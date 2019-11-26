@@ -601,3 +601,15 @@ void Robot::autoPilotLaser(int tickDuration, double forwardVelocity, double angu
     setSpeed(forwardVelocity, angularVelocity, dir);
   }
 }
+
+// TODO: find a better spot for these
+void Robot::SimpleBumper::handleBump()
+{
+  std::cout << "handleBump() from SimpleBumper was invoked!\n";
+};
+
+void Robot::AutoPilot::handleBump()
+{
+  std::cout << "handleBump() from AutoPilot was invoked!\n";
+};
+

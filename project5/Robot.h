@@ -34,40 +34,6 @@ struct HandleBumpConfig
                    TurnDirection::Enum right = TurnDirection::Left) : both(both), left(left), right(right) {};
 };
 
-/** Interface for handling bumper events */
-struct BumperEventState
-{
-  virtual void handleBump() = 0;
-};
-
-/** Corrects the robot's position via simple movement based on bumper data */
-struct SimpleBumper : public BumperEventState
-{
-  TurnDirection::Enum both,  // direction to turn if both bumpers hit
-                      left,  // direction to turn if left bumper hit
-                      right; // direction to turn if right bumper hit
-
-  /** Constructs a new SimpleBumper object */
-  SimpleBumper(TurnDirection::Enum both  = TurnDirection::Random,
-               TurnDirection::Enum left  = TurnDirection::Right,
-               TurnDirection::Enum right = TurnDirection::Left) : both(both), left(left), right(right) {};
-
-  void handleBump()
-  {
-    std::cout << "handleBump() from SimpleBumper was invoked!\n";
-  };
-};
-
-/** Corrects the robot's position via auto-pilot movement */
-struct AutoPilot : public BumperEventState
-{
-  AutoPilot() {}
-  void handleBump()
-  {
-    std::cout << "handleBump() from AutoPilot was invoked!\n";
-  };
-};
-
 /**
  * Wrapper class used to simplify use of the Robot
  */ 
@@ -95,6 +61,34 @@ class Robot
   void getAngleDistanceToWaypoint(Vector2& pos, double yaw, Vector2& wp, double& angle, double& distance);
 
 public:
+  /** Interface for handling bumper events */
+  struct BumperEventState
+  {
+    virtual void handleBump() = 0;
+  };
+
+  /** Corrects the robot's position via simple movement based on bumper data */
+  struct SimpleBumper : public BumperEventState
+  {
+    TurnDirection::Enum both,  // direction to turn if both bumpers hit
+                   left,       // direction to turn if left bumper hit
+                   right;      // direction to turn if right bumper hit
+
+    /** Constructs a new SimpleBumper object */
+    SimpleBumper(TurnDirection::Enum both  = TurnDirection::Random,
+                 TurnDirection::Enum left  = TurnDirection::Right,
+                 TurnDirection::Enum right = TurnDirection::Left) : both(both), left(left), right(right) {};
+
+    void handleBump();
+  };
+
+  /** Corrects the robot's position via auto-pilot movement */
+  struct AutoPilot : public BumperEventState
+  {
+    AutoPilot() {}
+    void handleBump();
+  };
+
   // constructor
   Robot(bool   isUsingLaser  = true,
         double movementScale = 1.0,
