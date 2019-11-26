@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
   printPlan(plan,pLength);    // Print the plan on the screen
   writePlan(plan, pLength);   // Write the plan to the file plan-out.txt
 
+  //Robot::SimpleBumper simpleBumper;
   Robot::AutoPilot simpleBumper;
   for (int i = 0; i < pLength; i += 2)
   {

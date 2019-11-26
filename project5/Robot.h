@@ -64,7 +64,7 @@ public:
   /** Interface for handling bumper events */
   struct BumperEventState
   {
-    virtual void handleBump() = 0;
+    virtual void handleBump(Robot *robot) = 0;
   };
 
   /** Corrects the robot's position via simple movement based on bumper data */
@@ -79,14 +79,14 @@ public:
                  TurnDirection::Enum left  = TurnDirection::Right,
                  TurnDirection::Enum right = TurnDirection::Left) : both(both), left(left), right(right) {};
 
-    void handleBump();
+    void handleBump(Robot *robot);
   };
 
   /** Corrects the robot's position via auto-pilot movement */
   struct AutoPilot : public BumperEventState
   {
     AutoPilot() {}
-    void handleBump();
+    void handleBump(Robot *robot);
   };
 
   // constructor

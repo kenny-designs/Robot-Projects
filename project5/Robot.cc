@@ -488,15 +488,8 @@ void Robot::handleBump(HandleBumpConfig bumpConfig,
 
   // correct robot position by dislodging it
   moveForwardByMeters(-distance, velocity);  // back up by the given distance
-
-  // TODO: uncomment
-  /*
   rotateByRadians(angle, angVelocity);       // rotate by the given angle
   moveForwardByMeters(distance, velocity);   // move forward by the given distance
-  */
-
-  // TODO: remove
-  autoPilotLaser();
 
   // robot has finished addressing the bumper press event
   isHandlingBump = false;
@@ -564,7 +557,7 @@ void Robot::moveToWaypoint(Vector2& wp,
     moveForwardByMeters(distance, velocity);
    
     // handle any bumper events
-    bumperEventState.handleBump();
+    bumperEventState.handleBump(this);
   }
 }
 
@@ -603,13 +596,22 @@ void Robot::autoPilotLaser(int tickDuration, double forwardVelocity, double angu
 }
 
 // TODO: find a better spot for these
-void Robot::SimpleBumper::handleBump()
+void Robot::SimpleBumper::handleBump(Robot *robot)
 {
-  std::cout << "handleBump() from SimpleBumper was invoked!\n";
-};
+  HandleBumpConfig bump;
+  robot->handleBump(bump);
+}
 
-void Robot::AutoPilot::handleBump()
+void Robot::AutoPilot::handleBump(Robot *robot)
 {
-  std::cout << "handleBump() from AutoPilot was invoked!\n";
-};
+  // if no bumpers were pressed, return
+  robot->read();
+  if (!robot->isAnyPressed()) return;
+
+  // correct position via auto pilot
+  robot->isHandlingBump = true;
+  robot->moveForwardByMeters(-1.0, 0.5);  // back up by the given distance
+  robot->autoPilotLaser(50);
+  robot->isHandlingBump = false;
+}
 
