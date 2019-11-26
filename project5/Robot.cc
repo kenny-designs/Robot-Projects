@@ -554,6 +554,8 @@ void Robot::SimpleBumper::handleBump(Robot *robot)
   else                        dir = right;
 
   // adjust the angle depending on the robot should rotate
+  // TODO: there may be a glitch with the angle considering it is now a member variable
+  // test to see if we need to fix it
   switch(dir)
   {
     case TurnDirection::Random:
@@ -588,10 +590,12 @@ void Robot::AutoPilot::handleBump(Robot *robot)
   robot->read();
   if (!robot->isAnyPressed()) return;
 
-  // correct position via auto pilot
+  // backup by given distance to unlodge from the wall
   robot->isHandlingBump = true;
-  robot->moveForwardByMeters(-1.0, 0.5);  // back up by the given distance
-  robot->autoPilotLaser(50);
+  robot->moveForwardByMeters(-distance, velocity);
   robot->isHandlingBump = false;
+
+  // engage auto-pilot
+  robot->autoPilotLaser(ticks, velocity, angularVelocity);
 }
 

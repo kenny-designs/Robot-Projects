@@ -89,7 +89,20 @@ public:
   /** Corrects the robot's position via auto-pilot movement */
   struct AutoPilot : public BumperEventState
   {
-    AutoPilot() {}
+    int ticks;              // the number of ticks to apply auto pilot
+    double distance,        // distance to travel upon initially backing up
+           velocity,        // velocity to move at
+           angularVelocity; // angular velocity to rotate at
+
+    AutoPilot(int ticks              = 50,
+              double distance        = 1.0,
+              double velocity        = 0.5,
+              double angularVelocity = 1.0) :
+      ticks(ticks),
+      distance(distance),
+      velocity(velocity),
+      angularVelocity(angularVelocity) {}
+
     void handleBump(Robot *robot);
   };
 
