@@ -21,10 +21,7 @@ namespace TurnDirection
   enum Enum { Left, Right, Random, None };
 }
 
-/**
- * Struct utilized to define the direction the robot should rotate
- * depending on which bumper was pressed
- */ 
+/** Defines how the robot should react to a bump event */
 struct HandleBumpConfig
 {
   TurnDirection::Enum both,  // direction to turn if both bumpers hit
@@ -35,6 +32,41 @@ struct HandleBumpConfig
   HandleBumpConfig(TurnDirection::Enum both  = TurnDirection::Random,
                    TurnDirection::Enum left  = TurnDirection::Right,
                    TurnDirection::Enum right = TurnDirection::Left) : both(both), left(left), right(right) {};
+};
+
+/** Interface for handling bumper events */
+struct BumperEventState
+{
+  BumperEventState(){}
+  virtual void handleBump() = 0;
+};
+
+/** Corrects the robot's position via simple movement based on bumper data */
+struct SimpleBumper : public BumperEventState
+{
+  TurnDirection::Enum both,  // direction to turn if both bumpers hit
+                      left,  // direction to turn if left bumper hit
+                      right; // direction to turn if right bumper hit
+
+  /** Constructs a new SimpleBumper object */
+  SimpleBumper(TurnDirection::Enum both  = TurnDirection::Random,
+               TurnDirection::Enum left  = TurnDirection::Right,
+               TurnDirection::Enum right = TurnDirection::Left) : both(both), left(left), right(right) {};
+
+  void handleBump()
+  {
+    std::cout << "handleBump() from SimpleBumper was invoked!\n";
+  };
+};
+
+/** Corrects the robot's position via auto-pilot movement */
+struct AutoPilot : public BumperEventState
+{
+  AutoPilot() {}
+  void handleBump()
+  {
+    std::cout << "handleBump() from AutoPilot was invoked!\n";
+  };
 };
 
 /**
@@ -135,7 +167,7 @@ public:
                       HandleBumpConfig bumpConfig = HandleBumpConfig());
 
   // auto movement
-  void autoPilotLaser(double forwardVelocity = 0.5, double angularVelocity = 1.0, int tickDuration = INT_MAX);
+  void autoPilotLaser(int tickDuration = INT_MAX, double forwardVelocity = 0.5, double angularVelocity = 1.0);
 };
 
 #endif

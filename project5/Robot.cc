@@ -572,11 +572,11 @@ void Robot::moveToWaypoint(Vector2& wp,
  * The robot will constantly move forward whilst only relying on its laser.
  * It will cease movement upon reaching a dead end.
  *
+ * @param tickDuration    - the number of ticks to apply auto pilot for
  * @param forwardVelocity - velocity that the robot moves forward at in m/s
  * @param angularVelocity - angular velocity that the robot rotates at in rad/s
- * @param tickDuration    - the number of ticks to apply auto pilot
  */ 
-void Robot::autoPilotLaser(double forwardVelocity, double angularVelocity, int tickDuration)
+void Robot::autoPilotLaser(int tickDuration, double forwardVelocity, double angularVelocity)
 {
   if (!sp || tickDuration <= 0) return;
 
