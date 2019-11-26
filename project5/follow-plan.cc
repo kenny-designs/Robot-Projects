@@ -34,8 +34,7 @@ int main(int argc, char *argv[])
   printPlan(plan,pLength);    // Print the plan on the screen
   writePlan(plan, pLength);   // Write the plan to the file plan-out.txt
 
-  // TODO: this is a bit crude. But it works
-  HandleBumpConfig bumpConfig(TurnDirection::Left); // if both bumpers pressed, turn left
+  AutoPilot simpleBumper;
   for (int i = 0; i < pLength; i += 2)
   {
     // obtain the next step in our master plan
@@ -45,7 +44,7 @@ int main(int argc, char *argv[])
     std::cout << "\nNow moving to coordinate: " << wp << "\n";
 
     // move to given location
-    robot.moveToWaypoint(wp, true, 3.0, 1.0, 0.25, bumpConfig);
+    robot.moveToWaypoint(wp, simpleBumper, true, 3.0, 1.0, 0.25);
 
     // report the robot's actual final location
     std::cout << "Now at the following position:\n";

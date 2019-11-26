@@ -521,19 +521,19 @@ bool Robot::hasReachedWaypoint(Vector2& pos, Vector2& wp, double errorRange)
 /**
  * The robot will move to the specified Waypoint even if obstacles are in the way
  *
- * @param wp              - the waypoint for the robot to move to
- * @param useLocalization - uses localization if set to true. Otherwise, use odometry
- * @param velocity        - velocity for the robot to move in m/s
- * @param angularVelocity - angular velocity for the robot to rotate in rad/s
- * @param errorRange      - minimum distance robot must be from waypoint in meters
- * @param bumpConfig      - how the robot should respond to bumpers being pressed
+ * @param wp               - the waypoint for the robot to move to
+ * @param bumperEventState - how the robot should respond to bumpers being pressed
+ * @param useLocalization  - uses localization if set to true. Otherwise, use odometry
+ * @param velocity         - velocity for the robot to move in m/s
+ * @param angularVelocity  - angular velocity for the robot to rotate in rad/s
+ * @param errorRange       - minimum distance robot must be from waypoint in meters
  */ 
 void Robot::moveToWaypoint(Vector2& wp,
+                           BumperEventState& bumperEventState,
                            bool useLocalization,
                            double velocity,
                            double angularVelocity,
-                           double errorRange,
-                           HandleBumpConfig bumpConfig)
+                           double errorRange)
 {
   // move to waypoint wp until within the error range
   Vector2 pos;
@@ -564,7 +564,7 @@ void Robot::moveToWaypoint(Vector2& wp,
     moveForwardByMeters(distance, velocity);
    
     // handle any bumper events
-    handleBump(bumpConfig);
+    bumperEventState.handleBump();
   }
 }
 

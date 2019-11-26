@@ -37,7 +37,6 @@ struct HandleBumpConfig
 /** Interface for handling bumper events */
 struct BumperEventState
 {
-  BumperEventState(){}
   virtual void handleBump() = 0;
 };
 
@@ -151,7 +150,7 @@ public:
                 TurnDirection::Enum dir = TurnDirection::Left);
 
   // bumper movement
-  void handleBump(HandleBumpConfig bumpConfig = HandleBumpConfig(),
+  void handleBump(HandleBumpConfig bumpConfig,
                   double angle           = 5.0 * M_PI / 12.0,  // ~75 degrees
                   double distance        = 0.75,
                   double velocity        = 1.0,
@@ -160,11 +159,11 @@ public:
   // handle waypoint movement
   bool hasReachedWaypoint(Vector2& pos, Vector2& wp, double errorRange);
   void moveToWaypoint(Vector2& wp,
+                      BumperEventState& bumperEventState,
                       bool useLocalization   = false,
                       double velocity        = 0.5,
                       double angularVelocity = 0.5,
-                      double errorRange      = 0.25,
-                      HandleBumpConfig bumpConfig = HandleBumpConfig());
+                      double errorRange      = 0.25);
 
   // auto movement
   void autoPilotLaser(int tickDuration = INT_MAX, double forwardVelocity = 0.5, double angularVelocity = 1.0);
