@@ -574,16 +574,16 @@ void Robot::moveToWaypoint(Vector2& wp,
  *
  * @param forwardVelocity - velocity that the robot moves forward at in m/s
  * @param angularVelocity - angular velocity that the robot rotates at in rad/s
+ * @param tickDuration    - the number of ticks to apply auto pilot
  */ 
-void Robot::autoPilotLaser(double forwardVelocity, double angularVelocity)
+void Robot::autoPilotLaser(double forwardVelocity, double angularVelocity, int tickDuration)
 {
-  if (!sp) return;
+  if (!sp || tickDuration <= 0) return;
 
   double minLeft, minRight;
   TurnDirection::Enum dir;
 
-  int i = 0;
-  while (i++ < 50)
+  for (int i = 0; i < tickDuration; i++)
   {
     robot.Read();
 

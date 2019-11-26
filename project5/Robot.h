@@ -135,7 +135,7 @@ public:
                       HandleBumpConfig bumpConfig = HandleBumpConfig());
 
   // auto movement
-  void autoPilotLaser(double forwardVelocity = 0.5, double angularVelocity = 1.0);
+  void autoPilotLaser(double forwardVelocity = 0.5, double angularVelocity = 1.0, int tickDuration = INT_MAX);
 };
 
 #endif
