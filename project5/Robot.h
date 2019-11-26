@@ -21,19 +21,6 @@ namespace TurnDirection
   enum Enum { Left, Right, Random, None };
 }
 
-/** Defines how the robot should react to a bump event */
-struct HandleBumpConfig
-{
-  TurnDirection::Enum both,  // direction to turn if both bumpers hit
-                      left,  // direction to turn if left bumper hit
-                      right; // direction to turn if right bumper hit
-
-  /** Constructs a new HandleBumpConfig object */
-  HandleBumpConfig(TurnDirection::Enum both  = TurnDirection::Random,
-                   TurnDirection::Enum left  = TurnDirection::Right,
-                   TurnDirection::Enum right = TurnDirection::Left) : both(both), left(left), right(right) {};
-};
-
 /**
  * Wrapper class used to simplify use of the Robot
  */ 
@@ -70,14 +57,31 @@ public:
   /** Corrects the robot's position via simple movement based on bumper data */
   struct SimpleBumper : public BumperEventState
   {
-    TurnDirection::Enum both,  // direction to turn if both bumpers hit
-                   left,       // direction to turn if left bumper hit
-                   right;      // direction to turn if right bumper hit
+    TurnDirection::Enum both, // direction to turn if both bumpers hit
+                        left, // direction to turn if left bumper hit
+                       right; // direction to turn if right bumper hit
 
+    double angle,           // angle to rotate
+           distance,        // distance to travel
+           velocity,        // velocity to travel at
+           angularVelocity; // angular velocity to rotate at
+
+    // TODO: this looks disgusting. Improve it.
     /** Constructs a new SimpleBumper object */
     SimpleBumper(TurnDirection::Enum both  = TurnDirection::Random,
                  TurnDirection::Enum left  = TurnDirection::Right,
-                 TurnDirection::Enum right = TurnDirection::Left) : both(both), left(left), right(right) {};
+                 TurnDirection::Enum right = TurnDirection::Left,
+                 double angle              = 5.0 * M_PI / 12.0, // ~75 degrees
+                 double distance           = 0.75,
+                 double velocity           = 1.0,
+                 double angularVelocity    = 0.5) :
+      both(both),
+      left(left),
+      right(right),
+      angle(angle),
+      distance(distance),
+      velocity(velocity),
+      angularVelocity(angularVelocity) {};
 
     void handleBump(Robot *robot);
   };
@@ -142,13 +146,6 @@ public:
   void setSpeed(double forwardVelocity = 0.5,
                 double angularVelocity = 0.5,
                 TurnDirection::Enum dir = TurnDirection::Left);
-
-  // bumper movement
-  void handleBump(HandleBumpConfig bumpConfig,
-                  double angle           = 5.0 * M_PI / 12.0,  // ~75 degrees
-                  double distance        = 0.75,
-                  double velocity        = 1.0,
-                  double angularVelocity = 0.5);
 
   // handle waypoint movement
   bool hasReachedWaypoint(Vector2& pos, Vector2& wp, double errorRange);

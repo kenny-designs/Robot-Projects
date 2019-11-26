@@ -437,65 +437,6 @@ void Robot::setSpeed(double forwardVelocity, double angularVelocity, TurnDirecti
 }
 
 /**
- * Corrects the robot's position if a bumper has been pressed by adjusting its
- * orientation and location based on the given parameters.
- *
- * @param bumpConfig  - how the robot should respond to bumpers being pressed
- * @param angle       - the angle to rotate the robot
- * @param distance    - the distance for the robot to move
- * @param velocity    - the velocity to move at
- * @param angVelocity - the velocity to rotate at
- */
-void Robot::handleBump(HandleBumpConfig bumpConfig,
-                       double angle,
-                       double distance,
-                       double velocity,
-                       double angVelocity)
-{
-  robot.Read();
-  bool isLeft  = isLeftPressed(),
-       isRight = isRightPressed();
-
-  // return if neither bumper is pressed
-  if (!(isLeft || isRight)) return;
-
-  TurnDirection::Enum dir;
-
-  // determine how to rotate the robot
-  if      (isLeft && isRight) dir = bumpConfig.both;
-  else if (isLeft)            dir = bumpConfig.left;
-  else                        dir = bumpConfig.right;
-
-  // adjust the angle depending on the robot should rotate
-  switch(dir)
-  {
-    case TurnDirection::Random:
-      srand(time(NULL));
-      angle *= rand() % 2 ? 1 : -1;
-      break;
-
-    case TurnDirection::Right:
-      angle *= -1;
-      break;
-
-    case TurnDirection::None:
-      angle = 0;
-      break;
-  }
-
-  // robot is now addressing bumper press event
-  isHandlingBump = true;
-
-  // correct robot position by dislodging it
-  moveForwardByMeters(-distance, velocity);  // back up by the given distance
-  rotateByRadians(angle, angVelocity);       // rotate by the given angle
-  moveForwardByMeters(distance, velocity);   // move forward by the given distance
-
-  // robot has finished addressing the bumper press event
-  isHandlingBump = false;
-}
-
-/**
  * Returns true if the robot has reached the given waypoint within the
  * given error range
  *
@@ -598,8 +539,47 @@ void Robot::autoPilotLaser(int tickDuration, double forwardVelocity, double angu
 // TODO: find a better spot for these
 void Robot::SimpleBumper::handleBump(Robot *robot)
 {
-  HandleBumpConfig bump;
-  robot->handleBump(bump);
+  robot->read();
+  bool isLeft  = robot->isLeftPressed(),
+       isRight = robot->isRightPressed();
+
+  // return if neither bumper is pressed
+  if (!(isLeft || isRight)) return;
+
+  TurnDirection::Enum dir;
+
+  // determine how to rotate the robot
+  if      (isLeft && isRight) dir = both;
+  else if (isLeft)            dir = left;
+  else                        dir = right;
+
+  // adjust the angle depending on the robot should rotate
+  switch(dir)
+  {
+    case TurnDirection::Random:
+      srand(time(NULL));
+      angle *= rand() % 2 ? 1 : -1;
+      break;
+
+    case TurnDirection::Right:
+      angle *= -1;
+      break;
+
+    case TurnDirection::None:
+      angle = 0;
+      break;
+  }
+
+  // robot is now addressing bumper press event
+  robot->isHandlingBump = true;
+
+  // correct robot position by dislodging it
+  robot->moveForwardByMeters(-distance, velocity);  // back up by the given distance
+  robot->rotateByRadians(angle, angularVelocity);   // rotate by the given angle
+  robot->moveForwardByMeters(distance, velocity);   // move forward by the given distance
+
+  // robot has finished addressing the bumper press event
+  robot->isHandlingBump = false;
 }
 
 void Robot::AutoPilot::handleBump(Robot *robot)
