@@ -568,7 +568,7 @@ void Robot::autoPilotLaser(int tickDuration, double forwardVelocity, double angu
  *
  * @param Pointer to the robot that is correcting its position.
  */ 
-void Robot::SimpleBumper::handleBump(Robot *robot)
+void SimpleBumper::handleBump(Robot *robot)
 {
   robot->read();
   if (!robot->isAnyPressed()) return;
@@ -603,7 +603,7 @@ void Robot::SimpleBumper::handleBump(Robot *robot)
  *
  * @param Pointer to the robot that is correcting its position.
  */ 
-void Robot::AutoPilot::handleBump(Robot *robot)
+void AutoPilot::handleBump(Robot *robot)
 {
   // if no bumpers were pressed, return
   robot->read();

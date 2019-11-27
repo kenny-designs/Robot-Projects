@@ -22,8 +22,8 @@ int main(int argc, char *argv[])
   std::vector<Vector2> waypoints = getWaypoints();
 
   // Determine how to handle bumper events
-  // Robot::SimpleBumper bumperState(TurnDirection::Left);
-  Robot::AutoPilot bumperState;
+  // SimpleBumper bumperState(TurnDirection::Left);
+  AutoPilot bumperState;
 
   // Follow the plan
   for (int i = 0; i < waypoints.size(); ++i)
