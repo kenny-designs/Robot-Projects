@@ -166,21 +166,21 @@ void Robot::getAngleDistanceToWaypoint(Vector2& pos, double yaw, Vector2& wp, do
 }
 
 /**
- * Gets Robot Yaw rotation based on odometry
- * @return Yaw rotation as double
- */
-double Robot::getOdometerYaw()
-{
-  return pp.GetYaw();
-}
-
-/**
  * Gets the current position of the robot based off of the odometer
  * @return Vector2 of the robot's current odometer position
  */ 
 Vector2 Robot::getOdometerPos()
 {
   return Vector2(pp.GetXPos(), pp.GetYPos());
+}
+
+/**
+ * Gets Robot Yaw rotation based on odometry
+ * @return Yaw rotation as double
+ */
+double Robot::getOdometerYaw()
+{
+  return pp.GetYaw();
 }
 
 /**
@@ -553,18 +553,16 @@ void Robot::SimpleBumper::handleBump(Robot *robot)
   else                        dir = right;
 
   // adjust the angle depending on the robot should rotate
-  // TODO: there may be a glitch with the angle considering it is now a member variable
-  // test to see if we need to fix it
-  double finalAngle;
+  double finalAngle = angle;
   switch(dir)
   {
     case TurnDirection::Random:
       srand(time(NULL));
-      finalAngle = angle * (rand() % 2 ? 1 : -1);
+      finalAngle *= rand() % 2 ? 1 : -1;
       break;
 
     case TurnDirection::Right:
-      finalAngle = -angle;
+      finalAngle *= -1;
       break;
 
     case TurnDirection::None:

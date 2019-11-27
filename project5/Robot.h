@@ -78,7 +78,7 @@ public:
                  double angle              = 5.0 * M_PI / 12.0, // ~75 degrees
                  double distance           = 0.75,
                  double velocity           = 1.0,
-                 double angularVelocity    = 0.5) :
+                 double angularVelocity    = 1.0) :
       BumperEventState(distance, velocity, angularVelocity),
       both(both),
       left(left),
@@ -117,8 +117,8 @@ public:
   void read();
 
   // get position based on odometer
-  double getOdometerYaw();
   Vector2 getOdometerPos();
+  double getOdometerYaw();
 
   // get position based on localization
   Vector2 getLocalizedPos();
