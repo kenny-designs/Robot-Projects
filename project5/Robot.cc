@@ -561,6 +561,60 @@ void Robot::autoPilotLaser(int tickDuration, double forwardVelocity, double angu
 }
 
 /**
+ * Constructor for a new BumperEventState object
+ *
+ * @param distance        - the distance the robot should move (how
+ *                          this is utilized depends on the concrete subclasses)
+ * @param velocity        - the overall velocity of the robot
+ * @param angularVelocity - the overall angular velocity of the robot
+ */ 
+BumperEventState::BumperEventState(double distance,
+                                   double velocity,
+                                   double angularVelocity) :
+    distance(distance),
+    velocity(velocity),
+    angularVelocity(angularVelocity) {}
+
+/**
+ * Constructor for a new SimbleBumper object
+ *
+ * @both                  - the direction to turn when both bumpers are pressed
+ * @left                  - the direction to turn when the left bumper is pressed
+ * @right                 - the direction to turn when the right bumper is pressed
+ * @angle                 - the number of radians the robot should rotate
+ * @param distance        - the distance the robot should move forwards and backwards
+ * @param velocity        - the velocity of the robot
+ * @param angularVelocity - the angular velocity of the robot
+ */
+SimpleBumper::SimpleBumper(TurnDirection::Enum both,
+                           TurnDirection::Enum left,
+                           TurnDirection::Enum right, 
+                           double angle, 
+                           double distance,
+                           double velocity,
+                           double angularVelocity) :
+    BumperEventState(distance, velocity, angularVelocity),
+    both(both),
+    left(left),
+    right(right),
+    angle(angle) {}
+
+/**
+ * Constructor for a new SimbleBumper object
+ *
+ * @param ticks           - the number of ticks to apply auto-pilot for
+ * @param distance        - the distance the robot should backup
+ * @param velocity        - the velocity of the robot
+ * @param angularVelocity - the angular velocity of the robot
+ */
+AutoPilot::AutoPilot(int    ticks,
+                     double distance,
+                     double velocity,
+                     double angularVelocity) :
+    BumperEventState(distance, velocity, angularVelocity),
+    ticks(ticks) {}
+
+/**
  * Handles bumper events by having the robot back up, rotate slightly based
  * on which bumper was pressed, and then move foward by the same distance it
  * backed up. The main idea is to slightly adjust the robot's position in the
@@ -580,7 +634,7 @@ void SimpleBumper::handleBump(Robot *robot)
   else if (robot->isLeftPressed())  dir = left;
   else                              dir = right;
 
-  // adjust the angle depending on the robot should rotate
+  // adjust the angle depending on how the robot should rotate
   double finalAngle = angle;
   if (dir == TurnDirection::Random)
   {

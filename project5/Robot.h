@@ -10,7 +10,7 @@
 #include "Vector2.h"
 
 // forward declarations
-class Robot;
+class BumperEventState;
 
 /**
  * Enum used to represent a direction for the robot to turn.
@@ -23,61 +23,6 @@ namespace TurnDirection
 {
   enum Enum { Left, Right, Random, None };
 }
-
-/** Interface for handling bumper events */
-struct BumperEventState
-{
-  double distance, velocity, angularVelocity;
-
-  BumperEventState(double distance,
-                   double velocity,
-                   double angularVelocity) :
-    distance(distance),
-    velocity(velocity), 
-    angularVelocity(angularVelocity) {}
-
-  virtual void handleBump(Robot *robot) = 0;
-};
-
-/** Corrects the robot's position via simple movement based on bumper data */
-struct SimpleBumper : public BumperEventState
-{
-  double angle;              // angle to rotate when correcting position
-  TurnDirection::Enum both,  // direction to turn if both bumpers hit
-                      left,  // direction to turn if left bumper hit
-                      right; // direction to turn if right bumper hit
-
-  /** Constructs a new SimpleBumper object */
-  SimpleBumper(TurnDirection::Enum both  = TurnDirection::Random,
-               TurnDirection::Enum left  = TurnDirection::Right,
-               TurnDirection::Enum right = TurnDirection::Left,
-               double angle              = 5.0 * M_PI / 12.0, // ~75 degrees
-               double distance           = 0.75,
-               double velocity           = 1.0,
-               double angularVelocity    = 1.0) :
-    BumperEventState(distance, velocity, angularVelocity),
-    both(both),
-    left(left),
-    right(right),
-    angle(angle) {}
-
-  void handleBump(Robot *robot);
-};
-
-/** Corrects the robot's position via auto-pilot movement */
-struct AutoPilot : public BumperEventState
-{
-  int ticks; // the number of ticks to apply auto pilot
-
-  AutoPilot(int    ticks           = 50,
-            double distance        = 1.0,
-            double velocity        = 0.5,
-            double angularVelocity = 1.0) :
-    BumperEventState(distance, velocity, angularVelocity),
-    ticks(ticks) {}
-
-  void handleBump(Robot *robot);
-};
 
 /**
  * Wrapper class used to simplify use of the Robot
@@ -173,6 +118,56 @@ public:
 
   // auto-pilot movement
   void autoPilotLaser(int tickDuration = INT_MAX, double forwardVelocity = 0.5, double angularVelocity = 1.0);
+};
+
+/**
+ * Interface for handling bumper events.
+ */
+struct BumperEventState
+{
+  double distance, velocity, angularVelocity;
+
+  BumperEventState(double distance, double velocity, double angularVelocity);
+
+  virtual void handleBump(Robot *robot) = 0;
+};
+
+/**
+ * Corrects the robot's position by having it backup, rotate, then move forward
+ * depending on which bumper was pressed.
+ */
+struct SimpleBumper : public BumperEventState
+{
+  double angle;              // angle to rotate when correcting position
+  TurnDirection::Enum both,  // direction to turn if both bumpers hit
+                      left,  // direction to turn if left bumper hit
+                      right; // direction to turn if right bumper hit
+
+  SimpleBumper(TurnDirection::Enum both  = TurnDirection::Random,
+               TurnDirection::Enum left  = TurnDirection::Right,
+               TurnDirection::Enum right = TurnDirection::Left,
+               double angle              = 5.0 * M_PI / 12.0, // ~75 degrees
+               double distance           = 0.75,
+               double velocity           = 1.0,
+               double angularVelocity    = 1.0);
+
+  void handleBump(Robot *robot);
+};
+
+/**
+ * Corrects the robot's position by having it backup followed by
+ * engaging laser guided auto-pilot movement for a set number of ticks.
+ */
+struct AutoPilot : public BumperEventState
+{
+  int ticks; // the number of ticks to apply auto pilot
+
+  AutoPilot(int    ticks           = 50,
+            double distance        = 0.75,
+            double velocity        = 0.5,
+            double angularVelocity = 1.0);
+
+  void handleBump(Robot *robot);
 };
 
 #endif
