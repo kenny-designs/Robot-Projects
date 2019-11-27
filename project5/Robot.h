@@ -58,7 +58,7 @@ public:
                      double angularVelocity) :
       distance(distance),
       velocity(velocity), 
-      angularVelocity(angularVelocity) {};
+      angularVelocity(angularVelocity) {}
 
     virtual void handleBump(Robot *robot) = 0;
   };
@@ -83,7 +83,7 @@ public:
       both(both),
       left(left),
       right(right),
-      angle(angle) {};
+      angle(angle) {}
 
     void handleBump(Robot *robot);
   };
@@ -127,6 +127,7 @@ public:
   // get status of bumpers
   bool isLeftPressed();
   bool isRightPressed();
+  bool isBothPressed();
   bool isAnyPressed();
 
   // print information about the robot
@@ -166,7 +167,7 @@ public:
                       double angularVelocity = 0.5,
                       double errorRange      = 0.25);
 
-  // auto movement
+  // auto-pilot movement
   void autoPilotLaser(int tickDuration = INT_MAX, double forwardVelocity = 0.5, double angularVelocity = 1.0);
 };
 

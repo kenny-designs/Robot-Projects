@@ -222,6 +222,15 @@ bool Robot::isRightPressed()
 }
 
 /**
+ * Returns true if both bumpers are pressed
+ * @return True if both bumpers are pressed
+ */ 
+bool Robot::isBothPressed()
+{
+  return bp[0] && bp[1];
+}
+
+/**
  * Returns true if any bumper is pressed
  * @return True if any bumper pressed
  */
@@ -514,8 +523,8 @@ void Robot::autoPilotLaser(int tickDuration, double forwardVelocity, double angu
 {
   if (!sp || tickDuration <= 0) return;
 
-  double minLeft, minRight;
-  TurnDirection::Enum dir;
+  double minLeft, minRight; // length of left and right laser
+  TurnDirection::Enum dir;  // direction the robot should turn
 
   for (int i = 0; i < tickDuration; i++)
   {
@@ -539,36 +548,24 @@ void Robot::autoPilotLaser(int tickDuration, double forwardVelocity, double angu
 void Robot::SimpleBumper::handleBump(Robot *robot)
 {
   robot->read();
-  bool isLeft  = robot->isLeftPressed(),
-       isRight = robot->isRightPressed();
-
-  // return if neither bumper is pressed
-  if (!(isLeft || isRight)) return;
+  if (!robot->isAnyPressed()) return;
 
   TurnDirection::Enum dir;
 
   // determine how to rotate the robot
-  if      (isLeft && isRight) dir = both;
-  else if (isLeft)            dir = left;
-  else                        dir = right;
+  if      (robot->isBothPressed())  dir = both;
+  else if (robot->isLeftPressed())  dir = left;
+  else                              dir = right;
 
   // adjust the angle depending on the robot should rotate
   double finalAngle = angle;
-  switch(dir)
+  if (dir == TurnDirection::Random)
   {
-    case TurnDirection::Random:
-      srand(time(NULL));
-      finalAngle *= rand() % 2 ? 1 : -1;
-      break;
-
-    case TurnDirection::Right:
-      finalAngle *= -1;
-      break;
-
-    case TurnDirection::None:
-      finalAngle = 0;
-      break;
+    srand(time(NULL));
+    finalAngle *= rand() % 2 ? 1 : -1;
   }
+  else if (dir == TurnDirection::Right) finalAngle *= -1;
+  else if (dir == TurnDirection::None)  finalAngle = 0;
 
   // robot is now addressing bumper press event
   robot->isHandlingBump = true;
