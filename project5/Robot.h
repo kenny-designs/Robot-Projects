@@ -69,7 +69,7 @@ struct AutoPilot : public BumperEventState
 {
   int ticks; // the number of ticks to apply auto pilot
 
-  AutoPilot(int ticks              = 50,
+  AutoPilot(int    ticks           = 50,
             double distance        = 1.0,
             double velocity        = 0.5,
             double angularVelocity = 1.0) :
@@ -158,8 +158,8 @@ public:
   void dislodgeFromObstacle(double distance, double velocity);
 
   // wrapper method for pp.SetSpeed()
-  void setSpeed(double forwardVelocity = 0.5,
-                double angularVelocity = 0.5,
+  void setSpeed(double forwardVelocity  = 0.5,
+                double angularVelocity  = 0.5,
                 TurnDirection::Enum dir = TurnDirection::Left);
 
   // handle waypoint movement
