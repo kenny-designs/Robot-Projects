@@ -501,16 +501,8 @@ void Robot::moveToWaypoint(Vector2& wp,
     robot.Read();
 
     // get robot's current position based on either localization or odometry
-    if (useLocalization)
-    {
-      pos = getLocalizedPos();
-      yaw = getLocalizedYaw();
-    }
-    else
-    {
-      pos = getOdometerPos();
-      yaw = getOdometerYaw();
-    }
+    if (useLocalization) { pos = getLocalizedPos(); yaw = getLocalizedYaw(); }
+    else                 { pos = getOdometerPos();  yaw = getOdometerYaw();  }
 
     if (hasReachedWaypoint(pos, wp, errorRange)) return;
        
@@ -627,12 +619,12 @@ void SimpleBumper::handleBump(Robot *robot)
   robot->read();
   if (!robot->isAnyPressed()) return;
 
-  TurnDirection::Enum dir;
+  // turning right by default
+  TurnDirection::Enum dir = right;
 
   // determine how to rotate the robot
-  if      (robot->isBothPressed())  dir = both;
-  else if (robot->isLeftPressed())  dir = left;
-  else                              dir = right;
+  if      (robot->isBothPressed()) dir = both;
+  else if (robot->isLeftPressed()) dir = left;
 
   // adjust the angle depending on how the robot should rotate
   double finalAngle = angle;
@@ -644,6 +636,7 @@ void SimpleBumper::handleBump(Robot *robot)
   else if (dir == TurnDirection::Right) finalAngle *= -1;
   else if (dir == TurnDirection::None)  finalAngle  = 0;
 
+  // adjust the robot's position
   robot->dislodgeFromObstacle(distance, velocity);     // back up by the given distance
   robot->rotateByRadians(finalAngle, angularVelocity); // rotate by the given angle
   robot->moveForwardByMeters(distance, velocity);      // move forward by the given distance
