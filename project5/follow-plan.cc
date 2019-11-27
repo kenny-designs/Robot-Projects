@@ -100,7 +100,6 @@ void printPlan(double* plan, int length)
   std::cout << std::endl;
 }
 
-
 /**
  * Send the plan to the file plan-out.txt, preceeded by the information
  * about how long it is.

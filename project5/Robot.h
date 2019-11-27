@@ -152,6 +152,7 @@ public:
   // handle basic movement
   void moveForwardByMeters(double distanceInMeters, double forwardVelocity = 0.5);
   void rotateByRadians(double radiansToRotate, double angularVelocity = 0.5);
+  void dislodgeFromObstacle(double distance, double velocity);
 
   // wrapper method for pp.SetSpeed()
   void setSpeed(double forwardVelocity = 0.5,

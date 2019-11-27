@@ -418,6 +418,21 @@ void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
 }
 
 /**
+ * Dislodges the robot from an obstacle by having it reverse by the given distance
+ * while ignoring any bumper presses.
+ *
+ * @param distance - the total distance to reverse
+ * @param velocity - the velocity to reverse at
+ */ 
+void Robot::dislodgeFromObstacle(double distance, double velocity)
+{
+  // backup by given distance in order to dislodge the robot
+  isHandlingBump = true;
+  moveForwardByMeters(-distance, velocity);
+  isHandlingBump = false;
+}
+
+/**
  * Extends the Proximity2dProxy's SetSpeed() method to allow for more flexibility when
  * rotating the robot
  *
@@ -573,18 +588,11 @@ void Robot::SimpleBumper::handleBump(Robot *robot)
     finalAngle *= rand() % 2 ? 1 : -1;
   }
   else if (dir == TurnDirection::Right) finalAngle *= -1;
-  else if (dir == TurnDirection::None)  finalAngle = 0;
+  else if (dir == TurnDirection::None)  finalAngle  = 0;
 
-  // robot is now addressing bumper press event
-  robot->isHandlingBump = true;
-
-  // correct robot position by dislodging it
-  robot->moveForwardByMeters(-distance, velocity);     // back up by the given distance
+  robot->dislodgeFromObstacle(distance, velocity);     // back up by the given distance
   robot->rotateByRadians(finalAngle, angularVelocity); // rotate by the given angle
   robot->moveForwardByMeters(distance, velocity);      // move forward by the given distance
-
-  // robot has finished addressing the bumper press event
-  robot->isHandlingBump = false;
 }
 
 /**
@@ -601,10 +609,8 @@ void Robot::AutoPilot::handleBump(Robot *robot)
   robot->read();
   if (!robot->isAnyPressed()) return;
 
-  // backup by given distance to unlodge from the wall
-  robot->isHandlingBump = true;
-  robot->moveForwardByMeters(-distance, velocity);
-  robot->isHandlingBump = false;
+  // backup from the obstacle
+  robot->dislodgeFromObstacle(distance, velocity);
 
   // engage auto-pilot
   robot->autoPilotLaser(ticks, velocity, angularVelocity);
