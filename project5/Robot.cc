@@ -545,6 +545,14 @@ void Robot::autoPilotLaser(int tickDuration, double forwardVelocity, double angu
   }
 }
 
+/**
+ * Handles bumper events by having the robot back up, rotate slightly based
+ * on which bumper was pressed, and then move foward by the same distance it
+ * backed up. The main idea is to slightly adjust the robot's position in the
+ * hope that this will allow it to circumnavigate whatever obstacle lies before it.
+ *
+ * @param Pointer to the robot that is correcting its position.
+ */ 
 void Robot::SimpleBumper::handleBump(Robot *robot)
 {
   robot->read();
@@ -579,6 +587,14 @@ void Robot::SimpleBumper::handleBump(Robot *robot)
   robot->isHandlingBump = false;
 }
 
+/**
+ * Handles bumper events by having the robot back up followed by
+ * temporarily utilizing laser-based auto-pilot. The main idea is
+ * to have the robot slightly adjust its position with the help of
+ * its lasers to circumnavigate whatever obstacle lies before it.
+ *
+ * @param Pointer to the robot that is correcting its position.
+ */ 
 void Robot::AutoPilot::handleBump(Robot *robot)
 {
   // if no bumpers were pressed, return

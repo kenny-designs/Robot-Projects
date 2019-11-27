@@ -4,48 +4,35 @@
  */
 #include "Robot.h"
 #include <fstream>
+#include <vector>
 
 // Forward declarations
 int  readPlanLength(void);
 void readPlan(double*, int);
 void printPlan(double*,int);  
 void writePlan(double*, int);
+std::vector<Vector2> getWaypoints();
 
 int main(int argc, char *argv[])
 {  
   // Create robot with lasers enabled and movement+rotation scaled up by 1.35
   Robot robot(true, 1.35, 1.35);
 
-  // The set of coordinates that makes up the plan
-  int pLength;
-  double *plan;
+  // Generate waypoints needed to follow the given plan
+  std::vector<Vector2> waypoints = getWaypoints();
 
-  // Plan handling
-  // 
-  // A plan is an integer, n, followed by n doubles (n has to be
-  // even). The first and second doubles are the initial x and y
-  // (respectively) coordinates of the robot, the third and fourth
-  // doubles give the first location that the robot should move to, and
-  // so on. The last pair of doubles give the point at which the robot
-  // should stop.
-  pLength = readPlanLength(); // Find out how long the plan is from plan.txt
-  plan = new double[pLength]; // Create enough space to store the plan
-  readPlan(plan, pLength);    // Read the plan from the file plan.txt.
-  printPlan(plan,pLength);    // Print the plan on the screen
-  writePlan(plan, pLength);   // Write the plan to the file plan-out.txt
+  // Determine how to handle bumper events
+  // Robot::SimpleBumper bumperState(TurnDirection::Left);
+  Robot::AutoPilot bumperState;
 
-  Robot::SimpleBumper simpleBumper(TurnDirection::Left);
-  //Robot::AutoPilot simpleBumper;
-  for (int i = 0; i < pLength; i += 2)
+  // Follow the plan
+  for (int i = 0; i < waypoints.size(); ++i)
   {
-    // obtain the next step in our master plan
-    Vector2 wp(plan[i], plan[i+1]);
-
     // print where we are heading to
-    std::cout << "\nNow moving to coordinate: " << wp << "\n";
+    std::cout << "\nNow moving to coordinate: " << waypoints[i] << "\n";
 
     // move to given location
-    robot.moveToWaypoint(wp, simpleBumper, true, 3.0, 1.0, 0.25);
+    robot.moveToWaypoint(waypoints[i], bumperState, true, 3.0, 1.0, 0.25);
 
     // report the robot's actual final location
     std::cout << "Now at the following position:\n";
@@ -129,4 +116,28 @@ void writePlan(double* plan, int length)
   }
 
   planFile.close();
+}
+
+/**
+ * Generates the waypoints needed to follow the given plan
+ * @return Vector of Vector2 waypoints
+ */ 
+std::vector<Vector2> getWaypoints()
+{
+  // The set of coordinates that makes up the plan
+  int pLength = readPlanLength();     // Find out how long the plan is from plan.txt
+  double *plan = new double[pLength]; // Create enough space to store the plan
+
+  readPlan(plan, pLength);  // Read the plan from the file plan.txt.
+  printPlan(plan,pLength);  // Print the plan on the screen
+  writePlan(plan, pLength); // Write the plan to the file plan-out.txt
+
+  // create waypoints vector
+  std::vector<Vector2> vec;
+  for (int i = 0; i < pLength; i += 2)
+  {
+    vec.push_back(Vector2(plan[i], plan[i+1]));
+  }
+
+  return vec;
 }
