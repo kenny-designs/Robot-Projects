@@ -536,7 +536,6 @@ void Robot::autoPilotLaser(int tickDuration, double forwardVelocity, double angu
   }
 }
 
-// TODO: find a better spot for these
 void Robot::SimpleBumper::handleBump(Robot *robot)
 {
   robot->read();
@@ -556,19 +555,20 @@ void Robot::SimpleBumper::handleBump(Robot *robot)
   // adjust the angle depending on the robot should rotate
   // TODO: there may be a glitch with the angle considering it is now a member variable
   // test to see if we need to fix it
+  double finalAngle;
   switch(dir)
   {
     case TurnDirection::Random:
       srand(time(NULL));
-      angle *= rand() % 2 ? 1 : -1;
+      finalAngle = angle * (rand() % 2 ? 1 : -1);
       break;
 
     case TurnDirection::Right:
-      angle *= -1;
+      finalAngle = -angle;
       break;
 
     case TurnDirection::None:
-      angle = 0;
+      finalAngle = 0;
       break;
   }
 
@@ -576,9 +576,9 @@ void Robot::SimpleBumper::handleBump(Robot *robot)
   robot->isHandlingBump = true;
 
   // correct robot position by dislodging it
-  robot->moveForwardByMeters(-distance, velocity);  // back up by the given distance
-  robot->rotateByRadians(angle, angularVelocity);   // rotate by the given angle
-  robot->moveForwardByMeters(distance, velocity);   // move forward by the given distance
+  robot->moveForwardByMeters(-distance, velocity);     // back up by the given distance
+  robot->rotateByRadians(finalAngle, angularVelocity); // rotate by the given angle
+  robot->moveForwardByMeters(distance, velocity);      // move forward by the given distance
 
   // robot has finished addressing the bumper press event
   robot->isHandlingBump = false;

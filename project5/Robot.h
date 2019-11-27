@@ -71,8 +71,6 @@ public:
                         left, // direction to turn if left bumper hit
                        right; // direction to turn if right bumper hit
 
-
-    // TODO: this looks disgusting. Improve it.
     /** Constructs a new SimpleBumper object */
     SimpleBumper(TurnDirection::Enum both  = TurnDirection::Random,
                  TurnDirection::Enum left  = TurnDirection::Right,
