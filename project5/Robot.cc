@@ -135,7 +135,7 @@ void Robot::getFinalTicksAndVelocity(double distance, double& velocity, int& tic
 }
 
 /**
- * Generates the angle and distance needed to reach a given waypoint.
+ * Generates the shortest angle and distance needed to reach a given waypoint.
  *
  * @param pos      - the current position of the robot
  * @param yaw      - the current yaw of the robot
@@ -145,24 +145,16 @@ void Robot::getFinalTicksAndVelocity(double distance, double& velocity, int& tic
  */ 
 void Robot::getAngleDistanceToWaypoint(Vector2& pos, double yaw, Vector2& wp, double& angle, double& distance)
 {
-  // obtain the direction and vector of the robot
-  Vector2 dir(cos(yaw), sin(yaw));
-
-  // center waypoint to the origin then normalize it
-  Vector2 wpNorm = wp - pos;
-  Vector2::normalize(wpNorm);
-
   // calculate the distance between the robot and the given waypoint
   distance = Vector2::getMagnitude(pos - wp);
 
-  // find the angle to rotate the robot so that it faces the given waypoint
-  angle = acos(wpNorm.x * dir.x + wpNorm.y * dir.y);
+  // center the waypoint with the robot's position as the origin
+  Vector2 centered = wp - pos;
 
-  // zed value for cross product. If negative, flip angle
-  if (wpNorm.x * dir.y - wpNorm.y * dir.x > 0)
-  {
-    angle *= -1;
-  }
+  // find the angle to rotate the robot so that it faces the given waypoint
+  // while constraining it to be between -pi and pi
+  angle = fmod(atan2(centered.y, centered.x) - yaw + M_PI, 2.0 * M_PI);
+  angle += angle < 0 ? M_PI : -M_PI;
 }
 
 /**
