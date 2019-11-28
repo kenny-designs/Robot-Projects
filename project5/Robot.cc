@@ -489,8 +489,8 @@ void Robot::moveToWaypoint(Vector2& wp,
                            double errorRange)
 {
   // move to waypoint wp until within the error range
-  Vector2 pos;
-  double yaw, angle, distance;
+  Vector2 pos, lastPos;
+  double  yaw, lastYaw, angle, distance;
   while (1)
   {
     robot.Read();
@@ -502,8 +502,15 @@ void Robot::moveToWaypoint(Vector2& wp,
     // obtain angle and distance needed to reach the waypoint
     getAngleDistanceToWaypoint(pos, yaw, wp, angle, distance);
 
-    // return if we reached the waypoint
-    if (hasReachedWaypoint(pos, wp, errorRange)) return;
+    // return if we reached the waypoint or if no movement was made
+    if (hasReachedWaypoint(pos, wp, errorRange) ||
+       (lastPos == pos && lastYaw == yaw))
+    {
+      return;
+    }
+
+    lastPos = pos;
+    lastYaw = yaw;
 
     // rotate towards then travel to the given waypoint
     rotateByRadians(angle, angularVelocity);
