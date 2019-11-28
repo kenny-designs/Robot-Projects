@@ -68,6 +68,9 @@ void Robot::read()
  */
 void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks)
 {
+  // invalid ticks
+  if (ticks < 1) return;
+
   // scale velocity for proportional control
   double velocityScale;
 
@@ -495,11 +498,12 @@ void Robot::moveToWaypoint(Vector2& wp,
     // get robot's current position based on either localization or odometry
     if (useLocalization) { pos = getLocalizedPos(); yaw = getLocalizedYaw(); }
     else                 { pos = getOdometerPos();  yaw = getOdometerYaw();  }
-
-    if (hasReachedWaypoint(pos, wp, errorRange)) return;
-       
+ 
     // obtain angle and distance needed to reach the waypoint
     getAngleDistanceToWaypoint(pos, yaw, wp, angle, distance);
+
+    // return if we reached the waypoint
+    if (hasReachedWaypoint(pos, wp, errorRange)) return;
 
     // rotate towards then travel to the given waypoint
     rotateByRadians(angle, angularVelocity);
@@ -547,8 +551,7 @@ void Robot::autoPilotLaser(int tickDuration, double forwardVelocity, double angu
 /**
  * Constructor for a new BumperEventState object
  *
- * @param distance        - the distance the robot should move (how
- *                          this is utilized depends on the concrete subclasses)
+ * @param distance        - the distance the robot should move (depending on the concrete subclasses)
  * @param velocity        - the overall velocity of the robot
  * @param angularVelocity - the overall angular velocity of the robot
  */ 

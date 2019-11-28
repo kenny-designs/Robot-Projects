@@ -6,11 +6,14 @@
 #include <fstream>
 #include <vector>
 
+#define PLAN_INPUT_FILE_NAME  "plan.txt"     // file that we are reading the plan from
+#define PLAN_OUTPUT_FILE_NAME "plan-out.txt" // file that we are writing the plan to
+
 // Forward declarations
-int  readPlanLength(void);
-void readPlan(double*, int);
-void printPlan(double*,int);  
-void writePlan(double*, int);
+int  readPlanLength();
+void readPlan (double* plan, int length);
+void printPlan(double* plan, int length);  
+void writePlan(double* plan, int length);
 std::vector<Vector2> getWaypoints();
 
 int main(int argc, char *argv[])
@@ -32,7 +35,7 @@ int main(int argc, char *argv[])
     std::cout << "\nNow moving to coordinate: " << waypoints[i] << "\n";
 
     // move to given location
-    robot.moveToWaypoint(waypoints[i], bumperState, true, 3.0, 1.0, 0.2);
+    robot.moveToWaypoint(waypoints[i], bumperState, true, 3.0, 1.0, 0.1);
 
     // report the robot's actual final location
     std::cout << "Now at the following position:\n";
@@ -41,21 +44,22 @@ int main(int argc, char *argv[])
 }
 
 /**
- * Open the file plan.txt and read the first element, which should be
- * an even integer, and return it.
+ * Opens the PLAN_INPUT_FILE_NAME and reads the first element, which should be
+ * an even integer, and returns it.
  */
-int readPlanLength(void)
+int readPlanLength()
 {
   int length;
 
   std::ifstream planFile;
-  planFile.open("plan.txt");
+  planFile.open(PLAN_INPUT_FILE_NAME);
 
   planFile >> length;
   planFile.close();
 
   // Some minimal error checking
-  if((length % 2) != 0){
+  if((length % 2) != 0)
+  {
     std::cout << "The plan has mismatched x and y coordinates" << std::endl;
     exit(1);
   }
@@ -64,18 +68,19 @@ int readPlanLength(void)
 }
 
 /**
- * Given the number of coordinates, read them in from plan.txt and put
- * them in the array plan.
+ * Given the number of coordinates, read them in from
+ * PLAN_INPUT_FILE_NAME and put them in the array plan.
  */
 void readPlan(double* plan, int length)
 {
   int skip;
 
   std::ifstream planFile;
-  planFile.open("plan.txt");
+  planFile.open(PLAN_INPUT_FILE_NAME);
 
   planFile >> skip;
-  for(int i = 0; i < length; i++){
+  for(int i = 0; i < length; i++)
+  {
     planFile >> plan[i];
   }
 
@@ -90,10 +95,12 @@ void printPlan(double* plan, int length)
 {
   std::cout << std::endl;
   std::cout << "   x     y" << std::endl;
-  for(int i = 0; i < length; i++){
+  for(int i = 0; i < length; i++)
+  {
     std::cout.width(5);
     std::cout << plan[i] << " ";
-    if((i > 0) && ((i % 2) != 0)){
+    if((i > 0) && ((i % 2) != 0))
+    {
       std::cout << std::endl;
     }
   }
@@ -101,16 +108,17 @@ void printPlan(double* plan, int length)
 }
 
 /**
- * Send the plan to the file plan-out.txt, preceeded by the information
- * about how long it is.
+ * Send the plan to the file PLAN_OUTPUT_FILE_NAME, preceeded by
+ * the information about how long it is.
  */
 void writePlan(double* plan, int length)
 {
   std::ofstream planFile;
-  planFile.open("plan-out.txt");
+  planFile.open(PLAN_OUTPUT_FILE_NAME);
 
   planFile << length << " ";
-  for(int i = 0; i < length; i++){
+  for(int i = 0; i < length; i++)
+  {
     planFile << plan[i] << " ";
   }
 
@@ -124,12 +132,12 @@ void writePlan(double* plan, int length)
 std::vector<Vector2> getWaypoints()
 {
   // The set of coordinates that makes up the plan
-  int pLength = readPlanLength();     // Find out how long the plan is from plan.txt
+  int pLength = readPlanLength();     // Find out how long the plan
   double *plan = new double[pLength]; // Create enough space to store the plan
 
-  readPlan(plan, pLength);  // Read the plan from the file plan.txt.
-  printPlan(plan,pLength);  // Print the plan on the screen
-  writePlan(plan, pLength); // Write the plan to the file plan-out.txt
+  readPlan (plan, pLength);  // Read the plan
+  printPlan(plan, pLength);  // Print the plan on the screen
+  writePlan(plan, pLength);  // Write the plan
 
   // create waypoints vector
   std::vector<Vector2> vec;
