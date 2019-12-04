@@ -68,6 +68,9 @@ void Robot::read()
  */
 void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks)
 {
+  // invalid ticks
+  if (ticks < 1) return;
+
   // scale velocity for proportional control
   double velocityScale;
 
@@ -135,7 +138,7 @@ void Robot::getFinalTicksAndVelocity(double distance, double& velocity, int& tic
 }
 
 /**
- * Generates the angle and distance needed to reach a given waypoint.
+ * Generates the shortest angle and distance needed to reach a given waypoint.
  *
  * @param pos      - the current position of the robot
  * @param yaw      - the current yaw of the robot
@@ -145,33 +148,16 @@ void Robot::getFinalTicksAndVelocity(double distance, double& velocity, int& tic
  */ 
 void Robot::getAngleDistanceToWaypoint(Vector2& pos, double yaw, Vector2& wp, double& angle, double& distance)
 {
-  // obtain the direction and vector of the robot
-  Vector2 dir(cos(yaw), sin(yaw));
-
-  // center waypoint to the origin then normalize it
-  Vector2 wpNorm = wp - pos;
-  Vector2::normalize(wpNorm);
-
   // calculate the distance between the robot and the given waypoint
   distance = Vector2::getMagnitude(pos - wp);
 
+  // center the waypoint with the robot's position as the origin
+  Vector2 centered = wp - pos;
+
   // find the angle to rotate the robot so that it faces the given waypoint
-  angle = acos(wpNorm.x * dir.x + wpNorm.y * dir.y);
-
-  // zed value for cross product. If negative, flip angle
-  if (wpNorm.x * dir.y - wpNorm.y * dir.x > 0)
-  {
-    angle *= -1;
-  }
-}
-
-/**
- * Gets Robot Yaw rotation based on odometry
- * @return Yaw rotation as double
- */
-double Robot::getOdometerYaw()
-{
-  return pp.GetYaw();
+  // while constraining it to be between -pi and pi
+  angle = fmod(atan2(centered.y, centered.x) - yaw + M_PI, 2.0 * M_PI);
+  angle += angle < 0 ? M_PI : -M_PI;
 }
 
 /**
@@ -181,6 +167,15 @@ double Robot::getOdometerYaw()
 Vector2 Robot::getOdometerPos()
 {
   return Vector2(pp.GetXPos(), pp.GetYPos());
+}
+
+/**
+ * Gets Robot Yaw rotation based on odometry
+ * @return Yaw rotation as double
+ */
+double Robot::getOdometerYaw()
+{
+  return pp.GetYaw();
 }
 
 /**
@@ -219,6 +214,15 @@ bool Robot::isLeftPressed()
 bool Robot::isRightPressed()
 {
   return bp[1];
+}
+
+/**
+ * Returns true if both bumpers are pressed
+ * @return True if both bumpers are pressed
+ */ 
+bool Robot::isBothPressed()
+{
+  return bp[0] && bp[1];
 }
 
 /**
@@ -409,6 +413,21 @@ void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
 }
 
 /**
+ * Dislodges the robot from an obstacle by having it reverse by the given distance
+ * while ignoring any bumper presses.
+ *
+ * @param distance - the total distance to reverse
+ * @param velocity - the velocity to reverse at
+ */ 
+void Robot::dislodgeFromObstacle(double distance, double velocity)
+{
+  // backup by given distance in order to dislodge the robot
+  isHandlingBump = true;
+  moveForwardByMeters(-distance, velocity);
+  isHandlingBump = false;
+}
+
+/**
  * Extends the Proximity2dProxy's SetSpeed() method to allow for more flexibility when
  * rotating the robot
  *
@@ -437,63 +456,6 @@ void Robot::setSpeed(double forwardVelocity, double angularVelocity, TurnDirecti
 }
 
 /**
- * Corrects the robot's position if a bumper has been pressed by adjusting its
- * orientation and location based on the given parameters.
- *
- * @param bumpConfig  - how the robot should respond to bumpers being pressed
- * @param angle       - the angle to rotate the robot
- * @param distance    - the distance for the robot to move
- * @param velocity    - the velocity to move at
- * @param angVelocity - the velocity to rotate at
- */
-void Robot::handleBump(HandleBumpConfig bumpConfig,
-                       double angle, double distance,
-                       double velocity, double angVelocity)
-{
-  robot.Read();
-  bool isLeft  = isLeftPressed(),
-       isRight = isRightPressed();
-
-  // return if neither bumper is pressed
-  if (!(isLeft || isRight)) return;
-
-  TurnDirection::Enum dir;
-
-  // determine how to rotate the robot
-  if      (isLeft && isRight) dir = bumpConfig.both;
-  else if (isLeft)            dir = bumpConfig.left;
-  else                        dir = bumpConfig.right;
-
-  // adjust the angle depending on the robot should rotate
-  switch(dir)
-  {
-    case TurnDirection::Random:
-      srand(time(NULL));
-      angle *= rand() % 2 ? 1 : -1;
-      break;
-
-    case TurnDirection::Right:
-      angle *= -1;
-      break;
-
-    case TurnDirection::None:
-      angle = 0;
-      break;
-  }
-
-  // robot is now addressing bumper press event
-  isHandlingBump = true;
-
-  // correct robot position by dislodging it
-  moveForwardByMeters(-distance, velocity);  // back up by the given distance
-  rotateByRadians(angle, angVelocity);       // rotate by the given angle
-  moveForwardByMeters(distance, velocity);   // move forward by the given distance
-
-  // robot has finished addressing the bumper press event
-  isHandlingBump = false;
-}
-
-/**
  * Returns true if the robot has reached the given waypoint within the
  * given error range
  *
@@ -512,67 +474,71 @@ bool Robot::hasReachedWaypoint(Vector2& pos, Vector2& wp, double errorRange)
 /**
  * The robot will move to the specified Waypoint even if obstacles are in the way
  *
- * @param wp              - the waypoint for the robot to move to
- * @param useLocalization - uses localization if set to true. Otherwise, use odometry
- * @param velocity        - velocity for the robot to move in m/s
- * @param angularVelocity - angular velocity for the robot to rotate in rad/s
- * @param errorRange      - minimum distance robot must be from waypoint in meters
+ * @param wp               - the waypoint for the robot to move to
+ * @param bumperEventState - how the robot should respond to bumpers being pressed
+ * @param useLocalization  - uses localization if set to true. Otherwise, use odometry
+ * @param velocity         - velocity for the robot to move in m/s
+ * @param angularVelocity  - angular velocity for the robot to rotate in rad/s
+ * @param errorRange       - minimum distance robot must be from waypoint in meters
  */ 
-void Robot::moveToWaypoint(Vector2& wp, bool useLocalization, double velocity, double angularVelocity, double errorRange)
+void Robot::moveToWaypoint(Vector2& wp,
+                           BumperEventState& bumperEventState,
+                           bool useLocalization,
+                           double velocity,
+                           double angularVelocity,
+                           double errorRange)
 {
   // move to waypoint wp until within the error range
-  Vector2 pos;
-  double yaw, angle, distance;
-  do
+  Vector2 pos, lastPos;
+  double  yaw, lastYaw, angle, distance;
+  while (1)
   {
     robot.Read();
 
     // get robot's current position based on either localization or odometry
-    if (useLocalization)
-    {
-      pos = getLocalizedPos();
-      yaw = getLocalizedYaw();
-    }
-    else
-    {
-      pos = getOdometerPos();
-      yaw = getOdometerYaw();
-    }
-       
+    if (useLocalization) { pos = getLocalizedPos(); yaw = getLocalizedYaw(); }
+    else                 { pos = getOdometerPos();  yaw = getOdometerYaw();  }
+ 
     // obtain angle and distance needed to reach the waypoint
     getAngleDistanceToWaypoint(pos, yaw, wp, angle, distance);
+
+    // return if we reached the waypoint or if no movement was made
+    if (hasReachedWaypoint(pos, wp, errorRange) ||
+       (lastPos == pos && lastYaw == yaw))
+    {
+      return;
+    }
+
+    lastPos = pos;
+    lastYaw = yaw;
 
     // rotate towards then travel to the given waypoint
     rotateByRadians(angle, angularVelocity);
     moveForwardByMeters(distance, velocity);
    
-    // print robot's current position
-    std::cout << "\n";
-    if (useLocalization) printLocalizedPosition();
-    else                 printOdometerPosition();
-
     // handle any bumper events
-    handleBump();
-  } while (!hasReachedWaypoint(pos, wp, errorRange));
+    bumperEventState.handleBump(this);
+  }
 }
 
 /**
  * The robot will constantly move forward whilst only relying on its laser.
  * It will cease movement upon reaching a dead end.
  *
+ * @param tickDuration    - the number of ticks to apply auto pilot for
  * @param forwardVelocity - velocity that the robot moves forward at in m/s
  * @param angularVelocity - angular velocity that the robot rotates at in rad/s
  */ 
-void Robot::autoPilotLaser(double forwardVelocity, double angularVelocity)
+void Robot::autoPilotLaser(int tickDuration, double forwardVelocity, double angularVelocity)
 {
-  if (!sp) return;
+  if (!sp || tickDuration <= 0) return;
 
-  double minLeft, minRight;
-  TurnDirection::Enum dir;
+  double minLeft, minRight; // length of left and right laser
+  TurnDirection::Enum dir;  // direction the robot should turn
 
-  while (1)
+  for (int i = 0; i < tickDuration; i++)
   {
-    printLaserData();
+    robot.Read();
 
     // get min left and right data from the laser
     minLeft  = sp->MinLeft();
@@ -581,12 +547,121 @@ void Robot::autoPilotLaser(double forwardVelocity, double angularVelocity)
     // reached a dead end, stop moving
     if (minLeft < 0.30 && minRight < 0.30) break;
 
-    // steady the robot to the center of its lane
-    if      (minLeft < 1.225 && minRight < 1.225) dir = TurnDirection::None;
-    else if (minRight < minLeft)                  dir = TurnDirection::Left;
-    else if (minRight > minLeft)                  dir = TurnDirection::Right;
+    // determine the direction to rotate
+    dir = minRight < minLeft ? TurnDirection::Left : TurnDirection::Right;
 
     // move robot
     setSpeed(forwardVelocity, angularVelocity, dir);
   }
 }
+
+/**
+ * Constructor for a new BumperEventState object
+ *
+ * @param distance        - the distance the robot should move (depending on the concrete subclasses)
+ * @param velocity        - the overall velocity of the robot
+ * @param angularVelocity - the overall angular velocity of the robot
+ */ 
+BumperEventState::BumperEventState(double distance,
+                                   double velocity,
+                                   double angularVelocity) :
+    distance(distance),
+    velocity(velocity),
+    angularVelocity(angularVelocity) {}
+
+/**
+ * Constructor for a new SimbleBumper object
+ *
+ * @both                  - the direction to turn when both bumpers are pressed
+ * @left                  - the direction to turn when the left bumper is pressed
+ * @right                 - the direction to turn when the right bumper is pressed
+ * @angle                 - the number of radians the robot should rotate
+ * @param distance        - the distance the robot should move forwards and backwards
+ * @param velocity        - the velocity of the robot
+ * @param angularVelocity - the angular velocity of the robot
+ */
+SimpleBumper::SimpleBumper(TurnDirection::Enum both,
+                           TurnDirection::Enum left,
+                           TurnDirection::Enum right, 
+                           double angle, 
+                           double distance,
+                           double velocity,
+                           double angularVelocity) :
+    BumperEventState(distance, velocity, angularVelocity),
+    both(both),
+    left(left),
+    right(right),
+    angle(angle) {}
+
+/**
+ * Constructor for a new SimbleBumper object
+ *
+ * @param ticks           - the number of ticks to apply auto-pilot for
+ * @param distance        - the distance the robot should backup
+ * @param velocity        - the velocity of the robot
+ * @param angularVelocity - the angular velocity of the robot
+ */
+AutoPilot::AutoPilot(int    ticks,
+                     double distance,
+                     double velocity,
+                     double angularVelocity) :
+    BumperEventState(distance, velocity, angularVelocity),
+    ticks(ticks) {}
+
+/**
+ * Handles bumper events by having the robot back up, rotate slightly based
+ * on which bumper was pressed, and then move foward by the same distance it
+ * backed up. The main idea is to slightly adjust the robot's position in the
+ * hope that this will allow it to circumnavigate whatever obstacle lies before it.
+ *
+ * @param Pointer to the robot that is correcting its position.
+ */ 
+void SimpleBumper::handleBump(Robot *robot)
+{
+  robot->read();
+  if (!robot->isAnyPressed()) return;
+
+  // turning right by default
+  TurnDirection::Enum dir = right;
+
+  // determine how to rotate the robot
+  if      (robot->isBothPressed()) dir = both;
+  else if (robot->isLeftPressed()) dir = left;
+
+  // adjust the angle depending on how the robot should rotate
+  double finalAngle = angle;
+  if (dir == TurnDirection::Random)
+  {
+    srand(time(NULL));
+    finalAngle *= rand() % 2 ? 1 : -1;
+  }
+  else if (dir == TurnDirection::Right) finalAngle *= -1;
+  else if (dir == TurnDirection::None)  finalAngle  = 0;
+
+  // adjust the robot's position
+  robot->dislodgeFromObstacle(distance, velocity);     // back up by the given distance
+  robot->rotateByRadians(finalAngle, angularVelocity); // rotate by the given angle
+  robot->moveForwardByMeters(distance, velocity);      // move forward by the given distance
+}
+
+/**
+ * Handles bumper events by having the robot back up followed by
+ * temporarily utilizing laser-based auto-pilot. The main idea is
+ * to have the robot slightly adjust its position with the help of
+ * its lasers to circumnavigate whatever obstacle lies before it.
+ *
+ * @param Pointer to the robot that is correcting its position.
+ */ 
+void AutoPilot::handleBump(Robot *robot)
+{
+  // if no bumpers were pressed, return
+  robot->read();
+  if (!robot->isAnyPressed()) return;
+
+  // backup from the obstacle
+  robot->dislodgeFromObstacle(distance, velocity);
+
+  // engage auto-pilot
+  robot->autoPilotLaser(ticks, velocity, angularVelocity);
+}
+

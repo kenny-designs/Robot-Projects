@@ -2,6 +2,8 @@
 #define VECTOR2_H
 #pragma once
 
+#include <ostream>
+
 /**
  * Struct used to represent a vector in 2D space
  */
@@ -23,6 +25,9 @@ struct Vector2
   // Overload comparison
   bool operator==(Vector2 const& other);
   bool operator!=(Vector2 const& other);
+
+  // Printing to ostream
+  friend std::ostream& operator<<(std::ostream& out, const Vector2& vec);
 
   // Static helper methods
   static double getMagnitude(Vector2 const& vec2);
