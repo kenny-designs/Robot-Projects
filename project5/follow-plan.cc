@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     std::cout << "\nNow moving to coordinate: " << waypoints[i] << "\n";
 
     // move to given location
-    robot.moveToWaypoint(waypoints[i], bumperState, true, 3.0, 0.5, 0.3);
+    robot.moveToWaypoint(waypoints[i], bumperState, true, 1.0, 0.5, 0.3);
 
     // report the robot's actual final location
     std::cout << "Now at the following position:\n";

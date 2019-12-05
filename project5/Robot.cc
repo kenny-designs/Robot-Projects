@@ -113,11 +113,9 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     diff = curPos - lastPos;
     if (Vector2::getMagnitude(diff) > fabs(forwardVelocity * velocityScale))
     {
-      /*
       std::cout << "Magnitude: " << Vector2::getMagnitude(diff) << "\n";
       std::cout << "Velocity:  " << fabs(forwardVelocity * velocityScale) << "\n";
       std::cout << "You went too far!\n";
-      */
       break;
     }
     
@@ -456,7 +454,7 @@ bool Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
   // return true if the robot is reasonably close to it's predicted yaw
   robot.Read();
   double actualYaw = getLocalizedYaw();
-  printf("Predicted yaw: %f,\nactual yaw: %f\n", yawPrediction, actualYaw);
+  //printf("Predicted yaw: %f,\nactual yaw: %f\n", yawPrediction, actualYaw);
 
   // check if the actual yaw is within 0.1rad
   if (actualYaw >= yawPrediction - 0.1 && actualYaw <= yawPrediction + 0.1)
