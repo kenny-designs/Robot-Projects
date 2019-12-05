@@ -77,6 +77,10 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
   // double ticks to account for proportional control
   ticks *= 2;
 
+  // TODO: remove if proves to be not useful
+  robot.Read();
+  Vector2 diff, lastPos, curPos = getLocalizedPos();
+
   // Enter movement control loop
   for (int curTick = 1; curTick <= ticks; ++curTick)
   {
@@ -86,8 +90,24 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     // scale velocity based on current and max ticks
     velocityScale = (1.0 - ((double)curTick) / ((double)ticks));
 
+    // set the last position to be our current one
+    lastPos = curPos;
+
     // move the robot
     pp.SetSpeed(forwardVelocity * velocityScale, angularVelocity * velocityScale);
+
+    // obtain the current position
+    curPos = getLocalizedPos();
+
+    // TODO: double check this all works
+    diff = curPos - lastPos;
+    if (Vector2::getMagnitude(diff) > fabs(forwardVelocity * velocityScale))
+    {
+      std::cout << "Magnitude: " << Vector2::getMagnitude(diff) << "\n";
+      std::cout << "Velocity:  " << fabs(forwardVelocity * velocityScale) << "\n";
+      std::cout << "You went too far!\n";
+      break;
+    }
     
     // break if a bumper has been pressed and we're not currently handling a bumper event
     if (!isHandlingBump && isAnyPressed()) break;
