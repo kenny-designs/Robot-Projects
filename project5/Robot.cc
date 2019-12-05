@@ -60,6 +60,16 @@ void Robot::read()
 }
 
 /**
+ * Clamps the given yaw to -PI to PI
+ * @return the clamped yaw
+ */ 
+double Robot::clampYawToPi(double yaw)
+{
+  yaw = fmod(yaw + M_PI, 2.0 * M_PI);
+  return yaw + (yaw < 0 ? M_PI : -M_PI);
+}
+
+/**
  * Move and rotate the robot over the given number of ticks
  *
  * @param forwardVelocity - forward velocity to move in meters per second
@@ -103,9 +113,11 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     diff = curPos - lastPos;
     if (Vector2::getMagnitude(diff) > fabs(forwardVelocity * velocityScale))
     {
+      /*
       std::cout << "Magnitude: " << Vector2::getMagnitude(diff) << "\n";
       std::cout << "Velocity:  " << fabs(forwardVelocity * velocityScale) << "\n";
       std::cout << "You went too far!\n";
+      */
       break;
     }
     
@@ -176,8 +188,9 @@ void Robot::getAngleDistanceToWaypoint(Vector2& pos, double yaw, Vector2& wp, do
 
   // find the angle to rotate the robot so that it faces the given waypoint
   // while constraining it to be between -pi and pi
-  angle = fmod(atan2(centered.y, centered.x) - yaw + M_PI, 2.0 * M_PI);
-  angle += angle < 0 ? M_PI : -M_PI;
+  //angle = fmod(atan2(centered.y, centered.x) - yaw + M_PI, 2.0 * M_PI);
+  //angle += angle < 0 ? M_PI : -M_PI;
+  angle = clampYawToPi(atan2(centered.y, centered.x) - yaw);
 }
 
 /**
@@ -402,8 +415,9 @@ void Robot::setMotorEnable(bool isMotorEnabled)
  * @param distanceInMeters - total distance to move in meters. Negative values move backwards
  * @param forwardVelocity  - rate to move forward in meters per second. Negative values
  *                           move backwards
+ * @return true if the robot managed to reach the intended location. False otherwise
  */
-void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
+bool Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
 {
   // scale movement
   distanceInMeters *= MOVEMENT_SCALE;
@@ -412,6 +426,8 @@ void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
   getFinalTicksAndVelocity(distanceInMeters, forwardVelocity, ticks);
 
   moveAndRotateOverTicks(forwardVelocity, 0, ticks);
+
+  return true;
 }
 
 /**
@@ -420,16 +436,35 @@ void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
  * @param radiansToRotate - total angular distance to rotate in radians. Negative values rotate clockwise
  * @param angularVelocity - rate to rotate in radians per second. Negative values
  *                          rotate clockwise
+ * @return true if the robot managed to reach the intended rotation. False otherwise
  */ 
-void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
+bool Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
 {
   // scale rotation
   radiansToRotate *= ROTATION_SCALE;
+
+  // obtain the current rotation
+  // TODO: make sure this works as intended
+  robot.Read();
+  double yawPrediction = clampYawToPi(getLocalizedYaw() + radiansToRotate);
 
   int ticks;
   getFinalTicksAndVelocity(radiansToRotate, angularVelocity, ticks);
 
   moveAndRotateOverTicks(0, angularVelocity, ticks);
+
+  // return true if the robot is reasonably close to it's predicted yaw
+  robot.Read();
+  double actualYaw = getLocalizedYaw();
+  printf("Predicted yaw: %f,\nactual yaw: %f\n", yawPrediction, actualYaw);
+
+  // check if the actual yaw is within 0.1rad
+  if (actualYaw >= yawPrediction - 0.1 && actualYaw <= yawPrediction + 0.1)
+  {
+    return true;
+  }
+
+  return false;
 }
 
 /**
@@ -533,8 +568,8 @@ void Robot::moveToWaypoint(Vector2& wp,
     lastYaw = yaw;
 
     // rotate towards then travel to the given waypoint
-    rotateByRadians(angle, angularVelocity);
-    moveForwardByMeters(distance, velocity);
+    bool isRotateSuccess = rotateByRadians(angle, angularVelocity);
+    if (isRotateSuccess) moveForwardByMeters(distance, velocity);
    
     // handle any bumper events
     bumperEventState.handleBump(this);

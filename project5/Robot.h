@@ -64,6 +64,10 @@ public:
   // read from the environment
   void read();
 
+  // TODO: perhaps find a better place for this. Also, find a better name
+  // utility
+  double clampYawToPi(double yaw);
+
   // get position based on odometer
   Vector2 getOdometerPos();
   double getOdometerYaw();
@@ -98,8 +102,8 @@ public:
   void setMotorEnable(bool isMotorEnabled);
 
   // handle basic movement
-  void moveForwardByMeters(double distanceInMeters, double forwardVelocity = 0.5);
-  void rotateByRadians(double radiansToRotate, double angularVelocity = 0.5);
+  bool moveForwardByMeters(double distanceInMeters, double forwardVelocity = 0.5);
+  bool rotateByRadians(double radiansToRotate, double angularVelocity = 0.5);
   void dislodgeFromObstacle(double distance, double velocity);
 
   // wrapper method for pp.SetSpeed()
