@@ -81,15 +81,18 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
   // invalid ticks
   if (ticks < 1) return;
 
-  // scale velocity for proportional control
-  double velocityScale;
+  double velocityScale, // scale velocity for proportional control
+         movementDiff;  // difference between movement last tick and velocity
+
+  Vector2 lastPos, // robot's position before moving this tick
+          curPos;  // robot's position after moving
 
   // double ticks to account for proportional control
   ticks *= 2;
 
-  // TODO: remove if proves to be not useful
+  // obtain robot's initial position
   robot.Read();
-  Vector2 diff, lastPos, curPos = getLocalizedPos();
+  curPos = getLocalizedPos();
 
   // Enter movement control loop
   for (int curTick = 1; curTick <= ticks; ++curTick)
@@ -106,19 +109,15 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     // move the robot
     pp.SetSpeed(forwardVelocity * velocityScale, angularVelocity * velocityScale);
 
-    // obtain the current position
+    // obtain the new current position
     curPos = getLocalizedPos();
 
-    // TODO: double check this all works
-    diff = curPos - lastPos;
-    if (Vector2::getMagnitude(diff) > fabs(forwardVelocity * velocityScale))
-    {
-      std::cout << "Magnitude: " << Vector2::getMagnitude(diff) << "\n";
-      std::cout << "Velocity:  " << fabs(forwardVelocity * velocityScale) << "\n";
-      std::cout << "You went too far!\n";
-      break;
-    }
-    
+    // find the difference between how far the robot moved compared to what was expected
+    movementDiff = Vector2::getMagnitude(curPos - lastPos) - fabs(forwardVelocity * TICK_INTERVAL * velocityScale);
+
+    // break if difference is too large (sign that the robot has been kidnapped)
+    if (movementDiff > 0.2) break;
+
     // break if a bumper has been pressed and we're not currently handling a bumper event
     if (!isHandlingBump && isAnyPressed()) break;
   }
@@ -438,13 +437,12 @@ bool Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
  */ 
 bool Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
 {
-  // scale rotation
-  radiansToRotate *= ROTATION_SCALE;
-
   // obtain the current rotation
-  // TODO: make sure this works as intended
   robot.Read();
   double yawPrediction = clampYawToPi(getLocalizedYaw() + radiansToRotate);
+
+  // scale rotation
+  radiansToRotate *= ROTATION_SCALE;
 
   int ticks;
   getFinalTicksAndVelocity(radiansToRotate, angularVelocity, ticks);
@@ -454,15 +452,10 @@ bool Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
   // return true if the robot is reasonably close to it's predicted yaw
   robot.Read();
   double actualYaw = getLocalizedYaw();
-  //printf("Predicted yaw: %f,\nactual yaw: %f\n", yawPrediction, actualYaw);
+  printf("Predicted yaw: %f,\nactual yaw: %f\n", yawPrediction, actualYaw);
 
-  // check if the actual yaw is within 0.1rad
-  if (actualYaw >= yawPrediction - 0.1 && actualYaw <= yawPrediction + 0.1)
-  {
-    return true;
-  }
-
-  return false;
+  // return true if actual yaw is close to the predicted yaw
+  return actualYaw >= yawPrediction - 0.05 && actualYaw <= yawPrediction + 0.05;
 }
 
 /**
