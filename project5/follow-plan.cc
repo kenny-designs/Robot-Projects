@@ -144,7 +144,6 @@ std::vector<Vector2> getWaypoints()
   return vec;
 }
 
-
 /**
  * Has the robot follow a given series of waypoints
  *

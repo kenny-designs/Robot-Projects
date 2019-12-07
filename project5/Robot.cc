@@ -81,11 +81,12 @@ double Robot::clampYawToPi(double yaw)
  * @param forwardVelocity - forward velocity to move in meters per second
  * @param angularVelocity - angular velocity to rotate in radians per second
  * @param ticks           - number of ticks to apply the forward/angular velocities to the robot for
+ * @return true if the robot completed the entirety of its movement
  */
-void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks)
+bool Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks)
 {
   // invalid ticks
-  if (ticks < 1) return;
+  if (ticks < 1) return false;
 
   double velocityScale, // scale velocity for proportional control
          movementDiff;  // difference between movement last tick and velocity
@@ -101,7 +102,8 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
   curPos = getLocalizedPos();
 
   // Enter movement control loop
-  for (int curTick = 1; curTick <= ticks; ++curTick)
+  int curTick;
+  for (curTick = 1; curTick < ticks; ++curTick)
   {
     // read from proxies
     robot.Read();
@@ -132,6 +134,9 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
 
   // stop moving
   pp.SetSpeed(0, 0);
+
+  // return true if we finished the entirey of the robot's movement
+  return curTick == ticks;
 }
 
 /**
@@ -449,8 +454,9 @@ void Robot::setMotorEnable(bool isMotorEnabled)
  * @param distanceInMeters - total distance to move in meters. Negative values move backwards
  * @param forwardVelocity  - rate to move forward in meters per second. Negative values
  *                           move backwards
+ * @return true if entire movement was completed
  */
-void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
+bool Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
 {
   // scale movement
   distanceInMeters *= MOVEMENT_SCALE;
@@ -467,8 +473,9 @@ void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
  * @param radiansToRotate - total angular distance to rotate in radians. Negative values rotate clockwise
  * @param angularVelocity - rate to rotate in radians per second. Negative values
  *                          rotate clockwise
+ * @return true if entire rotation was completed
  */ 
-void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
+bool Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
 {
   // scale rotation
   radiansToRotate *= ROTATION_SCALE;
@@ -552,7 +559,11 @@ void Robot::rotateToFaceWaypoint(Vector2& wp, double angularVelocity, double err
 {
   double yawPrediction,   // the predicted final yaw of the robot
          actualYaw,       // the actual final yaw of the robot
-         radiansToRotate; // the number of radians to rotate to face the waypoint
+         radiansToRotate, // the number of radians to rotate to face the waypoint
+         maxAngVelocity;  // the maximum velocity for the robot to rotate
+
+  // by default, the given angularVelocity if the maximum velocity for the robot to rotate
+  maxAngVelocity = angularVelocity;
 
   // continuously rotate the robot until it is facing the waypoint as close as possible
   while (1)
@@ -562,8 +573,12 @@ void Robot::rotateToFaceWaypoint(Vector2& wp, double angularVelocity, double err
     radiansToRotate = getAngleToWaypoint(wp);
     yawPrediction   = clampYawToPi(getYaw() + radiansToRotate);
 
-    // rotate the robot
-    rotateByRadians(radiansToRotate, angularVelocity);
+    // if the robot is unable to complete it's rotation, reset angular velocity and continue
+    if (!rotateByRadians(radiansToRotate, angularVelocity))
+    {
+      angularVelocity = maxAngVelocity;
+      continue;
+    }
 
     // obtain the actual final yaw
     robot.Read();

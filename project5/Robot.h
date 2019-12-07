@@ -53,7 +53,7 @@ class Robot
                ROTATION_SCALE;
 
   // movement
-  void moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks);
+  bool moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks);
   void getFinalTicksAndVelocity(double distance, double& velocity, int& ticks);
 
   // waypoint movement
@@ -116,8 +116,8 @@ public:
   void setMotorEnable(bool isMotorEnabled);
 
   // handle basic movement
-  void moveForwardByMeters(double distanceInMeters, double forwardVelocity = 0.5);
-  void rotateByRadians(double radiansToRotate, double angularVelocity = 0.5);
+  bool moveForwardByMeters(double distanceInMeters, double forwardVelocity = 0.5);
+  bool rotateByRadians(double radiansToRotate, double angularVelocity = 0.5);
   void dislodgeFromObstacle(double distance, double velocity);
 
   // wrapper method for pp.SetSpeed()
