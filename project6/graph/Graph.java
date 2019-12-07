@@ -146,10 +146,6 @@ public class Graph {
       for (int i = 0; i < cur.adjVerts.length; i++) {
         // check for adjacent vertex that comes before the current one
         if (cur.adjVerts[i] != null && cur.adjVerts[i].pathNum == cur.pathNum - 1) {
-
-          // TODO: remove. Only used for visualizing
-          cur.pathNum = -5;
-
           // if we change directions, add to waypoints
           if (i != lastDir) {
             lastDir = i;
@@ -208,7 +204,7 @@ public class Graph {
 
     // obtain a list of vertices for the robot to follow
     LinkedList<Vertex> waypoints = generateWavefrontWaypoints(startIndex, goalIndex);
-    resetAllVertices();
+    //resetAllVertices();
 
     // mark waypoints on the map
     for (Vertex v : waypoints) {
