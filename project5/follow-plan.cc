@@ -27,15 +27,6 @@ int main(int argc, char *argv[])
 
   // follow the generated plan
   followPlan(waypoints, robot);
-
-  // TODO: remove
-  std::vector<Vector2> square;
-  square.push_back(Vector2(-3.0, -7.0));
-  square.push_back(Vector2(-3.0, -4.0));
-  square.push_back(Vector2(-6.0, -4.0));
-  square.push_back(Vector2(-6.0, -7.0));
-  
-  //while (1) followPlan(square, robot);
 }
 
 /**
@@ -153,7 +144,6 @@ std::vector<Vector2> getWaypoints()
 void followPlan(std::vector<Vector2>& waypoints, Robot& robot)
 {
   // Determine how to handle bumper events
-  // SimpleBumper bumperState(TurnDirection::Left);
   AutoPilot bumperState;
 
   // Follow the plan
@@ -163,7 +153,7 @@ void followPlan(std::vector<Vector2>& waypoints, Robot& robot)
     std::cout << "\nNow moving to coordinate: " << waypoints[i] << "\n";
 
     // move to given location
-    robot.moveToWaypoint(waypoints[i], bumperState, 3.0, 1.0, 0.1);
+    robot.moveToWaypoint(waypoints[i], bumperState, 3.0, 1.0, 0.3);
 
     // report the robot's actual final location
     std::cout << "Now at the following position:\n";
