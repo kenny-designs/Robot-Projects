@@ -30,10 +30,10 @@ int main(int argc, char *argv[])
 
   // TODO: remove
   std::vector<Vector2> square;
-  square.push_back(Vector2(-4.0, -6.0));
-  square.push_back(Vector2(-4.0, -4.0));
+  square.push_back(Vector2(-3.0, -7.0));
+  square.push_back(Vector2(-3.0, -4.0));
   square.push_back(Vector2(-6.0, -4.0));
-  square.push_back(Vector2(-6.0, -6.0));
+  square.push_back(Vector2(-6.0, -7.0));
   
   while (1) followPlan(square, robot);
 }

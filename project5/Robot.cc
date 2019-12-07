@@ -85,8 +85,8 @@ double Robot::clampYawToPi(double yaw)
  */
 bool Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocity, int ticks)
 {
-  // invalid ticks
-  if (ticks < 1) return false;
+  // invalid ticks. return true for the robot technically completed the entirety of its movement
+  if (ticks < 1) return true;
 
   double velocityScale, // scale velocity for proportional control
          movementDiff;  // difference between movement last tick and velocity
@@ -135,7 +135,7 @@ bool Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
   // stop moving
   pp.SetSpeed(0, 0);
 
-  // return true if we finished the entirey of the robot's movement
+  // return true if we finished the entirety of the robot's movement
   return curTick == ticks;
 }
 
@@ -590,7 +590,11 @@ void Robot::rotateToFaceWaypoint(Vector2& wp, double angularVelocity, double err
 
     // halve the angular velocity to ensure the robot will eventually face the waypoint
     angularVelocity *= 0.5;
+
+    // TODO: remove
+    printf("Still need to rotate %f radians...\n", radiansToRotate);
   }
+  std::cout << "\n";
 }
 
 /**
