@@ -103,7 +103,7 @@ bool Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
 
   // Enter movement control loop
   int curTick;
-  for (curTick = 1; curTick < ticks; ++curTick)
+  for (curTick = 0; curTick < ticks; ++curTick)
   {
     // read from proxies
     robot.Read();
@@ -124,7 +124,7 @@ bool Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     movementDiff = Vector2::getMagnitude(curPos - lastPos) - fabs(forwardVelocity * TICK_INTERVAL * velocityScale);
 
     // break if difference is too large (sign that the robot has been kidnapped)
-    if (movementDiff > 0.2) { break; }
+    if (movementDiff > 0.2) break; 
 
     // break if a bumper has been pressed and we're not currently handling a bumper event
     if (!isHandlingBump && isAnyPressed()) break;
@@ -611,11 +611,8 @@ void Robot::moveToWaypoint(Vector2& wp,
   double maxVelocity = velocity;
 
   // move to waypoint wp until within the error range
-  while (1)
+  while (!hasReachedWaypoint(wp, errorRange))
   { 
-    // return if we reached the waypoint or if no movement was made
-    if (hasReachedWaypoint(wp, errorRange)) return;
-
     // face towards the waypoint
     rotateToFaceWaypoint(wp, angularVelocity);
 
