@@ -164,7 +164,7 @@ void followPlan(std::vector<Vector2>& waypoints, Robot& robot)
     std::cout << "\nNow moving to coordinate: " << waypoints[i] << "\n";
 
     // move to given location
-    robot.moveToWaypoint(waypoints[i], bumperState, 3.0, 0.5, 0.2);
+    robot.moveToWaypoint(waypoints[i], bumperState, 3.0, 1.0, 0.3);
 
     // report the robot's actual final location
     std::cout << "Now at the following position:\n";
