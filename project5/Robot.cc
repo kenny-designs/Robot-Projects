@@ -20,11 +20,17 @@
  * @param tickInterval  - the interval that of which the robot ticks at
  * @param hostname      - address to connect to
  */
-Robot::Robot(bool isUsingLaser, double movementScale, double rotationScale, double tickInterval,  std::string hostname) :
-  isHandlingBump(false),
+Robot::Robot(bool isUsingLaser,
+             double movementScale,
+             double rotationScale, 
+             PositionMethod::Enum posMethod,
+             double tickInterval,
+             std::string hostname) :
   MOVEMENT_SCALE(movementScale),
   ROTATION_SCALE(rotationScale),
   TICK_INTERVAL(tickInterval),
+  posMethod(posMethod),
+  isHandlingBump(false),
   robot(hostname),
   pp(&robot, 0),
   bp(&robot, 0),
@@ -60,7 +66,7 @@ void Robot::read()
 }
 
 /**
- * Clamps the given yaw to -PI to PI
+ * Clamps the given yaw between -PI to PI
  * @return the clamped yaw
  */ 
 double Robot::clampYawToPi(double yaw)
@@ -115,6 +121,8 @@ void Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     // find the difference between how far the robot moved compared to what was expected
     movementDiff = Vector2::getMagnitude(curPos - lastPos) - fabs(forwardVelocity * TICK_INTERVAL * velocityScale);
 
+    std::cout << "movementDiff: " << movementDiff << "\n";
+
     // break if difference is too large (sign that the robot has been kidnapped)
     if (movementDiff > 0.2) break;
 
@@ -167,27 +175,37 @@ void Robot::getFinalTicksAndVelocity(double distance, double& velocity, int& tic
 }
 
 /**
- * Generates the shortest angle and distance needed to reach a given waypoint.
+ * Generates the shortest angle the robot needs to face a given waypoint.
  *
- * @param pos      - the current position of the robot
- * @param yaw      - the current yaw of the robot
  * @param wp       - the waypoint we want to move to as a Vector2
- * @param angle    - angle the robot must turn to face the waypoint
- * @param distance - distance the robot must travel to reach the waypoint
+ * @return angle to face waypoint in radians
  */ 
-void Robot::getAngleDistanceToWaypoint(Vector2& pos, double yaw, Vector2& wp, double& angle, double& distance)
+double Robot::getAngleToWaypoint(Vector2& wp)
 {
-  // calculate the distance between the robot and the given waypoint
-  distance = Vector2::getMagnitude(pos - wp);
+  robot.Read();
+  Vector2 pos = getPos();
+  double  yaw = getYaw();
 
   // center the waypoint with the robot's position as the origin
   Vector2 centered = wp - pos;
 
-  // find the angle to rotate the robot so that it faces the given waypoint
-  // while constraining it to be between -pi and pi
-  //angle = fmod(atan2(centered.y, centered.x) - yaw + M_PI, 2.0 * M_PI);
-  //angle += angle < 0 ? M_PI : -M_PI;
-  angle = clampYawToPi(atan2(centered.y, centered.x) - yaw);
+  // find the angle to rotate between -pi and pi
+  return clampYawToPi(atan2(centered.y, centered.x) - yaw);
+}
+
+/**
+ * Obtains the distance between the given robot's position and the waypoint
+ *
+ * @param wp       - the waypoint we want to move to
+ * @return distance between the two points in meters
+ */ 
+double Robot::getDistanceToWaypoint(Vector2& wp)
+{
+  robot.Read();
+  Vector2 pos = getPos();
+
+  // calculate the distance between the robot and the given waypoint
+  return Vector2::getMagnitude(pos - wp); 
 }
 
 /**
@@ -221,11 +239,33 @@ Vector2 Robot::getLocalizedPos()
 
 /**
  * Gets Robot Yaw rotation based on localization
- * @return Localized Yaw rotation as double
+ * @return Robot's localized Yaw rotation as double
  */ 
 double Robot::getLocalizedYaw()
 {
   return getPoseFromLocalizeProxy().pa;
+}
+
+/**
+ * Gets the position of the robot based on which PositionMethod it is using
+ * @return Vector2 of the robot's current position
+ */ 
+Vector2 Robot::getPos()
+{
+  if (posMethod == PositionMethod::Localization) return getLocalizedPos();
+
+  return getOdometerPos();
+}
+
+/**
+ * Gets the robot's yaw rotation based on which PositionMethod it is using
+ * @return Robot's yaw rotation as double
+ */ 
+double Robot::getYaw()
+{
+  if (posMethod == PositionMethod::Localization) return getLocalizedYaw();
+
+  return getOdometerYaw();
 }
 
 /**
@@ -412,19 +452,18 @@ void Robot::setMotorEnable(bool isMotorEnabled)
  * @param distanceInMeters - total distance to move in meters. Negative values move backwards
  * @param forwardVelocity  - rate to move forward in meters per second. Negative values
  *                           move backwards
- * @return true if the robot managed to reach the intended location. False otherwise
  */
-bool Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
+void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
 {
   // scale movement
   distanceInMeters *= MOVEMENT_SCALE;
+
+  std::cout << "Moving\n";
 
   int ticks;
   getFinalTicksAndVelocity(distanceInMeters, forwardVelocity, ticks);
 
   moveAndRotateOverTicks(forwardVelocity, 0, ticks);
-
-  return true;
 }
 
 /**
@@ -452,7 +491,6 @@ bool Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
   // return true if the robot is reasonably close to it's predicted yaw
   robot.Read();
   double actualYaw = getLocalizedYaw();
-  printf("Predicted yaw: %f,\nactual yaw: %f\n", yawPrediction, actualYaw);
 
   // return true if actual yaw is close to the predicted yaw
   return actualYaw >= yawPrediction - 0.05 && actualYaw <= yawPrediction + 0.05;
@@ -505,16 +543,51 @@ void Robot::setSpeed(double forwardVelocity, double angularVelocity, TurnDirecti
  * Returns true if the robot has reached the given waypoint within the
  * given error range
  *
- * @param pos        - the waypoint the robot is currently at
  * @param wp         - the waypoint we are testing to see if we reached
  * @param errorRange - the range in which the robot must be to the wp
  * @return true if the robot has reached the robot. Otherwise, false
  */ 
-bool Robot::hasReachedWaypoint(Vector2& pos, Vector2& wp, double errorRange)
+bool Robot::hasReachedWaypoint(Vector2& wp, double errorRange)
 {
+  robot.Read();
+  Vector2 pos = getPos();
+
   // return true if reached the waypoint within the error range
   return (pos.x + errorRange > wp.x && pos.x - errorRange < wp.x) &&
          (pos.y + errorRange > wp.y && pos.y - errorRange < wp.y);
+}
+
+/**
+ * Rotates the robot to face the given waypoint as close as possible
+ * within the errorRange.
+ *
+ * @param pos        - the waypoint the robot is currently at
+ * @param wp         - the waypoint we are trying to face
+ * @param errorRange - the amount of error allowed when rotating to face the waypoint
+ */ 
+void Robot::rotateToFaceWaypoint(Vector2& pos, Vector2& wp, double angularVelocity, double errorRange)
+{
+  /*
+  double yawPrediction,
+         actualYaw,
+         radiansToRotate;
+  bool isFacing = false;
+
+  while (!isFacing)
+  {
+    robot.Read();
+    yawPrediction = clampYawToPi(getLocalizedYaw() + radiansToRotate);
+
+    rotateByRadians(double radiansToRotate, angularVelocity);
+
+    // return true if the robot is reasonably close to it's predicted yaw
+    robot.Read();
+    actualYaw = getLocalizedYaw();
+
+    isFacing = actualYaw >= yawPrediction - errorRange &&
+               actualYaw <= yawPrediction + errorRange
+  }
+  */
 }
 
 /**
@@ -522,46 +595,50 @@ bool Robot::hasReachedWaypoint(Vector2& pos, Vector2& wp, double errorRange)
  *
  * @param wp               - the waypoint for the robot to move to
  * @param bumperEventState - how the robot should respond to bumpers being pressed
- * @param useLocalization  - uses localization if set to true. Otherwise, use odometry
  * @param velocity         - velocity for the robot to move in m/s
  * @param angularVelocity  - angular velocity for the robot to rotate in rad/s
  * @param errorRange       - minimum distance robot must be from waypoint in meters
  */ 
 void Robot::moveToWaypoint(Vector2& wp,
                            BumperEventState& bumperEventState,
-                           bool useLocalization,
                            double velocity,
                            double angularVelocity,
                            double errorRange)
 {
+  Vector2 pos,      // the robot's current position
+          lastPos;  // the robot's previous position
+  double  yaw,      // the robot's current yaw
+          lastYaw,  // the robot's previous yaw
+          angle,    // the angle to rotate to face the waypoint
+          distance; // the distance to reach the waypoint
+
   // move to waypoint wp until within the error range
-  Vector2 pos, lastPos;
-  double  yaw, lastYaw, angle, distance;
   while (1)
   {
     robot.Read();
 
-    // get robot's current position based on either localization or odometry
-    if (useLocalization) { pos = getLocalizedPos(); yaw = getLocalizedYaw(); }
-    else                 { pos = getOdometerPos();  yaw = getOdometerYaw();  }
+    // get robot's current position and yaw
+    pos = getPos();
+    yaw = getYaw();
  
-    // obtain angle and distance needed to reach the waypoint
-    getAngleDistanceToWaypoint(pos, yaw, wp, angle, distance);
-
     // return if we reached the waypoint or if no movement was made
-    if (hasReachedWaypoint(pos, wp, errorRange) ||
-       (lastPos == pos && lastYaw == yaw))
-    {
-      return;
-    }
+    if (hasReachedWaypoint(wp, errorRange) || (lastPos == pos && lastYaw == yaw)) return;
 
     lastPos = pos;
     lastYaw = yaw;
 
-    // rotate towards then travel to the given waypoint
+    // obtain angle and distance needed to reach the waypoint
+    angle    = getAngleToWaypoint(wp);
+    distance = getDistanceToWaypoint(wp);
+
+    // rotate towards the waypoint
     bool isRotateSuccess = rotateByRadians(angle, angularVelocity);
+
+    // if successful, move forward
     if (isRotateSuccess) moveForwardByMeters(distance, velocity);
-   
+    //rotateToFaceWaypoint(pos, wp, angularVelocity); 
+    //moveForwardByMeters(distance, velocity);
+ 
     // handle any bumper events
     bumperEventState.handleBump(this);
   }

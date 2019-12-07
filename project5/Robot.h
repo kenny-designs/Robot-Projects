@@ -25,6 +25,14 @@ namespace TurnDirection
 }
 
 /**
+ * The method the robot should use to determine where it is
+ */
+namespace PositionMethod
+{
+  enum Enum { Localization, Odometry };
+}
+
+/**
  * Wrapper class used to simplify use of the Robot
  */ 
 class Robot
@@ -35,6 +43,7 @@ class Robot
   PlayerCc::LocalizeProxy   lp;         // Used to control a localize device for localization
   PlayerCc::LaserProxy     *sp;         // Laser proxy used to scan the environment
   bool isHandlingBump;                  // true if the robot is currently correcting its position due to a bumper press
+  PositionMethod::Enum posMethod;       // the default way for the robot to determine it's location
 
   // tick interval of the robot
   const double TICK_INTERVAL;
@@ -48,15 +57,17 @@ class Robot
   void getFinalTicksAndVelocity(double distance, double& velocity, int& ticks);
 
   // waypoint movement
-  void getAngleDistanceToWaypoint(Vector2& pos, double yaw, Vector2& wp, double& angle, double& distance);
+  double getAngleToWaypoint(Vector2& wp);
+  double getDistanceToWaypoint(Vector2& wp);
 
 public:
   // constructor
-  Robot(bool   isUsingLaser  = true,
-        double movementScale = 1.0,
-        double rotationScale = 1.0,
-        double tickInterval  = 0.1,
-        std::string hostname = "localhost");
+  Robot(bool   isUsingLaser            = true,
+        double movementScale           = 1.0,
+        double rotationScale           = 1.0,
+        PositionMethod::Enum posMethod = PositionMethod::Localization,
+        double tickInterval            = 0.1,
+        std::string hostname           = "localhost");
 
   // destructor
   ~Robot();
@@ -64,7 +75,6 @@ public:
   // read from the environment
   void read();
 
-  // TODO: perhaps find a better place for this. Also, find a better name
   // utility
   double clampYawToPi(double yaw);
 
@@ -75,6 +85,10 @@ public:
   // get position based on localization
   Vector2 getLocalizedPos();
   double getLocalizedYaw();
+
+  // obtains the robot's position depending on the posMethod member variable
+  Vector2 getPos();
+  double getYaw();
 
   // get status of bumpers
   bool isLeftPressed();
@@ -102,7 +116,7 @@ public:
   void setMotorEnable(bool isMotorEnabled);
 
   // handle basic movement
-  bool moveForwardByMeters(double distanceInMeters, double forwardVelocity = 0.5);
+  void moveForwardByMeters(double distanceInMeters, double forwardVelocity = 0.5);
   bool rotateByRadians(double radiansToRotate, double angularVelocity = 0.5);
   void dislodgeFromObstacle(double distance, double velocity);
 
@@ -112,10 +126,10 @@ public:
                 TurnDirection::Enum dir = TurnDirection::Left);
 
   // handle waypoint movement
-  bool hasReachedWaypoint(Vector2& pos, Vector2& wp, double errorRange);
+  bool hasReachedWaypoint(Vector2& wp, double errorRange);
+  void rotateToFaceWaypoint(Vector2& pos, Vector2& wp, double angularVelocity = 0.5, double errorRange = 0.05);
   void moveToWaypoint(Vector2& wp,
                       BumperEventState& bumperEventState,
-                      bool useLocalization   = false,
                       double velocity        = 0.5,
                       double angularVelocity = 0.5,
                       double errorRange      = 0.25);
