@@ -23,10 +23,10 @@ int main(int argc, char *argv[])
   Robot robot(true, 1.35, 1.35);
 
   // Generate waypoints needed to follow the given plan
-  //std::vector<Vector2> waypoints = getWaypoints();
+  std::vector<Vector2> waypoints = getWaypoints();
 
   // follow the generated plan
-  //followPlan(waypoints, robot);
+  followPlan(waypoints, robot);
 
   // TODO: remove
   std::vector<Vector2> square;
@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
   square.push_back(Vector2(-6.0, -4.0));
   square.push_back(Vector2(-6.0, -7.0));
   
-  while (1) followPlan(square, robot);
+  //while (1) followPlan(square, robot);
 }
 
 /**
@@ -163,7 +163,7 @@ void followPlan(std::vector<Vector2>& waypoints, Robot& robot)
     std::cout << "\nNow moving to coordinate: " << waypoints[i] << "\n";
 
     // move to given location
-    robot.moveToWaypoint(waypoints[i], bumperState, 3.0, 1.0, 0.3);
+    robot.moveToWaypoint(waypoints[i], bumperState, 3.0, 1.0, 0.1);
 
     // report the robot's actual final location
     std::cout << "Now at the following position:\n";

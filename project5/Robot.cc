@@ -123,10 +123,8 @@ bool Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     // find the difference between how far the robot moved compared to what was expected
     movementDiff = Vector2::getMagnitude(curPos - lastPos) - fabs(forwardVelocity * TICK_INTERVAL * velocityScale);
 
-    //std::cout << "movementDiff: " << movementDiff << "\n";
-
     // break if difference is too large (sign that the robot has been kidnapped)
-    if (movementDiff > 0.2) break;
+    if (movementDiff > 0.2) { break; }
 
     // break if a bumper has been pressed and we're not currently handling a bumper event
     if (!isHandlingBump && isAnyPressed()) break;
@@ -464,7 +462,7 @@ bool Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
   int ticks;
   getFinalTicksAndVelocity(distanceInMeters, forwardVelocity, ticks);
 
-  moveAndRotateOverTicks(forwardVelocity, 0, ticks);
+  return moveAndRotateOverTicks(forwardVelocity, 0, ticks);
 }
 
 /**
@@ -483,7 +481,7 @@ bool Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
   int ticks;
   getFinalTicksAndVelocity(radiansToRotate, angularVelocity, ticks);
 
-  moveAndRotateOverTicks(0, angularVelocity, ticks);
+  return moveAndRotateOverTicks(0, angularVelocity, ticks);
 }
 
 /**
@@ -590,9 +588,6 @@ void Robot::rotateToFaceWaypoint(Vector2& wp, double angularVelocity, double err
 
     // halve the angular velocity to ensure the robot will eventually face the waypoint
     angularVelocity *= 0.5;
-
-    // TODO: remove
-    printf("Still need to rotate %f radians...\n", radiansToRotate);
   }
   std::cout << "\n";
 }
@@ -612,27 +607,20 @@ void Robot::moveToWaypoint(Vector2& wp,
                            double angularVelocity,
                            double errorRange)
 {
-  Vector2 pos, lastPos; // the current and previous position of the robot
-  double  yaw, lastYaw; // the current and previous rotation of the robot
+  // the max velocity that the robot can travel at
+  double maxVelocity = velocity;
 
   // move to waypoint wp until within the error range
   while (1)
-  {
-    // log the previous position and yaw
-    lastPos = pos;
-    lastYaw = yaw;
-
-    // get the current position and yaw
-    robot.Read();
-    pos     = getPos();
-    yaw     = getYaw();
- 
+  { 
     // return if we reached the waypoint or if no movement was made
-    if (hasReachedWaypoint(wp, errorRange) || (lastPos == pos && lastYaw == yaw)) return;
+    if (hasReachedWaypoint(wp, errorRange)) return;
 
-    // face then travel towards the waypoint
-    rotateToFaceWaypoint(wp, angularVelocity); 
-    moveForwardByMeters(getDistanceToWaypoint(wp), velocity);
+    // face towards the waypoint
+    rotateToFaceWaypoint(wp, angularVelocity);
+
+    // if the robot was able to complete its movement, halve the velocity. Otherwise, reset it
+    velocity = moveForwardByMeters(getDistanceToWaypoint(wp), velocity) ? velocity * 0.5 : maxVelocity;
  
     // handle any bumper events
     bumperEventState.handleBump(this);

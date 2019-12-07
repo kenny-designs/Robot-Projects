@@ -127,7 +127,7 @@ public:
 
   // handle waypoint movement
   bool hasReachedWaypoint(Vector2& wp, double errorRange);
-  void rotateToFaceWaypoint(Vector2& wp, double angularVelocity = 0.5, double errorRange = 0.05);
+  void rotateToFaceWaypoint(Vector2& wp, double angularVelocity = 0.5, double errorRange = 0.0175);
   void moveToWaypoint(Vector2& wp,
                       BumperEventState& bumperEventState,
                       double velocity        = 0.5,
