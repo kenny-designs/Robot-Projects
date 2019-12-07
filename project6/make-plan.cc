@@ -7,22 +7,18 @@
 #include <vector>
 
 #define PLAN_INPUT_FILE_NAME  "plan-out.txt" // file that we are reading the plan from
-#define PLAN_OUTPUT_FILE_NAME "plan-out.txt" // file that we are writing the plan to
 #define MAP_INPUT_FILE_NAME   "map-out.txt"  // file that we are reading the map from
-#define MAP_OUTPUT_FILE_NAME  "map-out.txt"  // file that we are writing the map to
 
 const int SIZE = 32; // The number of squares per side of the occupancy grid
                      // (which we assume to be square)
 
 // Forward declarations
 void readMap(int[SIZE][SIZE]);
-void writeMap(int [SIZE][SIZE]);
 void printMap(int [SIZE][SIZE]);
 
 int  readPlanLength();
 void readPlan (double* plan, int length);
 void printPlan(double* plan, int length);  
-void writePlan(double* plan, int length);
 void followPlan(std::vector<Vector2>& waypoints, Robot& robot);
 std::vector<Vector2> getWaypoints();
 
@@ -81,29 +77,6 @@ void printMap(int map[SIZE][SIZE])
     }
     std::cout << std::endl;
   }
-}
-
-/**
- * writeMap
- *
- * Write a map into map-out.txt in such a way that the [0][0] element
- * ends up in the bottom left corner of the file (so that the contents
- * of the file look like the relevant occupancy grid.
- */
-void writeMap(int map[SIZE][SIZE])
-{
-  std::ofstream mapFile;
-  mapFile.open(MAP_OUTPUT_FILE_NAME);
-
-  for(int i = SIZE - 1; i >= 0; i--)
-  {
-    for(int j = 0; j < SIZE; j++)
-    {
-      mapFile << map[i][j];
-    }
-    mapFile << std::endl;
-  }
-  mapFile.close();
 }
 
 /**
@@ -168,24 +141,6 @@ void printPlan(double* plan, int length)
     }
   }
   std::cout << std::endl;
-}
-
-/**
- * Send the plan to the file PLAN_OUTPUT_FILE_NAME, preceeded by
- * the information about how long it is.
- */
-void writePlan(double* plan, int length)
-{
-  std::ofstream planFile;
-  planFile.open(PLAN_OUTPUT_FILE_NAME);
-
-  planFile << length << " ";
-  for(int i = 0; i < length; i++)
-  {
-    planFile << plan[i] << " ";
-  }
-
-  planFile.close();
 }
 
 /**

@@ -128,7 +128,7 @@ bool Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     // break if difference is too large (sign that the robot has been kidnapped)
     if (movementDiff > 0.2) break;
 
-    // break if we have reached the waypoint we are traveling to
+    // break if we have reached the waypoint we are heading towards
     if (targetWaypoint && forwardVelocity && hasReachedWaypoint(*targetWaypoint)) break;
 
     // break if a bumper has been pressed and we're not currently handling a bumper event

@@ -182,7 +182,7 @@ struct AutoPilot : public BumperEventState
   int ticks; // the number of ticks to apply auto pilot
 
   AutoPilot(int    ticks           = 50,
-            double distance        = 0.25,
+            double distance        = 0.5,
             double velocity        = 0.5,
             double angularVelocity = 1.0);
 
