@@ -8,6 +8,8 @@
 
 #define PLAN_INPUT_FILE_NAME  "plan-out.txt" // file that we are reading the plan from
 #define PLAN_OUTPUT_FILE_NAME "plan-out.txt" // file that we are writing the plan to
+#define MAP_INPUT_FILE_NAME   "map-out.txt"  // file that we are reading the map from
+#define MAP_OUTPUT_FILE_NAME  "map-out.txt"  // file that we are writing the map to
 
 const int SIZE = 32; // The number of squares per side of the occupancy grid
                      // (which we assume to be square)
@@ -34,28 +36,14 @@ int main(int argc, char *argv[])
   double *plan;
 
   // Map handling
-  //
-  // The occupancy grid is a square array of integers, each side of
-  // which is SIZE elements, in which each element is either 1 or 0. A
-  // 1 indicates the square is occupied, an 0 indicates that it is
-  // free space.
   readMap(oGrid);   // Read a map in from the file map.txt
   printMap(oGrid);  // Print the map on the screen
-  writeMap(oGrid);  // Write a map out to the file map-out.txt
 
   // Plan handling
-  // 
-  // A plan is an integer, n, followed by n doubles (n has to be
-  // even). The first and second doubles are the initial x and y
-  // (respectively) coordinates of the robot, the third and fourth
-  // doubles give the first location that the robot should move to, and
-  // so on. The last pair of doubles give the point at which the robot
-  // should stop.
   pLength = readPlanLength(); // Find out how long the plan is from plan.txt
   plan = new double[pLength]; // Create enough space to store the plan
   readPlan(plan, pLength);    // Read the plan from the file plan.txt.
   printPlan(plan,pLength);    // Print the plan on the screen
-  //writePlan(plan, pLength);   // Write the plan to the file plan-out.txt
 
   // Create robot with lasers enabled and movement+rotation scaled up by 1.35
   Robot robot(true, 1.35, 1.35);
@@ -80,7 +68,7 @@ int main(int argc, char *argv[])
 void readMap(int map[SIZE][SIZE])
 {
   std::ifstream mapFile;
-  mapFile.open("map.txt");
+  mapFile.open(MAP_INPUT_FILE_NAME);
 
   for(int i = SIZE - 1; i >= 0; i--)
   {
@@ -122,7 +110,7 @@ void printMap(int map[SIZE][SIZE])
 void writeMap(int map[SIZE][SIZE])
 {
   std::ofstream mapFile;
-  mapFile.open("map-out.txt");
+  mapFile.open(MAP_OUTPUT_FILE_NAME);
 
   for(int i = SIZE - 1; i >= 0; i--)
   {
