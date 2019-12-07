@@ -458,8 +458,6 @@ void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
   // scale movement
   distanceInMeters *= MOVEMENT_SCALE;
 
-  std::cout << "Moving\n";
-
   int ticks;
   getFinalTicksAndVelocity(distanceInMeters, forwardVelocity, ticks);
 
@@ -472,14 +470,9 @@ void Robot::moveForwardByMeters(double distanceInMeters, double forwardVelocity)
  * @param radiansToRotate - total angular distance to rotate in radians. Negative values rotate clockwise
  * @param angularVelocity - rate to rotate in radians per second. Negative values
  *                          rotate clockwise
- * @return true if the robot managed to reach the intended rotation. False otherwise
  */ 
-bool Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
+void Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
 {
-  // obtain the current rotation
-  robot.Read();
-  double yawPrediction = clampYawToPi(getLocalizedYaw() + radiansToRotate);
-
   // scale rotation
   radiansToRotate *= ROTATION_SCALE;
 
@@ -487,13 +480,6 @@ bool Robot::rotateByRadians(double radiansToRotate, double angularVelocity)
   getFinalTicksAndVelocity(radiansToRotate, angularVelocity, ticks);
 
   moveAndRotateOverTicks(0, angularVelocity, ticks);
-
-  // return true if the robot is reasonably close to it's predicted yaw
-  robot.Read();
-  double actualYaw = getLocalizedYaw();
-
-  // return true if actual yaw is close to the predicted yaw
-  return actualYaw >= yawPrediction - 0.05 && actualYaw <= yawPrediction + 0.05;
 }
 
 /**
@@ -561,33 +547,35 @@ bool Robot::hasReachedWaypoint(Vector2& wp, double errorRange)
  * Rotates the robot to face the given waypoint as close as possible
  * within the errorRange.
  *
- * @param pos        - the waypoint the robot is currently at
  * @param wp         - the waypoint we are trying to face
+ * @angularVelocity  - the angular velocity for the robot to rotate at in rad/s
  * @param errorRange - the amount of error allowed when rotating to face the waypoint
  */ 
-void Robot::rotateToFaceWaypoint(Vector2& pos, Vector2& wp, double angularVelocity, double errorRange)
+void Robot::rotateToFaceWaypoint(Vector2& wp, double angularVelocity, double errorRange)
 {
-  /*
-  double yawPrediction,
-         actualYaw,
-         radiansToRotate;
-  bool isFacing = false;
+  double yawPrediction,   // the predicted final yaw of the robot
+         actualYaw,       // the actual final yaw of the robot
+         radiansToRotate; // the number of radians to rotate to face the waypoint
 
-  while (!isFacing)
+  // continuously rotate the robot until it is facing the waypoint as close as possible
+  while (1)
   {
+    // determine how much the robot must rotate what its final rotation should be
     robot.Read();
-    yawPrediction = clampYawToPi(getLocalizedYaw() + radiansToRotate);
+    radiansToRotate = getAngleToWaypoint(wp);
+    yawPrediction   = clampYawToPi(getYaw() + radiansToRotate);
 
-    rotateByRadians(double radiansToRotate, angularVelocity);
+    // rotate the robot
+    rotateByRadians(radiansToRotate, angularVelocity);
 
-    // return true if the robot is reasonably close to it's predicted yaw
+    // obtain the actual final yaw
     robot.Read();
-    actualYaw = getLocalizedYaw();
+    actualYaw = getYaw();
 
-    isFacing = actualYaw >= yawPrediction - errorRange &&
-               actualYaw <= yawPrediction + errorRange
+    // break if the robot is reasonably close to it's predicted yaw
+    if (actualYaw >= yawPrediction - errorRange &&
+        actualYaw <= yawPrediction + errorRange) break;
   }
-  */
 }
 
 /**
@@ -630,14 +618,9 @@ void Robot::moveToWaypoint(Vector2& wp,
     // obtain angle and distance needed to reach the waypoint
     angle    = getAngleToWaypoint(wp);
     distance = getDistanceToWaypoint(wp);
-
-    // rotate towards the waypoint
-    bool isRotateSuccess = rotateByRadians(angle, angularVelocity);
-
-    // if successful, move forward
-    if (isRotateSuccess) moveForwardByMeters(distance, velocity);
-    //rotateToFaceWaypoint(pos, wp, angularVelocity); 
-    //moveForwardByMeters(distance, velocity);
+    
+    rotateToFaceWaypoint(wp, angularVelocity); 
+    moveForwardByMeters(distance, velocity);
  
     // handle any bumper events
     bumperEventState.handleBump(this);

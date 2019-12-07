@@ -117,7 +117,7 @@ public:
 
   // handle basic movement
   void moveForwardByMeters(double distanceInMeters, double forwardVelocity = 0.5);
-  bool rotateByRadians(double radiansToRotate, double angularVelocity = 0.5);
+  void rotateByRadians(double radiansToRotate, double angularVelocity = 0.5);
   void dislodgeFromObstacle(double distance, double velocity);
 
   // wrapper method for pp.SetSpeed()
@@ -127,7 +127,7 @@ public:
 
   // handle waypoint movement
   bool hasReachedWaypoint(Vector2& wp, double errorRange);
-  void rotateToFaceWaypoint(Vector2& pos, Vector2& wp, double angularVelocity = 0.5, double errorRange = 0.05);
+  void rotateToFaceWaypoint(Vector2& wp, double angularVelocity = 0.5, double errorRange = 0.05);
   void moveToWaypoint(Vector2& wp,
                       BumperEventState& bumperEventState,
                       double velocity        = 0.5,
