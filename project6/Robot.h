@@ -44,6 +44,7 @@ class Robot
   PlayerCc::LaserProxy     *sp;         // Laser proxy used to scan the environment
   bool isHandlingBump;                  // true if the robot is currently correcting its position due to a bumper press
   PositionMethod::Enum posMethod;       // the default way for the robot to determine it's location
+  Vector2 *targetWaypoint;              // used to make sure the robot does not overshoot its movement
 
   // tick interval of the robot
   const double TICK_INTERVAL;
@@ -126,7 +127,7 @@ public:
                 TurnDirection::Enum dir = TurnDirection::Left);
 
   // handle waypoint movement
-  bool hasReachedWaypoint(Vector2& wp, double errorRange);
+  bool hasReachedWaypoint(Vector2& wp, double errorRange = 0.1);
   void rotateToFaceWaypoint(Vector2& wp, double angularVelocity = 0.5, double errorRange = 0.0175);
   void moveToWaypoint(Vector2& wp,
                       BumperEventState& bumperEventState,
@@ -181,7 +182,7 @@ struct AutoPilot : public BumperEventState
   int ticks; // the number of ticks to apply auto pilot
 
   AutoPilot(int    ticks           = 50,
-            double distance        = 0.75,
+            double distance        = 0.25,
             double velocity        = 0.5,
             double angularVelocity = 1.0);
 

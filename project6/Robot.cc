@@ -31,6 +31,7 @@ Robot::Robot(bool isUsingLaser,
   TICK_INTERVAL(tickInterval),
   posMethod(posMethod),
   isHandlingBump(false),
+  targetWaypoint(NULL),
   robot(hostname),
   pp(&robot, 0),
   bp(&robot, 0),
@@ -52,8 +53,9 @@ Robot::~Robot()
   // turn off the motor
   setMotorEnable(false);
 
-  // free memory used by the laser proxy
+  // free memory
   delete sp;
+  delete targetWaypoint;
 
   // Have Mr. Robot say goodbye for it is the polite thing to do
   std::cout << "\nPowering off. Goodbye! o7\n";
@@ -124,7 +126,10 @@ bool Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     movementDiff = Vector2::getMagnitude(curPos - lastPos) - fabs(forwardVelocity * TICK_INTERVAL * velocityScale);
 
     // break if difference is too large (sign that the robot has been kidnapped)
-    if (movementDiff > 0.2) break; 
+    if (movementDiff > 0.2) break;
+
+    // break if we have reached the waypoint we are traveling to
+    if (targetWaypoint && forwardVelocity && hasReachedWaypoint(*targetWaypoint)) break;
 
     // break if a bumper has been pressed and we're not currently handling a bumper event
     if (!isHandlingBump && isAnyPressed()) break;
@@ -537,7 +542,6 @@ void Robot::setSpeed(double forwardVelocity, double angularVelocity, TurnDirecti
  */ 
 bool Robot::hasReachedWaypoint(Vector2& wp, double errorRange)
 {
-  robot.Read();
   Vector2 pos = getPos();
 
   // return true if reached the waypoint within the error range
@@ -610,9 +614,14 @@ void Robot::moveToWaypoint(Vector2& wp,
   // the max velocity that the robot can travel at
   double maxVelocity = velocity;
 
+  targetWaypoint = &wp;
+
   // move to waypoint wp until within the error range
-  while (!hasReachedWaypoint(wp, errorRange))
+  while (1)
   { 
+    robot.Read();
+    if(hasReachedWaypoint(wp, errorRange)) break;
+
     // face towards the waypoint
     rotateToFaceWaypoint(wp, angularVelocity);
 
@@ -622,6 +631,8 @@ void Robot::moveToWaypoint(Vector2& wp,
     // handle any bumper events
     bumperEventState.handleBump(this);
   }
+
+  targetWaypoint = NULL;
 }
 
 /**
