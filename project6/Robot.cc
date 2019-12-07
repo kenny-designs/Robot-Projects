@@ -120,7 +120,7 @@ bool Robot::moveAndRotateOverTicks(double forwardVelocity, double angularVelocit
     pp.SetSpeed(forwardVelocity * velocityScale, angularVelocity * velocityScale);
 
     // obtain the new current position
-    curPos = getLocalizedPos();
+    curPos = getPos();
 
     // find the difference between how far the robot moved compared to what was expected
     movementDiff = Vector2::getMagnitude(curPos - lastPos) - fabs(forwardVelocity * TICK_INTERVAL * velocityScale);

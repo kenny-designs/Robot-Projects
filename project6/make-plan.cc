@@ -28,23 +28,6 @@ std::vector<Vector2> getWaypoints();
 
 int main(int argc, char *argv[])
 {  
-  // The occupancy grid
-  int oGrid[SIZE][SIZE];
-
-  // The set of coordinates that makes up the plan
-  int pLength;
-  double *plan;
-
-  // Map handling
-  readMap(oGrid);   // Read a map in from the file map.txt
-  printMap(oGrid);  // Print the map on the screen
-
-  // Plan handling
-  pLength = readPlanLength(); // Find out how long the plan is from plan.txt
-  plan = new double[pLength]; // Create enough space to store the plan
-  readPlan(plan, pLength);    // Read the plan from the file plan.txt.
-  printPlan(plan,pLength);    // Print the plan on the screen
-
   // Create robot with lasers enabled and movement+rotation scaled up by 1.35
   Robot robot(true, 1.35, 1.35);
 
@@ -211,13 +194,19 @@ void writePlan(double* plan, int length)
  */ 
 std::vector<Vector2> getWaypoints()
 {
+  // The occupancy grid
+  int oGrid[SIZE][SIZE];
+
+  // Print the map to the console
+  readMap(oGrid);
+  printMap(oGrid);
+
   // The set of coordinates that makes up the plan
   int pLength = readPlanLength();     // Find out how long the plan
   double *plan = new double[pLength]; // Create enough space to store the plan
 
   readPlan (plan, pLength);  // Read the plan
   printPlan(plan, pLength);  // Print the plan on the screen
-  writePlan(plan, pLength);  // Write the plan
 
   // create waypoints vector
   std::vector<Vector2> vec;
@@ -247,7 +236,7 @@ void followPlan(std::vector<Vector2>& waypoints, Robot& robot)
     std::cout << "\nNow moving to coordinate: " << waypoints[i] << "\n";
 
     // move to given location
-    robot.moveToWaypoint(waypoints[i], bumperState, 3.0, 1.0, 0.3);
+    robot.moveToWaypoint(waypoints[i], bumperState, 3.0, 1.0, 0.2);
 
     // report the robot's actual final location
     std::cout << "Now at the following position:\n";
