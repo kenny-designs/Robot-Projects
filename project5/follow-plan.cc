@@ -14,6 +14,7 @@ int  readPlanLength();
 void readPlan (double* plan, int length);
 void printPlan(double* plan, int length);  
 void writePlan(double* plan, int length);
+void followPlan(std::vector<Vector2>& waypoints, Robot& robot);
 std::vector<Vector2> getWaypoints();
 
 int main(int argc, char *argv[])
@@ -24,23 +25,17 @@ int main(int argc, char *argv[])
   // Generate waypoints needed to follow the given plan
   std::vector<Vector2> waypoints = getWaypoints();
 
-  // Determine how to handle bumper events
-  // SimpleBumper bumperState(TurnDirection::Left);
-  AutoPilot bumperState;
+  // follow the generated plan
+  followPlan(waypoints, robot);
 
-  // Follow the plan
-  for (int i = 0; i < waypoints.size(); ++i)
-  {
-    // print where we are heading to
-    std::cout << "\nNow moving to coordinate: " << waypoints[i] << "\n";
-
-    // move to given location
-    robot.moveToWaypoint(waypoints[i], bumperState, true, 3.0, 0.5, 0.3);
-
-    // report the robot's actual final location
-    std::cout << "Now at the following position:\n";
-    robot.printLocalizedPosition();
-  }
+  // TODO: remove
+  std::vector<Vector2> square;
+  square.push_back(Vector2(-3.0, -7.0));
+  square.push_back(Vector2(-3.0, -4.0));
+  square.push_back(Vector2(-6.0, -4.0));
+  square.push_back(Vector2(-6.0, -7.0));
+  
+  //while (1) followPlan(square, robot);
 }
 
 /**
@@ -147,4 +142,31 @@ std::vector<Vector2> getWaypoints()
   }
 
   return vec;
+}
+
+/**
+ * Has the robot follow a given series of waypoints
+ *
+ * @param waypoints - vector of waypoints for the robot to follow
+ * @param robot     - the robot that will be following the waypoints
+ */ 
+void followPlan(std::vector<Vector2>& waypoints, Robot& robot)
+{
+  // Determine how to handle bumper events
+  // SimpleBumper bumperState(TurnDirection::Left);
+  AutoPilot bumperState;
+
+  // Follow the plan
+  for (int i = 0; i < waypoints.size(); ++i)
+  {
+    // print where we are heading to
+    std::cout << "\nNow moving to coordinate: " << waypoints[i] << "\n";
+
+    // move to given location
+    robot.moveToWaypoint(waypoints[i], bumperState, 3.0, 1.0, 0.1);
+
+    // report the robot's actual final location
+    std::cout << "Now at the following position:\n";
+    robot.printLocalizedPosition();
+  }
 }
