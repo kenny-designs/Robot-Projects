@@ -9,9 +9,14 @@ public class MapPlanner {
 	public static void main(String[] args) {
 
 		int[][] oGrid = new int[MAX_SIZE][MAX_SIZE];
+		ArrayList<Double> plan = new ArrayList<>();
+		
 		readMap(oGrid);
 		printMap(oGrid);
 		writeMap(oGrid);
+		
+		readPlan(plan);
+		System.out.println(plan.toString());
 	}
 
 	static // Read a map in from the file map.txt
@@ -68,15 +73,27 @@ public class MapPlanner {
 
 	}
 
-	void readPlan() {
+	static ArrayList<Double> readPlan(ArrayList<Double> plan) {
+	File planFile = new File("plan.txt");
+	try {
+		Scanner in = new Scanner(planFile);
+		in.next(); // Skip first value
+		while(in.hasNext()) {
+			plan.add(in.nextDouble());
+		}
+		return plan;
+	} catch (FileNotFoundException e) {
+		System.out.println("File not found! Exiting!");
+		System.exit(0);
+	}
+	return null;
+	}
+
+	static void printPlan() {
 
 	}
 
-	void printPlan() {
-
-	}
-
-	void writePlan() {
+	static void writePlan() {
 
 	}
 }
