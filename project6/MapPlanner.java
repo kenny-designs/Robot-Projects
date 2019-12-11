@@ -1,5 +1,4 @@
 import java.util.Scanner;
-import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.io.*;
 
@@ -7,20 +6,25 @@ public class MapPlanner {
 	final static int MAX_SIZE = 32;
 
 	public static void main(String[] args) {
-
+		//General Declarations
 		int[][] oGrid = new int[MAX_SIZE][MAX_SIZE];
 		ArrayList<Double> plan = new ArrayList<>();
-
+		
+		//Map Operations
 		readMap(oGrid);
 		printMap(oGrid);
 		writeMap(oGrid);
-
+		
+		//Plan Operations
 		readPlan(plan);
-		System.out.println(plan.toString());
+		printPlan(plan);
+		writePlan(plan);
 	}
+
 	/**
-	 * This method takes in a 2D array and updates it with the values
-	 * of the given file
+	 * This method takes in a 2D array and updates it with the values of the given
+	 * file
+	 * 
 	 * @param oMap -- Occupancy Map
 	 */
 	static // Read a map in from the file map.txt
@@ -41,9 +45,11 @@ public class MapPlanner {
 			System.exit(0);
 		}
 	}
+
 	/**
-	 * Take a 2D array as a parameter and writes the new map to
-	 * a file named "map-out.txt"
+	 * Take a 2D array as a parameter and writes the new map to a file named
+	 * "map-out.txt"
+	 * 
 	 * @param oMap -- Occupancy Map
 	 */
 	static // Write a map out to the file map-out.txt
@@ -67,9 +73,10 @@ public class MapPlanner {
 			e.printStackTrace();
 		}
 	}
+
 	/**
-	 * Takes in a 2D array and iterates through the values
-	 * and prints to the console
+	 * Takes in a 2D array and iterates through the values and prints to the console
+	 * 
 	 * @param oMap - Occupancy Map
 	 */
 	static // Print the map on the screen
@@ -81,8 +88,10 @@ public class MapPlanner {
 			System.out.println();
 		}
 	}
+
 	/**
 	 * Opens the file "plan.txt" and returns the first integer.
+	 * 
 	 * @return pLength - Plan Length (How many Coordinates)
 	 */
 	static int getPlanLength() {
@@ -99,13 +108,15 @@ public class MapPlanner {
 		}
 		return 0;
 	}
+
 	/**
 	 * Takes an ArrayList of doubles from the file plan.txt
 	 * <p>
-	 * Since the first value is not a cordinate it is skipped with
-	 * in.next() before the loop begins
+	 * Since the first value is not a cordinate it is skipped with in.next() before
+	 * the loop begins
+	 * 
 	 * @param plan -- An ArrayList containing the doubles for the cordinates
-	 * @return plan | 0
+	 * @return plan | Null
 	 */
 	static ArrayList<Double> readPlan(ArrayList<Double> plan) {
 		File planFile = new File("plan.txt");
@@ -125,11 +136,44 @@ public class MapPlanner {
 		return null;
 	}
 
-	static void printPlan() {
-
+	/***
+	 * Takes the ArrayList of coordinates and prints to the console.
+	 * 
+	 * @param plan -- ArrayList of coordinates
+	 */
+	static void printPlan(ArrayList<Double> plan) {
+		System.out.println();
+		System.out.print("   x     y\n");
+		for (int i = 0; i < plan.size(); i++) {
+			System.out.printf("%5.1f ", plan.get(i));
+			if ((i > 0) && ((i % 2) != 0)) {
+				System.out.println();
+			}
+		}
+		System.out.println();
 	}
+	/**
+	 * Takes the ArrayList of type double and writes how many coordinates first,
+	 * followed by the coordinates themselves.
+	 * @param plan -- ArrayList of coordinates
+	 */
+	static void writePlan(ArrayList<Double> plan) {
+		File planFile = new File("plan-out.txt");
+		try {
+			PrintWriter printer = new PrintWriter(planFile);
 
-	static void writePlan() {
+			printer.print(getPlanLength() + " ");
+			for (int i = 0; i < getPlanLength(); i++) {
 
+				printer.print(plan.get(i) + " ");
+			}
+
+			printer.close();
+		} catch (
+
+		FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
