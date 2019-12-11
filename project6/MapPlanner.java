@@ -10,15 +10,19 @@ public class MapPlanner {
 
 		int[][] oGrid = new int[MAX_SIZE][MAX_SIZE];
 		ArrayList<Double> plan = new ArrayList<>();
-		
+
 		readMap(oGrid);
 		printMap(oGrid);
 		writeMap(oGrid);
-		
+
 		readPlan(plan);
 		System.out.println(plan.toString());
 	}
-
+	/**
+	 * This method takes in a 2D array and updates it with the values
+	 * of the given file
+	 * @param oMap -- Occupancy Map
+	 */
 	static // Read a map in from the file map.txt
 	void readMap(int[][] oMap) {
 		File mapFile = new File("map.txt");
@@ -30,13 +34,18 @@ public class MapPlanner {
 				}
 
 			}
+			in.close();
 		} catch (FileNotFoundException e) {
 			System.out.println("File not found. Exiting");
 			System.exit(0);
 			e.printStackTrace();
 		}
 	}
-
+	/**
+	 * Take a 2D array as a parameter and writes the new map to
+	 * a file named "map-out.txt"
+	 * @param oMap -- Occupancy Map
+	 */
 	static // Write a map out to the file map-out.txt
 	void writeMap(int[][] oMap) {
 		File mapFile = new File("map-out.txt");
@@ -58,7 +67,11 @@ public class MapPlanner {
 			e.printStackTrace();
 		}
 	}
-
+	/**
+	 * Takes in a 2D array and iterates through the values
+	 * and prints to the console
+	 * @param oMap - Occupancy Map
+	 */
 	static // Print the map on the screen
 	void printMap(int[][] oMap) {
 		for (int i = MAX_SIZE - 1; i >= 0; i--) {
@@ -68,25 +81,46 @@ public class MapPlanner {
 			System.out.println();
 		}
 	}
-
-	void readPlanLength() {
-
-	}
-
-	static ArrayList<Double> readPlan(ArrayList<Double> plan) {
-	File planFile = new File("plan.txt");
-	try {
-		Scanner in = new Scanner(planFile);
-		in.next(); // Skip first value
-		while(in.hasNext()) {
-			plan.add(in.nextDouble());
+	/**
+	 * Opens the file "plan.txt" and returns the first integer.
+	 * @return pLength - Plan Length (How many Coordinates)
+	 */
+	static int getPlanLength() {
+		File planFile = new File("plan.txt");
+		try {
+			Scanner in = new Scanner(planFile);
+			int pLength = in.nextInt();
+			in.close();
+			return pLength;
+		} catch (FileNotFoundException e) {
+			System.out.println("File Not Found! Exiting!");
+			System.exit(0);
 		}
-		return plan;
-	} catch (FileNotFoundException e) {
-		System.out.println("File not found! Exiting!");
-		System.exit(0);
+		return 0;
 	}
-	return null;
+	/**
+	 * Takes an ArrayList of doubles from the file plan.txt
+	 * <p>
+	 * Since the first value is not a cordinate it is skipped with
+	 * in.next() before the loop begins
+	 * @param plan -- An ArrayList containing the doubles for the cordinates
+	 * @return plan | 0
+	 */
+	static ArrayList<Double> readPlan(ArrayList<Double> plan) {
+		File planFile = new File("plan.txt");
+		try {
+			Scanner in = new Scanner(planFile);
+			in.next(); // Skip first value
+			while (in.hasNext()) {
+				plan.add(in.nextDouble());
+			}
+			in.close();
+			return plan;
+		} catch (FileNotFoundException e) {
+			System.out.println("File not found! Exiting!");
+			System.exit(0);
+		}
+		return null;
 	}
 
 	static void printPlan() {
