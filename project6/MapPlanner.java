@@ -37,8 +37,8 @@ public class MapPlanner {
 			in.close();
 		} catch (FileNotFoundException e) {
 			System.out.println("File not found. Exiting");
-			System.exit(0);
 			e.printStackTrace();
+			System.exit(0);
 		}
 	}
 	/**
@@ -94,6 +94,7 @@ public class MapPlanner {
 			return pLength;
 		} catch (FileNotFoundException e) {
 			System.out.println("File Not Found! Exiting!");
+			e.printStackTrace();
 			System.exit(0);
 		}
 		return 0;
@@ -118,6 +119,7 @@ public class MapPlanner {
 			return plan;
 		} catch (FileNotFoundException e) {
 			System.out.println("File not found! Exiting!");
+			e.printStackTrace();
 			System.exit(0);
 		}
 		return null;
