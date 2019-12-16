@@ -42,8 +42,8 @@ public class Graph {
       // populate the vertexList with the vertices
       for (int i = 0; i < MAX_VERTS; i++) {
         vertexList[i] = new Vertex((in.nextInt() == 1),
-                                    (double)(i % SIDE_LENGTH) / 2.0,
-                                    (double)(i / SIDE_LENGTH) / 2.0);
+                                    (double)(i % SIDE_LENGTH) / 2.0 - 8.0,
+                                    8.0 - (double)(i / SIDE_LENGTH) / 2.0);
       }
 
       // connect vertices in as you would a 2D grid
@@ -69,15 +69,17 @@ public class Graph {
   /**
    * Obtains the path between 2 points
    *
-   * @param startX - x coord of the starting location
-   * @param startY - y coord of the starting location
-   * @param goalX  - x coord of the end location
-   * @param goalY  - y coord of the end location
+   * @param start - coord of the starting location
+   * @param goal  - coord of the end location
    */ 
-  public LinkedList<Point2D.Double> getPath(int startX, int startY, int goalX, int goalY) {
-    // TODO: account for negative coords for the actual robot
-    int startIndex = startX + SIDE_LENGTH * startY;
-    int goalIndex  = goalX + SIDE_LENGTH * goalY;
+  public LinkedList<Point2D.Double> getPath(Point2D.Double start,
+                                            Point2D.Double goal) {
+
+    convertToSingleQuad(start);
+    convertToSingleQuad(goal);
+
+    int startIndex = (int)start.x + SIDE_LENGTH * (int)start.y;
+    int goalIndex  = (int)goal.x + SIDE_LENGTH * (int)goal.y;
 
     // creating path
     Queue<Vertex> queue = new LinkedList<>();
@@ -160,5 +162,17 @@ public class Graph {
         }
       }
     }
+  }
+
+  /**
+   * Converts a given Point2D.Double four quadrant point to a single quadrant one
+   * that the Graph can use
+   */
+  public void convertToSingleQuad(Point2D.Double pt) {
+    double sl = (double)SIDE_LENGTH;
+    double sl_2 = sl / 2.0;
+
+    pt.x = 2.0 * pt.x + sl_2;
+    pt.y = sl - (2.0 * pt.y + sl_2);
   }
 }

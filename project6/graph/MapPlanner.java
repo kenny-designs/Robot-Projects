@@ -12,7 +12,15 @@ public class MapPlanner {
   public static void main(String[] args) {
     Graph graph = new Graph(MAX_SIZE, "map.txt");
     graph.dilate();
-    LinkedList<Point2D.Double> plan = graph.getPath(11, 28, 29, 3);
+
+    // create points for the locations are are moving to
+    Point2D.Double start = new Point2D.Double(-2.5, -6.0);
+    Point2D.Double goal  = new Point2D.Double(6.5, 6.5);
+
+    // create a plan to go from the start to the goal
+    LinkedList<Point2D.Double> plan = graph.getPath(start, goal);
+
+    // print the map
     graph.printMap();
 
     // print the final plan
@@ -100,13 +108,11 @@ public class MapPlanner {
    * @param plan -- LinkedList of coordinates
    */
   static void printPlan(LinkedList<Point2D.Double> plan) {
-    System.out.println();
-    System.out.print("    x     y\n");
+    System.out.print("\n    x     y\n");
 
     for (Point2D.Double pt : plan) {
       System.out.printf("%5.1f %5.1f\n", pt.x, pt.y);
     }
-    System.out.println();
   }
 
   /**
