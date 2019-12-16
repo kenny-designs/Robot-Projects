@@ -14,6 +14,7 @@ public class MapPlanner {
 
     // TODO: testing grid
     Graph graph = new Graph(MAX_SIZE, "map.txt");
+    graph.dilate();
     graph.getPath(11, 28, 29, 3);
     graph.printMap();
 

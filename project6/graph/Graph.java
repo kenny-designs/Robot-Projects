@@ -131,4 +131,23 @@ public class Graph {
     }
     System.out.println();
   }
+
+  /**
+   * Dilates all occupied vertices
+   */ 
+  public void dilate() {
+    LinkedList<Vertex> occupiedVerts = new LinkedList<>();
+    for (Vertex v : vertexList) {
+      if (v.isOccupied) occupiedVerts.add(v);
+    }
+
+    for (Vertex parentVert : occupiedVerts) {
+      for (Vertex childVert : parentVert.adjVerts) {
+        if (childVert != null) {
+          childVert.isOccupied = true;
+          childVert.pathNum = 1;
+        }
+      }
+    }
+  }
 }
