@@ -4,18 +4,16 @@ import java.util.LinkedList;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.FileNotFoundException;
-import java.awt.Point;
+import java.awt.geom.Point2D;
 
 public class MapPlanner {
   final static int MAX_SIZE = 32;
 
   public static void main(String[] args) {
-    // TODO: testing grid
     Graph graph = new Graph(MAX_SIZE, "map.txt");
     graph.dilate();
-    LinkedList<Point> plan = graph.getPath(11, 28, 29, 3);
+    LinkedList<Point2D.Double> plan = graph.getPath(11, 28, 29, 3);
     graph.printMap();
-
 
     // print the final plan
     printPlan(plan);
@@ -101,12 +99,12 @@ public class MapPlanner {
    *
    * @param plan -- LinkedList of coordinates
    */
-  static void printPlan(LinkedList<Point> plan) {
+  static void printPlan(LinkedList<Point2D.Double> plan) {
     System.out.println();
     System.out.print("    x     y\n");
 
-    for (Point pt : plan) {
-      System.out.printf("%5d %5d\n", pt.x, pt.y);
+    for (Point2D.Double pt : plan) {
+      System.out.printf("%5.1f %5.1f\n", pt.x, pt.y);
     }
     System.out.println();
   }

@@ -8,9 +8,9 @@ public class Vertex
   public boolean wasVisited;
   public int pathNum;
   public Vertex[] adjVerts;
-  public int x, y;
+  public double x, y;
 
-  public Vertex(boolean isOccupied, int x, int y)
+  public Vertex(boolean isOccupied, double x, double y)
   {
     this.isOccupied = isOccupied;
     this.x = x;
