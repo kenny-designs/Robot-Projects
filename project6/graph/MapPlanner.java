@@ -13,7 +13,7 @@ public class MapPlanner {
     graph.dilate();
 
     // create points for the locations are are moving to
-    Point2D.Double start = new Point2D.Double(-2.5, -6.0);
+    Point2D.Double start = new Point2D.Double(-6.0, -6.0);
     Point2D.Double goal  = new Point2D.Double(6.5, 6.5);
 
     // create a plan to go from the start to the goal
