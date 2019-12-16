@@ -20,54 +20,86 @@ public class Graph {
    * @param mapFileName - Name of the file to load in for the map
    */ 
   Graph(int sideLength, String mapFileName) {
+    // set default values
     SIDE_LENGTH = sideLength;
     MAX_VERTS   = SIDE_LENGTH * SIDE_LENGTH;
 
-    // create arrays for both vertices and their adjacency matrix
+    // create an array to hold all of our vertices
     vertexList = new Vertex[MAX_VERTS];
 
     // read in our map vertex data
     readMap(mapFileName);
+
+    // connect all vertices
+    connectVertices();
   }
 
   /**
-   * Reads in map from a given *.txt file
-   *
-   * @param mapFileName - Name of the file to load in for the map
-   */
-  void readMap(String mapFileName) {
-    try {
-      // create the file we wish to read in
-      File mapFile = new File(mapFileName);
-      Scanner in   = new Scanner(mapFile);
+   * Iterates over the vertexList and creates edges between all vertices and their
+   * adjacent neighbors.
+   */ 
+  private void connectVertices() {
+    // alias for SIDE_LENGTH to aid readability
+    int sl = SIDE_LENGTH;
 
-      // populate the vertexList with the vertices
-      for (int i = 0; i < MAX_VERTS; i++) {
-        vertexList[i] = new Vertex((in.nextInt() == 1),
-                                    (double)(i % SIDE_LENGTH) / 2.0 - 8.0,
-                                    8.0 - (double)(i / SIDE_LENGTH) / 2.0);
-      }
-
-      // connect vertices in as you would a 2D grid
-      Vertex top, right, bottom, left;
-      int sl = SIDE_LENGTH;
-      for (int i = 0; i < MAX_VERTS; i++) {
-        top    = i - sl < 0                  ? null : vertexList[i - sl];
-        right  = i + 1  >= sl * (i / sl + 1) ? null : vertexList[i + 1];
-        bottom = i + sl >= MAX_VERTS         ? null : vertexList[i + sl];
-        left   = i - 1  <= sl * (i / sl)     ? null : vertexList[i - 1];
-
-        vertexList[i].setNeighbors(top, right, bottom, left);
-      }
-
-      in.close();
-    }
-    catch (FileNotFoundException e) {
-      System.out.println("File not found. Exiting");
-      e.printStackTrace();
-      System.exit(0);
+    // connect each vertex to its adjacent neighbors
+    for (int i = 0; i < MAX_VERTS; i++) {
+      vertexList[i].setNeighbors(
+          i - sl < 0                  ? null : vertexList[i - sl], // top
+          i + 1  >= sl * (i / sl + 1) ? null : vertexList[i + 1],  // right
+          i + sl >= MAX_VERTS         ? null : vertexList[i + sl], // bottom
+          i - 1  <= sl * (i / sl)     ? null : vertexList[i - 1]   // left
+      );
     }
   }
+
+  /**
+   * Marks the path between a start and goal point.
+   *
+   * @return true if a path can be made. False otherwise.
+   */ 
+  private boolean markPathWavefront(int startIndex, int goalIndex) {
+    // create a queue to allow us to explore vertices one level at a time
+    Queue<Vertex> queue = new LinkedList<>();
+
+    // add the goal to the queue and mark was visited
+    vertexList[goalIndex].wasVisited = true;
+    queue.add(vertexList[goalIndex]);
+
+    // search for the starting vertex until we find it or run out of vertices
+    boolean isFound = false;
+    while(!queue.isEmpty() && !isFound) {
+      // dequeue the front vertex of the queue
+      Vertex front = queue.poll();
+
+      // mark each neighbor of the front vertex until we find the starting one
+      for (Vertex v : front.adjVerts) {
+        // skip the vertex it doesn't exist, is occupied, or was already visited
+        if (v == null || v.isOccupied || v.wasVisited) continue;
+
+        // mark the vertex's order for the wavefront algorithm and tag it as visited
+        v.pathNum = front.pathNum + 1;
+        v.wasVisited = true;
+
+        // check if this is our starting index, break if so
+        if (v == vertexList[startIndex]) {
+          isFound = true;
+          break;
+        }
+
+        // enqueue the vertex so we can check its neighbors too
+        queue.add(v);
+      }
+    }
+
+    return isFound;
+  }
+
+
+  /*
+  private LinkedList<Point2D.Double> getWaypointsWavefront(){
+  }
+  */
 
   /**
    * Obtains the path between 2 points
@@ -75,38 +107,25 @@ public class Graph {
    * @param start - coord of the starting location
    * @param goal  - coord of the end location
    */ 
-  public LinkedList<Point2D.Double> getPath(Point2D.Double start,
-                                            Point2D.Double goal) {
-
+  public LinkedList<Point2D.Double> getWaypoints(Point2D.Double start,
+                                                 Point2D.Double goal) {
     convertToSingleQuad(start);
     convertToSingleQuad(goal);
 
     int startIndex = (int)start.x + SIDE_LENGTH * (int)start.y;
-    int goalIndex  = (int)goal.x + SIDE_LENGTH * (int)goal.y;
+    int goalIndex  = (int) goal.x + SIDE_LENGTH * (int) goal.y;
 
-    // creating path
-    Queue<Vertex> queue = new LinkedList<>();
-    vertexList[goalIndex].wasVisited = true;
-    queue.add(vertexList[goalIndex]);
-    boolean isFound = false;
-    while(!queue.isEmpty() && !isFound) {
-      Vertex top = queue.poll();
-      for (int i = 0; i < top.adjVerts.length; i++) {
-        Vertex v = top.adjVerts[i];
-        if (v == null || v.isOccupied || v.wasVisited) {
-          continue;
-        }
-        else {
-          v.pathNum = top.pathNum + 1;
-          v.wasVisited = true;
-          if (v == vertexList[startIndex]) {
-            isFound = true;
-            break;
-          }
+    // mark the path between the start and goal points via the wavefront algorithm
+    boolean isPathPossible = markPathWavefront(startIndex, goalIndex);
 
-          queue.add(v);
-        }
-      }
+    // if a path is not possible, return null and warn the user
+    if (!isPathPossible) {
+      System.out.printf(
+          "ERROR! Cannot find path between points (%.1f, %.1f) and (%.1f %.1f).\n",
+          start.x, start.y, goal.x, goal.y
+      );
+
+      return null;
     }
 
     // create a list of waypoints for the robot to follow
@@ -132,20 +151,9 @@ public class Graph {
 
     // add the final point
     waypoints.add(new Point2D.Double(vertexList[goalIndex].x,
-                            vertexList[goalIndex].y));
+                                     vertexList[goalIndex].y));
 
     return waypoints;
-  }
-
-  /**
-   * Prints the graph to the console
-   */
-  public void printMap() {
-    for (int i = 0; i < MAX_VERTS; i++) {
-      if (i % SIDE_LENGTH == 0) System.out.println();
-      System.out.printf("%2d ", vertexList[i].isOccupied ? 1 : vertexList[i].pathNum);
-    }
-    System.out.println();
   }
 
   /**
@@ -177,5 +185,52 @@ public class Graph {
 
     pt.x = 2.0 * pt.x + sl_2;
     pt.y = sl - (2.0 * pt.y + sl_2);
+  }
+
+  /**
+   * Reads in map from a given *.txt file
+   *
+   * @param mapFileName - Name of the file to load in for the map
+   */
+  void readMap(String mapFileName) {
+    try {
+      // create the file we wish to read in
+      File mapFile = new File(mapFileName);
+      Scanner in   = new Scanner(mapFile);
+
+      // declare variables to help with vertex creation
+      double sl_4 = (double)(SIDE_LENGTH) / 4.0;
+      double x, y;
+      boolean isOccupied;
+
+      // populate the vertexList with vertices
+      for (int i = 0; i < MAX_VERTS; i++) {
+        // determine if the new vertex is occupied and what its coords are
+        isOccupied = in.nextInt() == 1;
+        x          = (double)(i % SIDE_LENGTH) / 2.0 - sl_4;
+        y          = sl_4 - (double)(i / SIDE_LENGTH) / 2.0;
+
+        // add the new vertex to the list
+        vertexList[i] = new Vertex(isOccupied, x, y);
+      }
+
+      in.close();
+    }
+    catch (FileNotFoundException e) {
+      System.out.println("File not found. Exiting");
+      e.printStackTrace();
+      System.exit(0);
+    }
+  }
+
+  /**
+   * Prints the graph to the console
+   */
+  public void printMap() {
+    for (int i = 0; i < MAX_VERTS; i++) {
+      if (i % SIDE_LENGTH == 0) System.out.println();
+      System.out.printf("%2d ", vertexList[i].isOccupied ? 1 : vertexList[i].pathNum);
+    }
+    System.out.println();
   }
 }

@@ -17,7 +17,7 @@ public class MapPlanner {
     Point2D.Double goal  = new Point2D.Double(6.5, 6.5);
 
     // create a plan to go from the start to the goal
-    LinkedList<Point2D.Double> plan = graph.getPath(start, goal);
+    LinkedList<Point2D.Double> plan = graph.getWaypoints(start, goal);
 
     // print the map
     graph.printMap();
