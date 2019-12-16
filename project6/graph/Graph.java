@@ -16,22 +16,24 @@ public class Graph {
   /**
    * Creates a new 2D grid graph data-structure
    *
-   * @param sideLength - The length of one side of the graph
+   * @param sideLength  - The length of one side of the graph
+   * @param mapFileName - Name of the file to load in for the map
    */ 
   Graph(int sideLength, String mapFileName) {
-    // setup the max and current number of vertices
     SIDE_LENGTH = sideLength;
     MAX_VERTS   = SIDE_LENGTH * SIDE_LENGTH;
 
     // create arrays for both vertices and their adjacency matrix
     vertexList = new Vertex[MAX_VERTS];
 
-    // read in our vertex data
+    // read in our map vertex data
     readMap(mapFileName);
   }
 
   /**
    * Reads in map from a given *.txt file
+   *
+   * @param mapFileName - Name of the file to load in for the map
    */
   void readMap(String mapFileName) {
     try {
@@ -48,13 +50,14 @@ public class Graph {
 
       // connect vertices in as you would a 2D grid
       Vertex top, right, bottom, left;
+      int sl = SIDE_LENGTH;
       for (int i = 0; i < MAX_VERTS; i++) {
-        vertexList[i].setNeighbors(
-            i - SIDE_LENGTH < 0 ? null : vertexList[i - SIDE_LENGTH],                // top
-            i + 1 >= SIDE_LENGTH * (i / SIDE_LENGTH + 1) ? null : vertexList[i + 1], // right
-            i + SIDE_LENGTH >= MAX_VERTS ? null : vertexList[i + SIDE_LENGTH],       // bottom
-            i - 1 <= SIDE_LENGTH * (i / SIDE_LENGTH) ? null : vertexList[i - 1]      // left
-        );
+        top    = i - sl < 0                  ? null : vertexList[i - sl];
+        right  = i + 1  >= sl * (i / sl + 1) ? null : vertexList[i + 1];
+        bottom = i + sl >= MAX_VERTS         ? null : vertexList[i + sl];
+        left   = i - 1  <= sl * (i / sl)     ? null : vertexList[i - 1];
+
+        vertexList[i].setNeighbors(top, right, bottom, left);
       }
 
       in.close();
