@@ -3,6 +3,7 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.util.Queue;
 import java.util.LinkedList;
+import java.awt.Point; // 2D points for waypoints
 
 /**
  * Holds a 2D graph of vertices to represent a square grid
@@ -40,7 +41,7 @@ public class Graph {
 
       // populate the vertexList with the vertices
       for (int i = 0; i < MAX_VERTS; i++) {
-        vertexList[i] = new Vertex((in.nextInt() == 1));
+        vertexList[i] = new Vertex((in.nextInt() == 1), i % SIDE_LENGTH, i / SIDE_LENGTH);
       }
 
       // connect vertices in as you would a 2D grid
@@ -71,7 +72,7 @@ public class Graph {
    * @param goalX  - x coord of the end location
    * @param goalY  - y coord of the end location
    */ 
-  public void getPath(int startX, int startY, int goalX, int goalY) {
+  public LinkedList<Point> getPath(int startX, int startY, int goalX, int goalY) {
     // TODO: account for negative coords for the actual robot
     int startIndex = startX + SIDE_LENGTH * startY;
     int goalIndex  = goalX + SIDE_LENGTH * goalY;
@@ -101,24 +102,32 @@ public class Graph {
       }
     }
 
+    // create a list of waypoints for the robot to follow
+    LinkedList<Point> waypoints = new LinkedList<>();
+
     // now unwind
     Vertex cur = vertexList[startIndex];
+    int lastDir = -1;
     while (cur.pathNum != 0) {
-      /*
-      printMap();
-      try { System.in.read(); } catch(Exception e) {}
-      System.out.println("Current is: " + cur);
-      cur.printNeighbors();
-      */
-
-      for (Vertex v : cur.adjVerts) {
-        if (v != null && v.pathNum == cur.pathNum - 1) {
+      for (int i = 0; i < cur.adjVerts.length; i++) {
+        if (cur.adjVerts[i] != null && cur.adjVerts[i].pathNum == cur.pathNum - 1) {
           cur.pathNum = -5;
-          cur = v;
+
+          if (i != lastDir) {
+            lastDir = i;
+            waypoints.add(new Point(cur.x, cur.y));
+          }
+          cur = cur.adjVerts[i];
           break;
         }
       }
     }
+
+    // add the final point
+    waypoints.add(new Point(vertexList[goalIndex].x,
+                            vertexList[goalIndex].y));
+
+    return waypoints;
   }
 
   /**

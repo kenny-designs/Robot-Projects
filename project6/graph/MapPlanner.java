@@ -1,58 +1,25 @@
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.FileNotFoundException;
+import java.awt.Point;
 
 public class MapPlanner {
   final static int MAX_SIZE = 32;
 
   public static void main(String[] args) {
-    //General Declarations
-    int[][] oGrid = new int[MAX_SIZE][MAX_SIZE];
-    ArrayList<Double> plan = new ArrayList<>();
-
     // TODO: testing grid
     Graph graph = new Graph(MAX_SIZE, "map.txt");
     graph.dilate();
-    graph.getPath(11, 28, 29, 3);
+    LinkedList<Point> plan = graph.getPath(11, 28, 29, 3);
     graph.printMap();
 
-    //Map Operations
-    readMap(oGrid);
-    //printMap(oGrid);
-    writeMap(oGrid);
 
-    //Plan Operations
-    //readPlan(plan);
-
-    //printPlan(plan);
-    //writePlan(plan);
+    // print the final plan
+    printPlan(plan);
   }
-
-  /**
-   * This method takes in a 2D array and updates it with the values of the given
-   * file
-   *
-   * @param oMap -- Occupancy Map
-   */
-  static // Read a map in from the file map.txt
-    void readMap(int[][] oMap) {
-      File mapFile = new File("map.txt");
-      try {
-        Scanner in = new Scanner(mapFile);
-        for (int i = MAX_SIZE - 1; i >= 0; i--) {
-          for (int j = 0; j < MAX_SIZE; j++) {
-            oMap[i][j] = in.nextInt();
-          }
-        }
-        in.close();
-      } catch (FileNotFoundException e) {
-        System.out.println("File not found. Exiting");
-        e.printStackTrace();
-        System.exit(0);
-      }
-    }
 
   /**
    * Take a 2D array as a parameter and writes the new map to a file named
@@ -79,21 +46,6 @@ public class MapPlanner {
         // Should this ever be caught?
         // Probably not?
         e.printStackTrace();
-      }
-    }
-
-  /**
-   * Takes in a 2D array and iterates through the values and prints to the console
-   *
-   * @param oMap - Occupancy Map
-   */
-  static // Print the map on the screen
-    void printMap(int[][] oMap) {
-      for (int i = MAX_SIZE - 1; i >= 0; i--) {
-        for (int j = 0; j < MAX_SIZE; j++) {
-          System.out.print(oMap[i][j] + " ");
-        }
-        System.out.println();
       }
     }
 
@@ -144,22 +96,21 @@ public class MapPlanner {
     return null;
   }
 
-  /***
-   * Takes the ArrayList of coordinates and prints to the console.
+  /**
+   * Takes a LinkedList of coordinates and prints to the console.
    *
-   * @param plan -- ArrayList of coordinates
+   * @param plan -- LinkedList of coordinates
    */
-  static void printPlan(ArrayList<Double> plan) {
+  static void printPlan(LinkedList<Point> plan) {
     System.out.println();
-    System.out.print("   x     y\n");
-    for (int i = 0; i < plan.size(); i++) {
-      System.out.printf("%5.1f ", plan.get(i));
-      if ((i > 0) && ((i % 2) != 0)) {
-        System.out.println();
-      }
+    System.out.print("    x     y\n");
+
+    for (Point pt : plan) {
+      System.out.printf("%5d %5d\n", pt.x, pt.y);
     }
     System.out.println();
   }
+
   /**
    * Takes the ArrayList of type double and writes how many coordinates first,
    * followed by the coordinates themselves.
