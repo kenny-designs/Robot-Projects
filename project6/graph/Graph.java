@@ -56,6 +56,8 @@ public class Graph {
   /**
    * Marks the path between a start and goal point.
    *
+   * @param startIndex - the index of the starting vertex
+   * @param goalIndex  - the index of the goal vertex
    * @return true if a path can be made. False otherwise.
    */ 
   private boolean markPathWavefront(int startIndex, int goalIndex) {
@@ -95,11 +97,50 @@ public class Graph {
     return isFound;
   }
 
+  /**
+   * Follows the path created by markPathWavefront to generate waypoints.
+   *
+   * @param startIndex - the index of the vertex we are starting from
+   * @param goalIndex  - the index of the vertex we are heading towards
+   * @return LinkedList of the waypoints for the robot to follow
+   */ 
+  private LinkedList<Point2D.Double> generateWavefrontWaypoints(int startIndex,
+                                                                int goalIndex) {
+    // create a list of waypoints for the robot to follow
+    LinkedList<Point2D.Double> waypoints = new LinkedList<>();
 
-  /*
-  private LinkedList<Point2D.Double> getWaypointsWavefront(){
+    // set the current vertex to the the starting one
+    Vertex cur = vertexList[startIndex];
+
+    // unwind from the starting vertex until we run into the goal
+    int lastDir = -1;
+    while (cur.pathNum != 0) {
+      // look for adjacent vertex that comes before the current one
+      for (int i = 0; i < cur.adjVerts.length; i++) {
+        // check for adjacent vertex that comes before the current one
+        if (cur.adjVerts[i] != null && cur.adjVerts[i].pathNum == cur.pathNum - 1) {
+
+          // TODO: remove. Only used for visualizing
+          cur.pathNum = -5;
+
+          // if we change directions, add to waypoints
+          if (i != lastDir) {
+            lastDir = i;
+            waypoints.add(new Point2D.Double(cur.x, cur.y));
+          }
+
+          // since we found the next waypoint, set it to be the current one
+          cur = cur.adjVerts[i];
+          break;
+        }
+      }
+    }
+
+    // add the final point
+    waypoints.add(new Point2D.Double(vertexList[goalIndex].x,
+                                     vertexList[goalIndex].y));
+    return waypoints;
   }
-  */
 
   /**
    * Obtains the path between 2 points
@@ -128,32 +169,7 @@ public class Graph {
       return null;
     }
 
-    // create a list of waypoints for the robot to follow
-    LinkedList<Point2D.Double> waypoints = new LinkedList<>();
-
-    // now unwind
-    Vertex cur = vertexList[startIndex];
-    int lastDir = -1;
-    while (cur.pathNum != 0) {
-      for (int i = 0; i < cur.adjVerts.length; i++) {
-        if (cur.adjVerts[i] != null && cur.adjVerts[i].pathNum == cur.pathNum - 1) {
-          cur.pathNum = -5;
-
-          if (i != lastDir) {
-            lastDir = i;
-            waypoints.add(new Point2D.Double(cur.x, cur.y));
-          }
-          cur = cur.adjVerts[i];
-          break;
-        }
-      }
-    }
-
-    // add the final point
-    waypoints.add(new Point2D.Double(vertexList[goalIndex].x,
-                                     vertexList[goalIndex].y));
-
-    return waypoints;
+    return generateWavefrontWaypoints(startIndex, goalIndex);
   }
 
   /**
