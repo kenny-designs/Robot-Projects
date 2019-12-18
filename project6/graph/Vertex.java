@@ -43,7 +43,7 @@ public class Vertex {
   }
 
   /**
-   * Returns the string as vertex data.
+   * Returns vertex data as a string.
    *
    * @return 1 if the vertex is occupied. The pathNum otherwise
    */

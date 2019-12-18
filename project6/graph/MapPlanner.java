@@ -18,41 +18,14 @@ public class MapPlanner {
     // create a plan to go from the start to the goal
     LinkedList<Vertex> plan = graph.getWaypoints(start, goal);
 
-    // print the map
+    // print and write the map
     graph.printMap();
+    graph.writeMap();
 
-    // print the final plan
+    // print and write the final plan
     printPlan(plan);
     writePlan(plan);
   }
-
-  /**
-   * Take a 2D array as a parameter and writes the new map to a file named
-   * "map-out.txt"
-   *
-   * @param oMap -- Occupancy Map
-   */
-  static // Write a map out to the file map-out.txt
-    void writeMap(int[][] oMap) {
-      File mapFile = new File("map-out.txt");
-      try {
-        PrintWriter printer = new PrintWriter(mapFile);
-
-        for (int i = MAX_SIZE - 1; i >= 0; i--) {
-          for (int j = 0; j < MAX_SIZE; j++) {
-            printer.print(oMap[i][j] + " ");
-          }
-          printer.println();
-        }
-
-        printer.close();
-
-      } catch (FileNotFoundException e) {
-        // Should this ever be caught?
-        // Probably not?
-        e.printStackTrace();
-      }
-    }
 
   /**
    * Takes a LinkedList of coordinates and prints to the console.

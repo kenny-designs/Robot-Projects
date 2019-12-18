@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
+import java.io.PrintWriter;
 import java.util.Queue;
 import java.util.LinkedList;
 import java.awt.geom.Point2D; // 2D points for waypoints
@@ -270,7 +271,7 @@ public class Graph {
   }
 
   /**
-   * Prints the graph to the console
+   * Prints the graph to the console.
    */
   public void printMap() {
     for (int i = 0; i < MAX_VERTS; i++) {
@@ -278,5 +279,30 @@ public class Graph {
       System.out.printf("%2d ", vertexList[i].isOccupied ? 1 : vertexList[i].pathNum);
     }
     System.out.println();
+  }
+
+  /**
+   * Writes the map to a .txt file called map-out.txt.
+   */
+  public void writeMap() {
+    try {
+      // create the file we wish to write out to
+      File mapFile = new File("map-out.txt");
+      PrintWriter printer = new PrintWriter(mapFile);
+
+      // write the map to the file
+      for (int i = 0; i < MAX_VERTS; i++) {
+        if (i % SIDE_LENGTH == 0) printer.println();
+        printer.print(vertexList[i] + " ");
+      }
+
+      // save the file
+      printer.close();
+
+    } catch (FileNotFoundException e) {
+      System.out.println("Failed to write map to file. Exiting");
+      e.printStackTrace();
+      System.exit(0);
+    }
   }
 }
