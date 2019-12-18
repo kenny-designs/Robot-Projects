@@ -5,6 +5,7 @@
 public class Vertex {
   public boolean isOccupied;  // marks whether or not the vertex is occupied
   public boolean wasVisited;  // used for pathfinding algorithms
+  public boolean wasDilated;  // used to track which nodes were dilated
   public int pathNum;         // used with wavefront algorithm to indicate order
   public Vertex[] adjVerts;   // list of adjacent vertices (top, right, bottom, and left)
   public double x, y;         // location of the vertice in 2D space
@@ -21,6 +22,7 @@ public class Vertex {
     this.x          = x;
     this.y          = y;
     wasVisited      = false;
+    wasDilated      = false;
     pathNum         = 0;
     adjVerts        = new Vertex[4];
   }
@@ -59,5 +61,35 @@ public class Vertex {
         adjVerts[2] != null ? adjVerts[2].pathNum : -1,
         adjVerts[3] != null ? adjVerts[3].pathNum : -1
     );
+  }
+
+  /**
+   * Resets vertex visited state to false and pathNum to 0 or 1.
+   *
+   * @param v - vertex to be reset
+   */ 
+  public static void reset(Vertex v) {
+    v.wasVisited = false;
+
+    if (v.wasDilated) {
+      v.wasDilated = false;
+      v.isOccupied = false;
+    }
+
+    v.pathNum = v.isOccupied ? 1 : 0;
+  }
+
+  /**
+   * Dilates the node.
+   *
+   * @param v - vertex to be dilated
+   */ 
+  public static void dilate(Vertex v) {
+    // if already occupied, no need to dilate
+    if (v.isOccupied) return;
+
+    v.isOccupied = true;
+    v.wasDilated = true;
+    v.pathNum = 1;
   }
 }

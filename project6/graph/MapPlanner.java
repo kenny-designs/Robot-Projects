@@ -10,14 +10,13 @@ public class MapPlanner {
 
   public static void main(String[] args) {
     Graph graph = new Graph(MAX_SIZE, "map.txt");
-    graph.dilate();
 
     // create points for the locations are are moving to
     Point2D.Double start = new Point2D.Double(-6.0, -6.0);
     Point2D.Double goal  = new Point2D.Double(6.5, 6.5);
 
     // create a plan to go from the start to the goal
-    LinkedList<Point2D.Double> plan = graph.getWaypoints(start, goal);
+    LinkedList<Vertex> plan = graph.getWaypoints(start, goal);
 
     // print the map
     graph.printMap();
@@ -60,11 +59,11 @@ public class MapPlanner {
    *
    * @param plan -- LinkedList of coordinates
    */
-  static void printPlan(LinkedList<Point2D.Double> plan) {
+  static void printPlan(LinkedList<Vertex> plan) {
     System.out.print("\n    x     y\n");
 
-    for (Point2D.Double pt : plan) {
-      System.out.printf("%5.1f %5.1f\n", pt.x, pt.y);
+    for (Vertex v : plan) {
+      System.out.printf("%5.1f %5.1f\n", v.x, v.y);
     }
   }
 
@@ -73,14 +72,14 @@ public class MapPlanner {
    * followed by the coordinates themselves.
    * @param plan -- LinkedList of coordinates
    */
-  static void writePlan(LinkedList<Point2D.Double> plan) {
+  static void writePlan(LinkedList<Vertex> plan) {
     try {
       File planFile = new File("plan-out.txt");
       PrintWriter printer = new PrintWriter(planFile);
 
       printer.print((plan.size() * 2) + " ");
-      for (Point2D.Double pt : plan) {
-        printer.print(pt.x + " " + pt.y + " ");
+      for (Vertex v : plan) {
+        printer.print(v.x + " " + v.y + " ");
       }
 
       printer.close();

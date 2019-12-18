@@ -35,6 +35,15 @@ public class Graph {
   }
 
   /**
+   * Reset all vertices in the grid
+   */
+  private void resetAllVertices() {
+    for (Vertex v : vertexList) {
+      Vertex.reset(v);
+    }
+  }
+
+  /**
    * Iterates over the vertexList and creates edges between all vertices and their
    * adjacent neighbors.
    */ 
@@ -50,6 +59,26 @@ public class Graph {
           i + sl >= MAX_VERTS         ? null : vertexList[i + sl], // bottom
           i - 1  <= sl * (i / sl)     ? null : vertexList[i - 1]   // left
       );
+    }
+  }
+
+  /**
+   * Dilates all occupied vertices.
+   */ 
+  private void dilateOccupiedVertices() {
+    // create a list of all occupied vertices
+    LinkedList<Vertex> occupiedVerts = new LinkedList<>();
+    for (Vertex v : vertexList) {
+      if (v.isOccupied) occupiedVerts.add(v);
+    }
+
+    // for dilate each neighbor of the occupied vert
+    for (Vertex parentVert : occupiedVerts) {
+      for (Vertex childVert : parentVert.adjVerts) {
+        if (childVert != null) {
+          Vertex.dilate(childVert);
+        }
+      }
     }
   }
 
@@ -98,16 +127,17 @@ public class Graph {
   }
 
   /**
-   * Follows the path created by markPathWavefront to generate waypoints.
+   * Follows the path created by markPathWavefront() and returns the 
+   * generated waypoints.
    *
    * @param startIndex - the index of the vertex we are starting from
    * @param goalIndex  - the index of the vertex we are heading towards
    * @return LinkedList of the waypoints for the robot to follow
    */ 
-  private LinkedList<Point2D.Double> generateWavefrontWaypoints(int startIndex,
-                                                                int goalIndex) {
+  private LinkedList<Vertex> generateWavefrontWaypoints(int startIndex,
+                                                        int goalIndex) {
     // create a list of waypoints for the robot to follow
-    LinkedList<Point2D.Double> waypoints = new LinkedList<>();
+    LinkedList<Vertex> waypoints = new LinkedList<>();
 
     // set the current vertex to the the starting one
     Vertex cur = vertexList[startIndex];
@@ -126,7 +156,7 @@ public class Graph {
           // if we change directions, add to waypoints
           if (i != lastDir) {
             lastDir = i;
-            waypoints.add(new Point2D.Double(cur.x, cur.y));
+            waypoints.add(cur);
           }
 
           // since we found the next waypoint, set it to be the current one
@@ -137,8 +167,8 @@ public class Graph {
     }
 
     // add the final point
-    waypoints.add(new Point2D.Double(vertexList[goalIndex].x,
-                                     vertexList[goalIndex].y));
+    waypoints.add(vertexList[goalIndex]);
+
     return waypoints;
   }
 
@@ -147,14 +177,23 @@ public class Graph {
    *
    * @param start - coord of the starting location
    * @param goal  - coord of the end location
+   * @return list of vertices
    */ 
-  public LinkedList<Point2D.Double> getWaypoints(Point2D.Double start,
+  public LinkedList<Vertex> getWaypoints(Point2D.Double start,
                                                  Point2D.Double goal) {
+    // convert given coords to a scale of 0 to SIDE_LENGTH
     convertToSingleQuad(start);
     convertToSingleQuad(goal);
 
+    // find the start and end indices
     int startIndex = (int)start.x + SIDE_LENGTH * (int)start.y;
     int goalIndex  = (int) goal.x + SIDE_LENGTH * (int) goal.y;
+
+    // reset all vertices before making the path
+    resetAllVertices();
+
+    // dilate all vertices to account for walls
+    dilateOccupiedVertices();
 
     // mark the path between the start and goal points via the wavefront algorithm
     boolean isPathPossible = markPathWavefront(startIndex, goalIndex);
@@ -166,29 +205,20 @@ public class Graph {
           start.x, start.y, goal.x, goal.y
       );
 
+      resetAllVertices();
       return null;
     }
 
-    return generateWavefrontWaypoints(startIndex, goalIndex);
-  }
+    // obtain a list of vertices for the robot to follow
+    LinkedList<Vertex> waypoints = generateWavefrontWaypoints(startIndex, goalIndex);
+    resetAllVertices();
 
-  /**
-   * Dilates all occupied vertices
-   */ 
-  public void dilate() {
-    LinkedList<Vertex> occupiedVerts = new LinkedList<>();
-    for (Vertex v : vertexList) {
-      if (v.isOccupied) occupiedVerts.add(v);
+    // mark waypoints on the map
+    for (Vertex v : waypoints) {
+      v.pathNum = 2;
     }
 
-    for (Vertex parentVert : occupiedVerts) {
-      for (Vertex childVert : parentVert.adjVerts) {
-        if (childVert != null) {
-          childVert.isOccupied = true;
-          childVert.pathNum = 1;
-        }
-      }
-    }
+    return waypoints;
   }
 
   /**
