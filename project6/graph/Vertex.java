@@ -80,13 +80,29 @@ public class Vertex {
   }
 
   /**
-   * Dilates the node.
+   * Dilates all surrounding vertices similar to minesweeper.
+   *
+   * 0 0 0    1 1 1
+   * 0 1 0 -> 1 1 1
+   * 0 0 0    1 1 1
    *
    * @param v - vertex to be dilated
    */ 
   public static void dilate(Vertex v) {
-    // if already occupied, no need to dilate
-    if (v.isOccupied) return;
+    for (int i = 0; i < v.adjVerts.length; i++) {
+      if (v.adjVerts[i] == null) continue;
+      dilateSingleVert(v.adjVerts[i]);
+      dilateSingleVert(v.adjVerts[i].adjVerts[(i+1)%4]);
+    }
+  }
+
+  /**
+   * Dilates a single vertice.
+   *
+   * @param v - the vertex to have set dilated
+   */ 
+  private static void dilateSingleVert(Vertex v) {
+    if (v == null || v.isOccupied) return;
 
     v.isOccupied = true;
     v.wasDilated = true;

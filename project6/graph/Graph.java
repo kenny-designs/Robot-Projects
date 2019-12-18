@@ -73,13 +73,9 @@ public class Graph {
       if (v.isOccupied) occupiedVerts.add(v);
     }
 
-    // for dilate each neighbor of the occupied vert
-    for (Vertex parentVert : occupiedVerts) {
-      for (Vertex childVert : parentVert.adjVerts) {
-        if (childVert != null) {
-          Vertex.dilate(childVert);
-        }
-      }
+    // dilate each occupiedVert
+    for (Vertex occupiedVert : occupiedVerts) {  
+      Vertex.dilate(occupiedVert);
     }
   }
 
