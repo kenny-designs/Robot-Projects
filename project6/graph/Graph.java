@@ -204,7 +204,7 @@ public class Graph {
 
     // obtain a list of vertices for the robot to follow
     LinkedList<Vertex> waypoints = generateWavefrontWaypoints(startIndex, goalIndex);
-    //resetAllVertices();
+    resetAllVertices();
 
     // mark waypoints on the map
     for (Vertex v : waypoints) {
@@ -267,7 +267,7 @@ public class Graph {
    */
   public void printMap() {
     for (int i = 0; i < MAX_VERTS; i++) {
-      if (i % SIDE_LENGTH == 0) System.out.println();
+      if (i % SIDE_LENGTH == 0 && i != 0) System.out.println();
       System.out.printf("%2d ", vertexList[i].isOccupied ? 1 : vertexList[i].pathNum);
     }
     System.out.println();
@@ -284,7 +284,7 @@ public class Graph {
 
       // write the map to the file
       for (int i = 0; i < MAX_VERTS; i++) {
-        if (i % SIDE_LENGTH == 0) printer.println();
+        if (i % SIDE_LENGTH == 0 && i != 0) printer.println();
         printer.print(vertexList[i] + " ");
       }
 
