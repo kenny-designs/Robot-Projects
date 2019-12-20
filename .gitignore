@@ -1,0 +1,7 @@
+# Compiled class file
+*.class
+
+# visual studio
+.vscode/
+
+.idea/
